@@ -73,6 +73,7 @@ func main() {
 	// Mock out a profile to be used in the request.
 	// cli.Creds.Set("profiles.default.api_key", "e2beabc47d91ba16936c426aec03b83ef0389a9d80832c24662bc9ea3ab8575c")
 	cli.Root.AddCommand(completionCmd)
+	cli.Root.AddGroup(&cobra.Group{Group: "clouds", Title: "Clouds"})
 	// TODO: Add register commands here.
 	mistApiV2Register(false)
 	cli.Root.Execute()
