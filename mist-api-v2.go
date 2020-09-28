@@ -43,13 +43,21 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 
 	req := cli.Client.Get().URL(url)
 
-	paramFilter := params.GetString("filter")
-	if paramFilter != "" {
-		req = req.AddQuery("filter", fmt.Sprintf("%v", paramFilter))
+	paramSearch := params.GetString("search")
+	if paramSearch != "" {
+		req = req.AddQuery("search", fmt.Sprintf("%v", paramSearch))
 	}
 	paramSort := params.GetString("sort")
 	if paramSort != "" {
 		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
+	}
+	paramStart := params.GetString("start")
+	if paramStart != "" {
+		req = req.AddQuery("start", fmt.Sprintf("%v", paramStart))
+	}
+	paramLimit := params.GetInt64("limit")
+	if paramLimit != 0 {
+		req = req.AddQuery("limit", fmt.Sprintf("%v", paramLimit))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -122,9 +130,9 @@ func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, m
 	return resp, decoded, nil
 }
 
-// MistApiV2DeleteCloud Delete cloud
-func MistApiV2DeleteCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, error) {
-	handlerPath := "delete-cloud"
+// MistApiV2GetCloud Get cloud
+func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, error) {
+	handlerPath := "get-cloud"
 	if mistApiV2Subcommand {
 		handlerPath = "mist-api-v2 " + handlerPath
 	}
@@ -137,7 +145,7 @@ func MistApiV2DeleteCloud(paramCloud string, params *viper.Viper) (*gentleman.Re
 	url := server + "/api/v2/clouds/{cloud}"
 	url = strings.Replace(url, "{cloud}", paramCloud, 1)
 
-	req := cli.Client.Delete().URL(url)
+	req := cli.Client.Get().URL(url)
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -164,9 +172,9 @@ func MistApiV2DeleteCloud(paramCloud string, params *viper.Viper) (*gentleman.Re
 	return resp, decoded, nil
 }
 
-// MistApiV2GetCloud Get cloud
-func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, error) {
-	handlerPath := "get-cloud"
+// MistApiV2DeleteCloud Delete cloud
+func MistApiV2DeleteCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, error) {
+	handlerPath := "delete-cloud"
 	if mistApiV2Subcommand {
 		handlerPath = "mist-api-v2 " + handlerPath
 	}
@@ -179,7 +187,7 @@ func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Respo
 	url := server + "/api/v2/clouds/{cloud}"
 	url = strings.Replace(url, "{cloud}", paramCloud, 1)
 
-	req := cli.Client.Get().URL(url)
+	req := cli.Client.Delete().URL(url)
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -248,8 +256,10 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("filter", "", "Only return results matching filter")
+		cmd.Flags().String("search", "", "Only return results matching search filter")
 		cmd.Flags().String("sort", "", "Order results by")
+		cmd.Flags().String("start", "", "Start results from index or id")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
 
 		cli.SetCustomFlags(cmd)
 
@@ -304,15 +314,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-cloud cloud",
-			Short:   "Delete cloud",
-			Long:    cli.Markdown("Delete target cloud"),
+			Use:     "get-cloud cloud",
+			Short:   "Get cloud",
+			Long:    cli.Markdown("Get details about target cloud"),
 			Example: examples,
 			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, err := MistApiV2DeleteCloud(args[0], params)
+				_, decoded, err := MistApiV2GetCloud(args[0], params)
 				if err != nil {
 					log.Fatal().Err(err).Msg("Error calling operation")
 				}
@@ -339,15 +349,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-cloud cloud",
-			Short:   "Get cloud",
-			Long:    cli.Markdown("Get details about target cloud"),
+			Use:     "delete-cloud cloud",
+			Short:   "Delete cloud",
+			Long:    cli.Markdown("Delete target cloud"),
 			Example: examples,
 			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, err := MistApiV2GetCloud(args[0], params)
+				_, decoded, err := MistApiV2DeleteCloud(args[0], params)
 				if err != nil {
 					log.Fatal().Err(err).Msg("Error calling operation")
 				}
