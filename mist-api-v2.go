@@ -27,9 +27,9 @@ func mistApiV2Servers() []map[string]string {
 	}
 }
 
-// MistApiV2ListClouds List clouds
-func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]interface{}, error) {
-	handlerPath := "list-clouds"
+// MistApiV2AddCloud Add cloud
+func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, error) {
+	handlerPath := "add-cloud"
 	if mistApiV2Subcommand {
 		handlerPath = "mist-api-v2 " + handlerPath
 	}
@@ -41,7 +41,7 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 
 	url := server + "/api/v2/clouds"
 
-	req := cli.Client.Get().URL(url)
+	req := cli.Client.Post().URL(url)
 
 	paramSearch := params.GetString("search")
 	if paramSearch != "" {
@@ -85,9 +85,9 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 	return resp, decoded, nil
 }
 
-// MistApiV2AddCloud Add cloud
-func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, error) {
-	handlerPath := "add-cloud"
+// MistApiV2ListClouds List clouds
+func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]interface{}, error) {
+	handlerPath := "list-clouds"
 	if mistApiV2Subcommand {
 		handlerPath = "mist-api-v2 " + handlerPath
 	}
@@ -99,10 +99,23 @@ func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, m
 
 	url := server + "/api/v2/clouds"
 
-	req := cli.Client.Post().URL(url)
+	req := cli.Client.Get().URL(url)
 
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	paramSearch := params.GetString("search")
+	if paramSearch != "" {
+		req = req.AddQuery("search", fmt.Sprintf("%v", paramSearch))
+	}
+	paramSort := params.GetString("sort")
+	if paramSort != "" {
+		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
+	}
+	paramStart := params.GetString("start")
+	if paramStart != "" {
+		req = req.AddQuery("start", fmt.Sprintf("%v", paramStart))
+	}
+	paramLimit := params.GetInt64("limit")
+	if paramLimit != 0 {
+		req = req.AddQuery("limit", fmt.Sprintf("%v", paramLimit))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -601,15 +614,19 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-clouds",
-			Short:   "List clouds",
-			Long:    cli.Markdown("List clouds owned by the active org. READ permission required on cloud."),
+			Use:     "add-cloud",
+			Short:   "Add cloud",
+			Long:    cli.Markdown("Adds a new cloud and returns the cloud's id. ADD permission required on cloud.\n## Request Schema (application/json)\n\nproperties:\n  credentials:\n    $ref: '#/components/schemas/CloudCredentials'\n  features:\n    $ref: '#/components/schemas/CloudFeatures'\n  provider:\n    description: The provider of the cloud\n    enum:\n    - amazon\n    - digitalocean\n    - google\n    - openstack\n    - packet\n    - vsphere\n    type: string\n  title:\n    description: The name of the cloud to add\n    type: string\nrequired:\n- title\n- provider\n- credentials\ntype: object\n"),
 			Example: examples,
 			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:])
+				if err != nil {
+					log.Fatal().Err(err).Msg("Unable to get body")
+				}
 
-				_, decoded, err := MistApiV2ListClouds(params)
+				_, decoded, err := MistApiV2AddCloud(params, body)
 				if err != nil {
 					log.Fatal().Err(err).Msg("Error calling operation")
 				}
@@ -641,19 +658,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "add-cloud",
-			Short:   "Add cloud",
-			Long:    cli.Markdown("Adds a new cloud and returns the cloud's id. ADD permission required on cloud.\n## Request Schema (application/json)\n\nproperties:\n  credentials:\n    $ref: '#/components/schemas/CloudCredentials'\n  features:\n    $ref: '#/components/schemas/CloudFeatures'\n  provider:\n    description: The provider of the cloud\n    enum:\n    - amazon\n    - digitalocean\n    - google\n    - openstack\n    - packet\n    - vsphere\n    type: string\n  title:\n    description: The name of the cloud to add\n    type: string\nrequired:\n- title\n- provider\n- credentials\ntype: object\n"),
+			Use:     "list-clouds",
+			Short:   "List clouds",
+			Long:    cli.Markdown("List clouds owned by the active org. READ permission required on cloud."),
 			Example: examples,
 			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:])
-				if err != nil {
-					log.Fatal().Err(err).Msg("Unable to get body")
-				}
 
-				_, decoded, err := MistApiV2AddCloud(params, body)
+				_, decoded, err := MistApiV2ListClouds(params)
 				if err != nil {
 					log.Fatal().Err(err).Msg("Error calling operation")
 				}
@@ -665,6 +678,11 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
+
+		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("sort", "", "Order results by")
+		cmd.Flags().String("start", "", "Start results from index or id")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
 
 		cli.SetCustomFlags(cmd)
 
