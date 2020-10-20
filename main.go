@@ -70,10 +70,20 @@ func main() {
 	// Initialize the API key authentication.
 	apikey.Init("Authorization", apikey.LocationHeader)
 
-	// Mock out a profile to be used in the request.
-	// cli.Creds.Set("profiles.default.api_key", "e2beabc47d91ba16936c426aec03b83ef0389a9d80832c24662bc9ea3ab8575c")
+	// Add completion command
 	cli.Root.AddCommand(completionCmd)
-	cli.Root.AddGroup(&cobra.Group{Group: "clouds", Title: "Clouds"})
+
+	cli.Root.AddGroup(&cobra.Group{Group: "clouds", Title: "  # CLOUDS"})
+	cli.Root.AddGroup(&cobra.Group{Group: "machines", Title: "  # MACHINES"})
+	cli.Root.AddGroup(&cobra.Group{Group: "volumes", Title: "  # VOLUMES"})
+	cli.Root.AddGroup(&cobra.Group{Group: "networks", Title: "  # NETWORKS"})
+	cli.Root.AddGroup(&cobra.Group{Group: "zones", Title: "  # ZONES"})
+	cli.Root.AddGroup(&cobra.Group{Group: "keys", Title: "  # KEYS"})
+	cli.Root.AddGroup(&cobra.Group{Group: "images", Title: "  # IMAGES"})
+	cli.Root.AddGroup(&cobra.Group{Group: "scripts", Title: "  # SCRIPTS"})
+	cli.Root.AddGroup(&cobra.Group{Group: "templates", Title: "  # TEMPLATES"})
+	cli.Root.AddGroup(&cobra.Group{Group: "rules", Title: "  # RULES"})
+	cli.Root.AddGroup(&cobra.Group{Group: "teams", Title: "  # TEAMS"})
 	// TODO: Add register commands here.
 	mistApiV2Register(false)
 	cli.Root.Execute()
