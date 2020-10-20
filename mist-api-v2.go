@@ -993,7 +993,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "add-key",
 			Short:   "Add key",
-			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- properties:\n    generate:\n      enum:\n      - true\n  required:\n  - name\n- required:\n  - name\n  - private\nproperties:\n  dry:\n    type: boolean\n  generate:\n    type: boolean\n  name:\n    type: string\n  private:\n    type: string\ntype: object\n"),
+			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- required:\n  - name\n  - private\n- required:\n  - name\n  - generate\nproperties:\n  dry:\n    type: boolean\n  generate:\n    type: boolean\n  name:\n    type: string\n  private:\n    type: string\ntype: object\n"),
 			Example: examples,
 			Group:   "keys",
 			Args:    cobra.MinimumNArgs(0),
