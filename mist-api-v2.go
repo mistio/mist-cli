@@ -240,6 +240,52 @@ func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Respo
 	return resp, decoded, cli.CLIOutputOptions{[]string{"title", "provider", "tags"}, []string{"id", "title", "provider", "tags", "owned_by", "created_by"}}, nil
 }
 
+// MistApiV2EditCloud Edit cloud
+func MistApiV2EditCloud(paramCloud string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-cloud"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	server := viper.GetString("server")
+	if server == "" {
+		server = mistApiV2Servers()[viper.GetInt("server-index")]["url"]
+	}
+
+	url := server + "/api/v2/clouds/{cloud}"
+	url = strings.Replace(url, "{cloud}", paramCloud, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return nil, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
+}
+
 // MistApiV2ListKeys List keys
 func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-keys"
@@ -2046,6 +2092,45 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "edit-cloud cloud",
+			Short:   "Edit cloud",
+			Long:    cli.Markdown("Update target cloud title or credentials\n## Request Schema (application/json)\n\nproperties:\n  credentials:\n    $ref: '#/components/schemas/CloudCredentials'\n  features:\n    $ref: '#/components/schemas/CloudFeatures'\n  title:\n    description: Updated title\n    type: string\ntype: object\n"),
+			Example: examples,
+			Group:   "clouds",
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:])
+				if err != nil {
+					log.Fatal().Err(err).Msg("Unable to get body")
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditCloud(args[0], params, body)
+				if err != nil {
+					log.Fatal().Err(err).Msg("Error calling operation")
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					log.Fatal().Err(err).Msg("Formatting failed")
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "list-keys",
 			Short:   "List keys",
 			Long:    cli.Markdown("List keys owned by the active org. READ permission required on key."),
@@ -2090,7 +2175,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "add-key",
 			Short:   "Add key",
-			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- required:\n  - name\n  - private\n- required:\n  - name\n  - generate\n- required:\n  - generate\n  - dry\nproperties:\n  certificate:\n    description: The signed public key, when using signed ssh keys\n    type: string\n  dry:\n    type: boolean\n  generate:\n    description: Generate a keypair instead of providing one\n    type: boolean\n  name:\n    description: The key's name\n    type: string\n  private:\n    description: The private key\n    type: string\ntype: object\n"),
+			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- required:\n  - name\n  - private\n- required:\n  - name\n  - generate\n- required:\n  - generate\n  - dry\nproperties:\n  certificate:\n    description: The signed public key, when using signed ssh keys\n    type: string\n  dry:\n    description: Return generated key without actually adding it\n    type: boolean\n  generate:\n    description: Generate a keypair instead of providing one\n    type: boolean\n  name:\n    description: The key's name\n    type: string\n  private:\n    description: The private key\n    type: string\ntype: object\n"),
 			Example: examples,
 			Group:   "keys",
 			Args:    cobra.MinimumNArgs(0),
@@ -2289,7 +2374,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "create-machine",
 			Short:   "Create machine",
-			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\ntype: object\n"),
+			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\noneOf:\n- required:\n  - name\n  - size\n  - image\n- required:\n  - name\n  - template\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  cloudinit:\n    description: Run this Cloud Init script on first boot\n    type: string\n  disks:\n    description: Configure local disks\n    oneOf:\n    - type: string\n    - type: object\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  expiration:\n    description: Configure machine expiration\n    type: object\n  extra:\n    description: Configure additional parameters\n    type: object\n  fqdn:\n    description: Add DNS A Record that points machine's public IP to this Fully Qualified\n      Domain Name. Zone needs to be managed by a configured Cloud DNS provider\n    type: string\n  image:\n    description: Operating System image to boot from\n    oneOf:\n    - type: string\n    - type: object\n  key:\n    description: Associate SSH key\n    oneOf:\n    - type: string\n    - type: object\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    type: string\n  monitoring:\n    description: Enable monitoring of this machine\n    type: boolean\n  name:\n    description: Specify machine name\n    type: string\n  net:\n    description: Specify network configuration parameters\n    oneOf:\n    - type: string\n    - type: object\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple machines of this type\n    type: number\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  schedules:\n    description: Configure scheduled actions for the provisioned machine\n    oneOf:\n    - type: string\n    - items:\n        type: object\n      type: array\n  scripts:\n    description: Run post deploy scripts over SSH\n    oneOf:\n    - type: string\n    - items:\n        type: object\n      type: array\n  size:\n    description: Machine sizing spec e.g. cpu/ram/flavor\n    oneOf:\n    - type: string\n    - type: object\n  tags:\n    description: Assign tags to provisioned machine\n    type: object\n  template:\n    oneOf:\n    - type: string\n    - type: object\n  volumes:\n    description: Configure of attached storage volumes, e.g. cloud disks\n    oneOf:\n    - type: string\n    - type: object\ntype: object\n"),
 			Example: examples,
 			Group:   "machines",
 			Args:    cobra.MinimumNArgs(0),
