@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
-	"os"
 	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/openapi-cli-generator/apikey"
@@ -84,6 +85,7 @@ func main() {
 		Use:   "ssh",
 		Short: "Open a shell to a machine",
 		Args:  cobra.ExactValidArgs(1),
+		Group: "machines",
 		Run: func(cmd *cobra.Command, args []string) {
 			machine := args[0]
 			// Time allowed to write a message to the peer.
@@ -105,16 +107,43 @@ func main() {
 				fmt.Println(err)
 				return
 			}
-			path := "/api/v1/machines/" + machine + "/ssh"
+			if !strings.HasSuffix(server, "/") {
+				server = server + "/"
+			}
+			if !strings.HasPrefix(server, "http") {
+				server = "http://" + server
+			}
+			path := server + "api/v2/machines/" + machine + "/actions/ssh"
+			client := &http.Client{
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+				}}
+			req, err := http.NewRequest("POST", path, nil)
 			token, err := getToken()
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			u := &url.URL{Scheme: "ws", Host: server, Path: path}
-			c, resp, err := websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
+			req.Header.Add("Authorization", token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			defer resp.Body.Close()
+			_, err = ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			location := resp.Header.Get("location")
+			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
 			if resp != nil && resp.StatusCode == 302 {
-				u, _ = resp.Location()
+				u, _ := resp.Location()
 				c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
 			}
 			if err != nil {
