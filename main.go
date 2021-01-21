@@ -170,7 +170,6 @@ func main() {
 					mt, r, err := c.NextReader()
 					if websocket.IsCloseError(err,
 						websocket.CloseNormalClosure,   // Normal.
-						websocket.CloseAbnormalClosure, // OpenSSH killed proxy client.
 					) {
 						return
 					}
