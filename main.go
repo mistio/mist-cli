@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -257,8 +258,9 @@ func getResourcesFromBackend(resourceType string, toComplete string) []string {
 		_, decoded, _, _ = MistApiV2ListKeys(params)
 	}
 	data, _ := jmespath.Search("data[].name", decoded)
-	str := strings.Replace(strings.Replace(fmt.Sprintf("%v", data), "[", "", -1), "]", "", -1)
-	return strings.Split(str, " ")
+	j, _ := json.Marshal(data)
+	str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+	return strings.Split(str, ",")
 }
 
 var getCmd = &cobra.Command{
