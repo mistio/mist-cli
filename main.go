@@ -12,6 +12,7 @@ import (
 	"github.com/danielgtaylor/openapi-cli-generator/apikey"
 	"github.com/danielgtaylor/openapi-cli-generator/cli"
 	"github.com/gorilla/websocket"
+	"github.com/jmespath/go-jmespath"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -211,24 +212,73 @@ var sshCmd = &cobra.Command{
 	},
 }
 
-func IsValidResorceType(arg string) bool {
-	resourceTypes := []string{"clouds", "machines", "volumes", "networks", "zones", "images", "keys"}
+var resourceTypes = []string{"cloud", "machine", "volume", "network", "zone", "image", "key"}
+
+func isValidResourceType(arg string) bool {
 	for _, r := range resourceTypes {
-		if strings.HasPrefix(r, arg) {
+		if strings.HasPrefix(r+"s", arg) {
 			return true
 		}
 	}
 	return false
 }
 
+func getResourceType(arg string) string {
+	for _, r := range resourceTypes {
+		if strings.HasPrefix(r+"s", arg) {
+			return r
+		}
+	}
+	return ""
+}
+
+func getResourceTypes(toComplete string) []string {
+	return resourceTypes
+}
+
+func getResourcesFromBackend(resourceType string, toComplete string) []string {
+	params := viper.New()
+	params.Set("only", "name")
+	var decoded interface{}
+	switch resourceType {
+	case "cloud":
+		_, decoded, _, _ = MistApiV2ListClouds(params)
+	case "machine":
+		_, decoded, _, _ = MistApiV2ListMachines(params)
+	case "volume":
+		_, decoded, _, _ = MistApiV2ListVolumes(params)
+	case "network":
+		_, decoded, _, _ = MistApiV2ListNetworks(params)
+	// case "zone":
+	// 	_, decoded, _, _ = MistApiV2ListZones(params)
+	case "image":
+		_, decoded, _, _ = MistApiV2ListImages(params)
+	case "key":
+		_, decoded, _, _ = MistApiV2ListKeys(params)
+	}
+	data, _ := jmespath.Search("data[].name", decoded)
+	str := strings.Replace(strings.Replace(fmt.Sprintf("%v", data), "[", "", -1), "]", "", -1)
+	return strings.Split(str, " ")
+}
+
 var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get resource",
-	Args: func(cmd *cobra.Command, args []string) error {
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return getResourceTypes(toComplete), cobra.ShellCompDirectiveNoFileComp
+		}
+		if len(args) == 1 {
+			resourceType := getResourceType(args[0])
+			return getResourcesFromBackend(resourceType, toComplete), cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+
+	}, Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("requires a valid resource type")
 		}
-		if IsValidResorceType(args[0]) {
+		if isValidResourceType(args[0]) {
 
 			return nil
 		}
