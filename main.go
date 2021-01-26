@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/danielgtaylor/openapi-cli-generator/apikey"
@@ -71,6 +74,102 @@ $ mist completion fish > ~/.config/fish/completions/mist.fish
 			cmd.Root().GenPowerShellCompletion(os.Stdout)
 		}
 	},
+}
+
+type terminalSize struct {
+	Height int `json:"height"`
+	Width  int `json:"width"`
+}
+
+func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
+	width, height, err := terminal.GetSize(int(os.Stdin.Fd()))
+	if err != nil {
+		return fmt.Errorf("Could not get terminal size %v\n", err)
+	}
+	resizeMessage := terminalSize{height, width}
+	resizeMessageBinary, err := json.Marshal(&resizeMessage)
+	if err != nil {
+		return fmt.Errorf("Could not marshal resizeMessage %v\n", err)
+	}
+	writeMutex.Lock()
+	c.SetWriteDeadline(time.Now().Add(writeWait))
+	err = c.WriteMessage(websocket.BinaryMessage, append([]byte{1}, resizeMessageBinary...))
+	writeMutex.Unlock()
+	if err != nil {
+		return fmt.Errorf("write:", err)
+	}
+	return nil
+}
+
+func handleTerminalResize(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
+	defer func() { *done <- true }()
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGWINCH)
+	for {
+		<-sigc
+		err := updateTerminalSize(c, writeMutex, writeWait)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+}
+
+func readFromRemoteStdout(c *websocket.Conn, done *chan bool, pongWait time.Duration) {
+	defer func() { *done <- true }()
+	c.SetReadDeadline(time.Now().Add(pongWait))
+	c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	for {
+		mt, r, err := c.NextReader()
+		if websocket.IsCloseError(err,
+			websocket.CloseNormalClosure, // Normal.
+		) {
+			return
+		}
+		if err != nil {
+			fmt.Printf("nextreader: %v\n", err)
+			return
+		}
+		if mt != websocket.BinaryMessage {
+			fmt.Println("binary message \n")
+			return
+		}
+		if _, err := io.Copy(os.Stdout, r); err != nil {
+			fmt.Printf("Reading from websocket: %v\n", err)
+			return
+		}
+	}
+}
+
+func writeToRemoteStdin(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
+	defer func() { *done <- true }()
+	for {
+		var input []byte = make([]byte, 1)
+		os.Stdin.Read(input)
+		writeMutex.Lock()
+		c.SetWriteDeadline(time.Now().Add(writeWait))
+		err := c.WriteMessage(websocket.BinaryMessage, append([]byte{0}, input...))
+		writeMutex.Unlock()
+		if err != nil {
+			fmt.Println("write:", err)
+			return
+		}
+	}
+}
+
+func sendPingMessages(c *websocket.Conn, done *chan bool, writeWait time.Duration, pingPeriod time.Duration) {
+	defer func() { *done <- true }()
+	ticker := time.NewTicker(pingPeriod)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			if err := c.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(writeWait)); err != nil {
+				fmt.Println("ping:", err)
+				return
+			}
+		}
+	}
 }
 
 var sshCmd = &cobra.Command{
@@ -154,60 +253,18 @@ var sshCmd = &cobra.Command{
 		defer terminal.Restore(int(os.Stdin.Fd()), oldState)
 		done := make(chan bool)
 
-		go func() {
-			defer func() { done <- true }()
-			c.SetReadDeadline(time.Now().Add(pongWait))
-			c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-			for {
-				mt, r, err := c.NextReader()
-				if websocket.IsCloseError(err,
-					websocket.CloseNormalClosure, // Normal.
-				) {
-					return
-				}
-				if err != nil {
-					fmt.Printf("nextreader: %v\n", err)
-					return
-				}
-				if mt != websocket.BinaryMessage {
-					fmt.Println("binary message \n")
-					return
-				}
-				if _, err := io.Copy(os.Stdout, r); err != nil {
-					fmt.Printf("Reading from websocket: %v\n", err)
-					return
-				}
-			}
-		}()
+		var writeMutex sync.Mutex
 
-		go func() {
-			defer func() { done <- true }()
-			for {
-				var input []byte = make([]byte, 1)
-				os.Stdin.Read(input)
+		err = updateTerminalSize(c, &writeMutex, writeWait)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-				c.SetWriteDeadline(time.Now().Add(writeWait))
-				err = c.WriteMessage(websocket.BinaryMessage, input)
-				if err != nil {
-					fmt.Println("write:", err)
-					return
-				}
-			}
-		}()
-
-		go func() {
-			defer func() { done <- true }()
-			ticker := time.NewTicker(pingPeriod)
-			defer ticker.Stop()
-			for {
-				select {
-				case <-ticker.C:
-					if err := c.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(writeWait)); err != nil {
-						fmt.Println("ping:", err)
-					}
-				}
-			}
-		}()
+		go handleTerminalResize(c, &done, &writeMutex, writeWait)
+		go readFromRemoteStdout(c, &done, pongWait)
+		go writeToRemoteStdin(c, &done, &writeMutex, writeWait)
+		go sendPingMessages(c, &done, writeWait, pingPeriod)
 
 		<-done
 	},
