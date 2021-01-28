@@ -1,18 +1,26 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/danielgtaylor/openapi-cli-generator/apikey"
 	"github.com/danielgtaylor/openapi-cli-generator/cli"
 	"github.com/gorilla/websocket"
+	"github.com/jmespath/go-jmespath"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	terminal "golang.org/x/term"
 )
 
@@ -68,6 +76,333 @@ $ mist completion fish > ~/.config/fish/completions/mist.fish
 	},
 }
 
+type terminalSize struct {
+	Height int `json:"height"`
+	Width  int `json:"width"`
+}
+
+func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
+	width, height, err := terminal.GetSize(int(os.Stdin.Fd()))
+	if err != nil {
+		return fmt.Errorf("Could not get terminal size %v\n", err)
+	}
+	resizeMessage := terminalSize{height, width}
+	resizeMessageBinary, err := json.Marshal(&resizeMessage)
+	if err != nil {
+		return fmt.Errorf("Could not marshal resizeMessage %v\n", err)
+	}
+	writeMutex.Lock()
+	c.SetWriteDeadline(time.Now().Add(writeWait))
+	err = c.WriteMessage(websocket.BinaryMessage, append([]byte{1}, resizeMessageBinary...))
+	writeMutex.Unlock()
+	if err != nil {
+		return fmt.Errorf("write:", err)
+	}
+	return nil
+}
+
+func handleTerminalResize(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
+	defer func() { *done <- true }()
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGWINCH)
+	for {
+		<-sigc
+		err := updateTerminalSize(c, writeMutex, writeWait)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+}
+
+func readFromRemoteStdout(c *websocket.Conn, done *chan bool, pongWait time.Duration) {
+	defer func() { *done <- true }()
+	c.SetReadDeadline(time.Now().Add(pongWait))
+	c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	for {
+		mt, r, err := c.NextReader()
+		if websocket.IsCloseError(err,
+			websocket.CloseNormalClosure, // Normal.
+		) {
+			return
+		}
+		if err != nil {
+			fmt.Printf("nextreader: %v\n", err)
+			return
+		}
+		if mt != websocket.BinaryMessage {
+			fmt.Println("binary message \n")
+			return
+		}
+		if _, err := io.Copy(os.Stdout, r); err != nil {
+			fmt.Printf("Reading from websocket: %v\n", err)
+			return
+		}
+	}
+}
+
+func writeToRemoteStdin(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
+	defer func() { *done <- true }()
+	for {
+		var input []byte = make([]byte, 1)
+		os.Stdin.Read(input)
+		writeMutex.Lock()
+		c.SetWriteDeadline(time.Now().Add(writeWait))
+		err := c.WriteMessage(websocket.BinaryMessage, append([]byte{0}, input...))
+		writeMutex.Unlock()
+		if err != nil {
+			fmt.Println("write:", err)
+			return
+		}
+	}
+}
+
+func sendPingMessages(c *websocket.Conn, done *chan bool, writeWait time.Duration, pingPeriod time.Duration) {
+	defer func() { *done <- true }()
+	ticker := time.NewTicker(pingPeriod)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			if err := c.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(writeWait)); err != nil {
+				fmt.Println("ping:", err)
+				return
+			}
+		}
+	}
+}
+
+var sshCmd = &cobra.Command{
+	Use:   "ssh",
+	Short: "Open a shell to a machine",
+	Args:  cobra.ExactValidArgs(1),
+	Group: "machines",
+	Run: func(cmd *cobra.Command, args []string) {
+		machine := args[0]
+		// Time allowed to write a message to the peer.
+		writeWait := 2 * time.Second
+
+		// Time allowed to read the next pong message from the peer.
+		pongWait := 10 * time.Second
+
+		// Send pings to peer with this period. Must be less than pongWait.
+		pingPeriod := (pongWait * 9) / 10
+
+		err := setProfile()
+		if err != nil {
+			fmt.Println("Cannot set profile %v", err)
+			return
+		}
+		server, err := getServer()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if !strings.HasSuffix(server, "/") {
+			server = server + "/"
+		}
+		if !strings.HasPrefix(server, "http") {
+			server = "http://" + server
+		}
+		path := server + "api/v2/machines/" + machine + "/actions/ssh"
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			}}
+		req, err := http.NewRequest("POST", path, nil)
+		token, err := getToken()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		req.Header.Add("Authorization", token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer resp.Body.Close()
+		_, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		location := resp.Header.Get("location")
+		c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
+		if resp != nil && resp.StatusCode == 302 {
+			u, _ := resp.Location()
+			c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
+		}
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer c.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		oldState, err := terminal.MakeRaw(int(os.Stdin.Fd()))
+		if err != nil {
+			panic(err)
+		}
+		defer terminal.Restore(int(os.Stdin.Fd()), oldState)
+		done := make(chan bool)
+
+		var writeMutex sync.Mutex
+
+		err = updateTerminalSize(c, &writeMutex, writeWait)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		go handleTerminalResize(c, &done, &writeMutex, writeWait)
+		go readFromRemoteStdout(c, &done, pongWait)
+		go writeToRemoteStdin(c, &done, &writeMutex, writeWait)
+		go sendPingMessages(c, &done, writeWait, pingPeriod)
+
+		<-done
+	},
+}
+
+var resourceTypes = []string{"cloud", "machine", "volume", "network", "zone", "image", "key"}
+
+func isValidResourceType(arg string) bool {
+	for _, r := range resourceTypes {
+		if strings.HasPrefix(r+"s", arg) {
+			return true
+		}
+	}
+	return false
+}
+
+func getResourceType(arg string) string {
+	for _, r := range resourceTypes {
+		if strings.HasPrefix(r+"s", arg) {
+			return r
+		}
+	}
+	return ""
+}
+
+func getResourceTypes(toComplete string) []string {
+	return resourceTypes
+}
+
+func getResourcesFromBackend(resourceType string, toComplete string) []string {
+	params := viper.New()
+	params.Set("only", "name")
+	var decoded interface{}
+	switch resourceType {
+	case "cloud":
+		_, decoded, _, _ = MistApiV2ListClouds(params)
+	case "machine":
+		_, decoded, _, _ = MistApiV2ListMachines(params)
+	case "volume":
+		_, decoded, _, _ = MistApiV2ListVolumes(params)
+	case "network":
+		_, decoded, _, _ = MistApiV2ListNetworks(params)
+	// case "zone":
+	// 	_, decoded, _, _ = MistApiV2ListZones(params)
+	case "image":
+		_, decoded, _, _ = MistApiV2ListImages(params)
+	case "key":
+		_, decoded, _, _ = MistApiV2ListKeys(params)
+	}
+	data, _ := jmespath.Search("data[].name", decoded)
+	j, _ := json.Marshal(data)
+	str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+	return strings.Split(str, ",")
+}
+
+var getCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get resource",
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return getResourceTypes(toComplete), cobra.ShellCompDirectiveNoFileComp
+		}
+		if len(args) == 1 {
+			resourceType := getResourceType(args[0])
+			return getResourcesFromBackend(resourceType, toComplete), cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+
+	}, Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires a valid resource type")
+		}
+		if isValidResourceType(args[0]) {
+
+			return nil
+		}
+		return fmt.Errorf("invalid resource type specified: %s", args[0])
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		params := viper.New()
+		var decoded map[string]interface{}
+		var outputOptions cli.CLIOutputOptions
+		var err error
+
+		if strings.HasPrefix("clouds", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetCloud(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListClouds(params)
+			}
+		} else if strings.HasPrefix("machines", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetMachine(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListMachines(params)
+			}
+		} else if strings.HasPrefix("volumes", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetVolume(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListVolumes(params)
+			}
+		} else if strings.HasPrefix("networks", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetNetwork(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListNetworks(params)
+			}
+		} else if strings.HasPrefix("images", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetImage(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListImages(params)
+			}
+		} else if strings.HasPrefix("keys", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetKey(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListKeys(params)
+			}
+		} else if strings.HasPrefix("rules", args[0]) {
+			if len(args) == 2 {
+				_, decoded, outputOptions, err = MistApiV2GetRule(args[1], params)
+			} else if len(args) == 1 {
+				_, decoded, outputOptions, err = MistApiV2ListRules(params)
+			}
+		}
+
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error calling operation")
+		}
+
+		if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+			log.Fatal().Err(err).Msg("Formatting failed")
+		}
+	},
+}
+
 func main() {
 	cli.Init(&cli.Config{
 		AppName:   "mist",
@@ -78,149 +413,7 @@ func main() {
 	// Initialize the API key authentication.
 	apikey.Init("Authorization", apikey.LocationHeader)
 
-	// Add completion command
-	cli.Root.AddCommand(completionCmd)
-
-	cli.Root.AddCommand(&cobra.Command{
-		Use:   "ssh",
-		Short: "Open a shell to a machine",
-		Args:  cobra.ExactValidArgs(1),
-		Group: "machines",
-		Run: func(cmd *cobra.Command, args []string) {
-			machine := args[0]
-			// Time allowed to write a message to the peer.
-			writeWait := 2 * time.Second
-
-			// Time allowed to read the next pong message from the peer.
-			pongWait := 10 * time.Second
-
-			// Send pings to peer with this period. Must be less than pongWait.
-			pingPeriod := (pongWait * 9) / 10
-
-			err := setProfile()
-			if err != nil {
-				fmt.Println("Cannot set profile %v", err)
-				return
-			}
-			server, err := getServer()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			if !strings.HasSuffix(server, "/") {
-				server = server + "/"
-			}
-			if !strings.HasPrefix(server, "http") {
-				server = "http://" + server
-			}
-			path := server + "api/v2/machines/" + machine + "/actions/ssh"
-			client := &http.Client{
-				CheckRedirect: func(req *http.Request, via []*http.Request) error {
-					return http.ErrUseLastResponse
-				}}
-			req, err := http.NewRequest("POST", path, nil)
-			token, err := getToken()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			req.Header.Add("Authorization", token)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			defer resp.Body.Close()
-			_, err = ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			location := resp.Header.Get("location")
-			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
-			if resp != nil && resp.StatusCode == 302 {
-				u, _ := resp.Location()
-				c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
-			}
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			defer c.Close()
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			oldState, err := terminal.MakeRaw(int(os.Stdin.Fd()))
-			if err != nil {
-				panic(err)
-			}
-			defer terminal.Restore(int(os.Stdin.Fd()), oldState)
-			done := make(chan bool)
-
-			go func() {
-				defer func() { done <- true }()
-				c.SetReadDeadline(time.Now().Add(pongWait))
-				c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-				for {
-					mt, r, err := c.NextReader()
-					if websocket.IsCloseError(err,
-						websocket.CloseNormalClosure,   // Normal.
-					) {
-						return
-					}
-					if err != nil {
-						fmt.Printf("nextreader: %v\n", err)
-						return
-					}
-					if mt != websocket.BinaryMessage {
-						fmt.Println("binary message \n")
-						return
-					}
-					if _, err := io.Copy(os.Stdout, r); err != nil {
-						fmt.Printf("Reading from websocket: %v\n", err)
-						return
-					}
-				}
-			}()
-
-			go func() {
-				defer func() { done <- true }()
-				for {
-					var input []byte = make([]byte, 1)
-					os.Stdin.Read(input)
-
-					c.SetWriteDeadline(time.Now().Add(writeWait))
-					err = c.WriteMessage(websocket.BinaryMessage, input)
-					if err != nil {
-						fmt.Println("write:", err)
-						return
-					}
-				}
-			}()
-
-			go func() {
-				defer func() { done <- true }()
-				ticker := time.NewTicker(pingPeriod)
-				defer ticker.Stop()
-				for {
-					select {
-					case <-ticker.C:
-						if err := c.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(writeWait)); err != nil {
-							fmt.Println("ping:", err)
-						}
-					}
-				}
-			}()
-
-			<-done
-		},
-	})
-
+	// Add command groups
 	cli.Root.AddGroup(&cobra.Group{Group: "clouds", Title: "  # CLOUDS"})
 	cli.Root.AddGroup(&cobra.Group{Group: "machines", Title: "  # MACHINES"})
 	cli.Root.AddGroup(&cobra.Group{Group: "volumes", Title: "  # VOLUMES"})
@@ -232,7 +425,18 @@ func main() {
 	cli.Root.AddGroup(&cobra.Group{Group: "templates", Title: "  # TEMPLATES"})
 	cli.Root.AddGroup(&cobra.Group{Group: "rules", Title: "  # RULES"})
 	cli.Root.AddGroup(&cobra.Group{Group: "teams", Title: "  # TEAMS"})
-	// TODO: Add register commands here.
+
+	// Add completion command
+	cli.Root.AddCommand(completionCmd)
+
+	// Register auto-generated commands
 	mistApiV2Register(false)
+
+	// Add ssh command
+	cli.Root.AddCommand(sshCmd)
+
+	// Add get commend
+	cli.Root.AddCommand(getCmd)
+
 	cli.Root.Execute()
 }
