@@ -320,87 +320,100 @@ func getResourcesFromBackend(resourceType string, toComplete string) []string {
 	return strings.Split(str, ",")
 }
 
-var getCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Get resource",
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return getResourceTypes(toComplete), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			resourceType := getResourceType(args[0])
-			return getResourcesFromBackend(resourceType, toComplete), cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
+func getCmd() *cobra.Command {
+	params := viper.New()
+	cmd := &cobra.Command{
+		Use:   "get",
+		Short: "Get resource",
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return getResourceTypes(toComplete), cobra.ShellCompDirectiveNoFileComp
+			}
+			if len(args) == 1 {
+				resourceType := getResourceType(args[0])
+				return getResourcesFromBackend(resourceType, toComplete), cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
 
-	}, Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("requires a valid resource type")
-		}
-		if isValidResourceType(args[0]) {
+		}, Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return errors.New("requires a valid resource type")
+			}
+			if isValidResourceType(args[0]) {
 
-			return nil
-		}
-		return fmt.Errorf("invalid resource type specified: %s", args[0])
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		params := viper.New()
-		var decoded map[string]interface{}
-		var outputOptions cli.CLIOutputOptions
-		var err error
+				return nil
+			}
+			return fmt.Errorf("invalid resource type specified: %s", args[0])
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			var decoded map[string]interface{}
+			var outputOptions cli.CLIOutputOptions
+			var err error
 
-		if strings.HasPrefix("clouds", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetCloud(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListClouds(params)
+			if strings.HasPrefix("clouds", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetCloud(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListClouds(params)
+				}
+			} else if strings.HasPrefix("machines", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetMachine(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListMachines(params)
+				}
+			} else if strings.HasPrefix("volumes", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetVolume(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListVolumes(params)
+				}
+			} else if strings.HasPrefix("networks", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetNetwork(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListNetworks(params)
+				}
+			} else if strings.HasPrefix("images", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetImage(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListImages(params)
+				}
+			} else if strings.HasPrefix("keys", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetKey(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListKeys(params)
+				}
+			} else if strings.HasPrefix("rules", args[0]) {
+				if len(args) == 2 {
+					_, decoded, outputOptions, err = MistApiV2GetRule(args[1], params)
+				} else if len(args) == 1 {
+					_, decoded, outputOptions, err = MistApiV2ListRules(params)
+				}
 			}
-		} else if strings.HasPrefix("machines", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetMachine(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListMachines(params)
-			}
-		} else if strings.HasPrefix("volumes", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetVolume(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListVolumes(params)
-			}
-		} else if strings.HasPrefix("networks", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetNetwork(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListNetworks(params)
-			}
-		} else if strings.HasPrefix("images", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetImage(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListImages(params)
-			}
-		} else if strings.HasPrefix("keys", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetKey(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListKeys(params)
-			}
-		} else if strings.HasPrefix("rules", args[0]) {
-			if len(args) == 2 {
-				_, decoded, outputOptions, err = MistApiV2GetRule(args[1], params)
-			} else if len(args) == 1 {
-				_, decoded, outputOptions, err = MistApiV2ListRules(params)
-			}
-		}
 
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error calling operation")
-		}
+			if err != nil {
+				log.Fatal().Err(err).Msg("Error calling operation")
+			}
 
-		if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-			log.Fatal().Err(err).Msg("Formatting failed")
-		}
-	},
+			if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				log.Fatal().Err(err).Msg("Formatting failed")
+			}
+		},
+	}
+
+	cmd.Flags().String("search", "", "Only return results matching search filter")
+	cmd.Flags().String("only", "", "Only return these fields")
+	cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+	cli.SetCustomFlags(cmd)
+
+	if cmd.Flags().HasFlags() {
+		params.BindPFlags(cmd.Flags())
+	}
+	return cmd
 }
 
 func main() {
@@ -436,7 +449,7 @@ func main() {
 	cli.Root.AddCommand(sshCmd)
 
 	// Add get commend
-	cli.Root.AddCommand(getCmd)
+	cli.Root.AddCommand(getCmd())
 
 	cli.Root.Execute()
 }
