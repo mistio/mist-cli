@@ -12,17 +12,19 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"log"
 
 	"github.com/danielgtaylor/openapi-cli-generator/apikey"
 	"github.com/danielgtaylor/openapi-cli-generator/cli"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	terminal "golang.org/x/term"
 )
+
+var logger = log.New(os.Stdout, "", 0)
 
 // completionCmd represents the completion command
 var completionCmd = &cobra.Command{
@@ -395,11 +397,11 @@ func getCmd() *cobra.Command {
 			}
 
 			if err != nil {
-				log.Fatal().Err(err).Msg("Error calling operation")
+				logger.Fatalf("Error calling operation: %s", err.Error())
 			}
 
 			if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-				log.Fatal().Err(err).Msg("Formatting failed")
+				logger.Fatalf("Formatting failed: %s", err.Error())
 			}
 		},
 	}
