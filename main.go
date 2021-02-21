@@ -190,9 +190,9 @@ var sshCmd = &cobra.Command{
 		// Send pings to peer with this period. Must be less than pongWait.
 		pingPeriod := (pongWait * 9) / 10
 
-		err := setProfile()
+		err := setMistContext()
 		if err != nil {
-			fmt.Println("Cannot set profile %v", err)
+			fmt.Println("Cannot set context %v", err)
 			return
 		}
 		server, err := getServer()
