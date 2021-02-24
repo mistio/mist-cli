@@ -14,12 +14,12 @@ import (
 	"time"
 	"log"
 
-	"github.com/danielgtaylor/openapi-cli-generator/apikey"
-	"github.com/danielgtaylor/openapi-cli-generator/cli"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
+	"github.com/mistio/cobra"
 	"github.com/spf13/viper"
 	terminal "golang.org/x/term"
 )
