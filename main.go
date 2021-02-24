@@ -14,12 +14,12 @@ import (
 	"time"
 	"log"
 
-	"github.com/danielgtaylor/openapi-cli-generator/apikey"
-	"github.com/danielgtaylor/openapi-cli-generator/cli"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
+	"github.com/mistio/cobra"
 	"github.com/spf13/viper"
 	terminal "golang.org/x/term"
 )
@@ -86,19 +86,19 @@ type terminalSize struct {
 func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
 	width, height, err := terminal.GetSize(int(os.Stdin.Fd()))
 	if err != nil {
-		return fmt.Errorf("Could not get terminal size %v\n", err)
+		return fmt.Errorf("Could not get terminal size %s\n", err)
 	}
 	resizeMessage := terminalSize{height, width}
 	resizeMessageBinary, err := json.Marshal(&resizeMessage)
 	if err != nil {
-		return fmt.Errorf("Could not marshal resizeMessage %v\n", err)
+		return fmt.Errorf("Could not marshal resizeMessage %s\n", err)
 	}
 	writeMutex.Lock()
 	c.SetWriteDeadline(time.Now().Add(writeWait))
 	err = c.WriteMessage(websocket.BinaryMessage, append([]byte{1}, resizeMessageBinary...))
 	writeMutex.Unlock()
 	if err != nil {
-		return fmt.Errorf("write:", err)
+		return fmt.Errorf("write: %s", err)
 	}
 	return nil
 }
@@ -133,7 +133,7 @@ func readFromRemoteStdout(c *websocket.Conn, done *chan bool, pongWait time.Dura
 			return
 		}
 		if mt != websocket.BinaryMessage {
-			fmt.Println("binary message \n")
+			fmt.Println("binary message")
 			return
 		}
 		if _, err := io.Copy(os.Stdout, r); err != nil {
@@ -192,7 +192,7 @@ var sshCmd = &cobra.Command{
 
 		err := setMistContext()
 		if err != nil {
-			fmt.Println("Cannot set context %v", err)
+			fmt.Printf("Cannot set context %s\n", err)
 			return
 		}
 		server, err := getServer()
