@@ -1,0 +1,84 @@
+stages:
+  - build
+  - release
+
+#################### BUILD STAGE ####################
+build_cli_binaries:
+  stage: build
+  image: golang/1.16.0-buster
+  script:
+    - go build -o mist
+  tags:
+    - builder
+  dependencies: []
+
+#################### RELEASE STAGE ####################
+helm_chart_release:
+  stage: release
+  #image: mist/cli-automation
+  image: vpapav/cli-automation
+
+  script:
+    - |
+        #! /usr/bin/env bash
+
+        gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
+        set -o errexit
+        set -o nounset
+        set -o pipefail
+        readonly REPO_URL=https://mist-cli-binaries.storage.googleapis.com/
+        readonly GCS_BUCKET=gs://mist-cli-binaries
+        export VERSION=${CI_COMMIT_TAG:1}
+        echo "VERSION=$VERSION"
+
+
+        main() {
+          if ! build_binaries mist-cli-$VERSION; then
+              log_error "Not all binaries could be built!"
+          fi
+          if ! upload_binaries mist-cli-$VERSION "$GCS_BUCKET"; then
+              log_error "Not all binaries could be uploaded!"
+          fi
+        }
+
+        build_binaries() {
+          local bin_dir="${1?Specify binaries dir}"
+          mkdir {bin_dir}
+          oses=("linux"  "darwin"  "freebsd" "openbsd" "netbsd" "windows")
+          archs=("amd64" "arm64")
+          for os in ${oses[@]}; do
+            for arch in ${archs[@]}; do
+              env GOOS=$os GOARCH=$arch go build -o mist
+              tar -czvf $bin_dir/mist-$VERSION-$os-$arch.tar.gz mist
+            done
+          done
+          local return_value=0
+          return "$return_value"
+        }
+
+        upload_binaries() {
+          local bin_dir="${1?Specify binary dir to upload}"
+          local bucket="${2?Specify bucket to upload binaries to}"
+
+          if ! gsutil cp -r $bin_dir $bucket; then
+            log_error "Failed to upload the binaries to the bucket"
+            exit 1
+          fi
+
+          local return_value=0
+          return "$return_value"
+        }
+
+        log_error() {
+          printf '\e[31mERROR: %s\n\e[39m' "$1" >&2
+        }
+
+        main
+  when: manual
+  only:
+    # only for references that match a version string (v1.2.3)
+    - /^v\d+\.\d+\.\d+$/
+  except:
+    # Except branches, meaning it'll only apply to git tags
+    - branches
+  dependencies: []
