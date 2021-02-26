@@ -13,7 +13,7 @@ build_cli_binaries:
   dependencies: []
 
 #################### RELEASE STAGE ####################
-helm_chart_release:
+cli_binaries_release:
   stage: release
   #image: mist/cli-automation
   image: vpapav/cli-automation
