@@ -60,7 +60,7 @@ cli_binaries_release:
           local bin_dir="${1?Specify binary dir to upload}"
           local bucket="${2?Specify bucket to upload binaries to}"
 
-          if ! gsutil cp -r $bin_dir $bucket; then
+          if ! gsutil -m cp -r $bin_dir $bucket; then
             log_error "Failed to upload the binaries to the bucket"
             exit 1
           fi
