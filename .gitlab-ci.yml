@@ -43,7 +43,7 @@ cli_binaries_release:
 
         build_binaries() {
           local bin_dir="${1?Specify binaries dir}"
-          mkdir {bin_dir}
+          mkdir $bin_dir
           oses=("linux"  "darwin"  "freebsd" "openbsd" "netbsd" "windows")
           archs=("amd64" "arm64")
           for os in ${oses[@]}; do
