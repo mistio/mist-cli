@@ -113,7 +113,7 @@ release: &release_template
     - ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
   only:
     # only for references that match a version string (v1.2.3)
-    - /^v\d+\.\d+\.\d+$/ut-file
+    - /^v\d+\.\d+\.\d+$/
   except:
     # Except branches, meaning it'll only apply to git tags
     - branches
