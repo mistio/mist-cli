@@ -12,9 +12,8 @@ build_cli_binaries:
     - builder
   dependencies: []
 
-#################### RELEASE STAGE ####################
-cli_binaries_release:
-  stage: release
+push_cli_binaries:
+  stage: build
   #image: mist/cli-automation
   image: vpapav/cli-automation
 
@@ -83,6 +82,7 @@ cli_binaries_release:
     - branches
   dependencies: []
 
+#################### RELEASE STAGE ####################
 release: &release_template
   when: manual
   stage: release
@@ -118,7 +118,7 @@ release: &release_template
     # Except branches, meaning it'll only apply to git tags
     - branches
   dependencies:
-    - cli_binaries_release
+    - push_cli_binaries
 
 prerelease:
   <<: *release_template
