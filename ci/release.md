@@ -1,0 +1,6 @@
+## Installation
+
+### Binaries
+
+FILE | SHA
+------------ | -------------

@@ -82,3 +82,48 @@ cli_binaries_release:
     # Except branches, meaning it'll only apply to git tags
     - branches
   dependencies: []
+
+release: &release_template
+  when: manual
+  stage: release
+  image: python:2.7-alpine
+  before_script:
+    - apk add --update libmagic openssl
+    - pip install requests python-magic
+    - wget -O /usr/local/bin/submark https://github.com/dahlia/submark/releases/download/0.2.0/submark-linux-x86_64
+    - chmod +x /usr/local/bin/submark
+  script:
+    - mkdir release
+    #- cp artifacts/docker-compose.yml release/docker-compose.yml
+    - HEADER=$(sed -n "s/^## \($CI_BUILD_REF_NAME .*\)$/\1/p" CHANGELOG.md)
+    - submark --omit-heading --h2="$HEADER" --out-file=release.md CHANGELOG.md
+    - sed -i 's/^### Changes/## Changes/' release.md
+    - echo >> release.md
+    - sed "s/TAG/$CI_BUILD_REF_NAME/g;s/REPO/$CI_PROJECT_NAME/g" ci/release.md >> release.md
+    - VERSION=${CI_COMMIT_TAG:1}
+    - |
+      table=""
+      bins=$(curl -G -d "prefix=mist-cli-${VERSION}/" -d "delimeter=/" -s  https://content-storage.googleapis.com/storage/v1/b/mist-cli-binaries/o | jq '.items[] | {name: .name, url: .mediaLink}' | jq -s)
+      for bin in $(echo "${bins}" | jq -c '.[]'); do
+              name=$(echo $bin | jq '.name' | tr -d '\"' | awk -F/ '{print $NF}')
+              url=$(echo $bin | jq '.url' | tr -d '\"')
+              table="${table}[${name}](${url}) | 123456789\n"
+      done    
+      echo -e $table >> release.md
+    - ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
+  only:
+    # only for references that match a version string (v1.2.3)
+    - /^v\d+\.\d+\.\d+$/ut-file
+  except:
+    # Except branches, meaning it'll only apply to git tags
+    - branches
+  dependencies:
+    - cli_binaries_release
+
+prerelease:
+  <<: *release_template
+  variables:
+    RELEASE_ARGS: "--prerelease"
+  only:
+    # only for references that match a prelease version string (v1.2.3-beta)
+    - /^v\d+\.\d+\.\d+-.+$/
