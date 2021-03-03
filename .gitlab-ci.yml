@@ -92,6 +92,8 @@ release: &release_template
     - pip install requests python-magic
     - wget -O /usr/local/bin/submark https://github.com/dahlia/submark/releases/download/0.2.0/submark-linux-x86_64
     - chmod +x /usr/local/bin/submark
+    - apk add curl
+    - apk add jq
   script:
     - mkdir release
     #- cp artifacts/docker-compose.yml release/docker-compose.yml
