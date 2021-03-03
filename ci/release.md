@@ -2,5 +2,5 @@
 
 ### Binaries
 
-FILE | SHA
+FILE | SHA256
 ------------ | -------------
