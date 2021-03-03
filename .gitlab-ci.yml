@@ -95,7 +95,7 @@ release: &release_template
     - apk add curl
     - apk add jq
   script:
-    - mkdir release
+    #- mkdir release
     #- cp artifacts/docker-compose.yml release/docker-compose.yml
     - HEADER=$(sed -n "s/^## \($CI_BUILD_REF_NAME .*\)$/\1/p" CHANGELOG.md)
     - submark --omit-heading --h2="$HEADER" --out-file=release.md CHANGELOG.md
@@ -112,7 +112,8 @@ release: &release_template
               table="${table}[${name}](${url}) | 123456789\n"
       done    
       echo -e $table >> release.md
-    - ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
+    #- ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
+    - ./ci/release.py $RELEASE_ARGS --draft -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
   only:
     # only for references that match a version string (v1.2.3)
     - /^v\d+\.\d+\.\d+$/
