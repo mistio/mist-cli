@@ -32,10 +32,10 @@ push_cli_binaries:
 
 
         main() {
-          if ! build_binaries cli/$VERSION/bin; then
+          if ! build_binaries "cli/$VERSION/bin"; then
               log_error "Not all binaries could be built!"
           fi
-          if ! upload_binaries cli/$VERSION/bin "$GCS_BUCKET"; then
+          if ! upload_binaries "cli/$VERSION/bin" "$GCS_BUCKET"; then
               log_error "Not all binaries could be uploaded!"
           fi
         }
