@@ -47,7 +47,8 @@ push_cli_binaries:
           archs=("amd64" "arm64")
           for os in ${oses[@]}; do
             for arch in ${archs[@]}; do
-              env GOOS=$os GOARCH=$arch go build -o $bin_dir/$os/$arch/mist
+              env GOOS=$os GOARCH=$arch go build -o $bin_dir/$os/$arch/mist && \
+              sha256sum $bin_dir/$os/$arch/mist | awk '{print $1}' > $bin_dir/$os/$arch/mist.sha256
             done
           done
           local return_value=0
@@ -108,7 +109,10 @@ release: &release_template
       for bin in $(echo "${bins}" | jq -c '.[]'); do
               name=$(echo $bin | jq '.name' | tr -d '\"' | awk -F/ '{print $(NF-2)"/"$(NF-1)"/"$NF}')
               url=$(echo $bin | jq '.url' | tr -d '\"')
-              table="${table}[${name}](${url}) | 123456789\n"
+              if [[ $name != *\.sha256 ]]; then
+                sha256=$(curl -s "$url.sha256")
+                table="${table}[${name}](${url}) | ${sha256}\n"
+              fi
       done
       echo -e $table >> release.md
     #- ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
