@@ -109,7 +109,7 @@ release: &release_template
       for bin in $(echo "${bins}" | jq -c '.[]'); do
               name=$(echo $bin | jq '.name' | tr -d '\"' | awk -F/ '{print $(NF-2)"/"$(NF-1)"/"$NF}')
               url=$(echo $bin | jq '.url' | tr -d '\"')
-              if [[ ! $name == *".sha256" ]]; then
+              if ! echo $name | grep -q -E '*\.sha256$'; then
                 sha256=$(curl -s "$url.sha256")
                 table="${table}[${name}](${url}) | ${sha256}\n"
               fi
