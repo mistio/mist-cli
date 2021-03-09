@@ -19,6 +19,7 @@ import (
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
+	"github.com/containerd/console"
 )
 
 var logger = log.New(os.Stdout, "", 0)
@@ -149,11 +150,12 @@ var sshCmd = &cobra.Command{
 			fmt.Println(err)
 		}
 
-		oldState, err := terminal.MakeRaw(int(os.Stdin.Fd()))
-		if err != nil {
+		current := console.Current()
+		if err := current.SetRaw(); err != nil {
 			panic(err)
 		}
-		defer terminal.Restore(int(os.Stdin.Fd()), oldState)
+		terminal.NewTerminal(current, "")
+		defer current.Reset()
 		done := make(chan bool)
 
 		var writeMutex sync.Mutex

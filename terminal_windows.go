@@ -19,7 +19,7 @@ type terminalSize struct {
 }
 
 func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
-	width, height, err := terminal.GetSize(int(os.Stdin.Fd()))
+	width, height, err := terminal.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return fmt.Errorf("Could not get terminal size %s\n", err)
 	}
