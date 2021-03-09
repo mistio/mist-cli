@@ -18,12 +18,19 @@ type terminalSize struct {
 	Width  int `json:"width"`
 }
 
-func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
+func getTerminalSize() (terminalSize, error) {
 	width, height, err := terminal.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
-		return fmt.Errorf("Could not get terminal size %s\n", err)
+		return terminalSize{}, fmt.Errorf("Could not get terminal size %s\n", err)
 	}
-	resizeMessage := terminalSize{height, width}
+	return terminalSize{height, width}, nil
+}
+
+func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
+	resizeMessage, err := getTerminalSize()
+	if err != nil {
+		return fmt.Errorf("Could not get terminal size: %s\n", err)
+	}
 	resizeMessageBinary, err := json.Marshal(&resizeMessage)
 	if err != nil {
 		return fmt.Errorf("Could not marshal resizeMessage %s\n", err)
@@ -40,13 +47,22 @@ func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait tim
 
 func handleTerminalResize(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
 	defer func() { *done <- true }()
+	oldTerminalSize := terminalSize{}
 	ticker := time.NewTicker(1000 * time.Millisecond)
 	for {
 		<-ticker.C
-		err := updateTerminalSize(c, writeMutex, writeWait)
+		newTerminalSize, err := getTerminalSize()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		if newTerminalSize != oldTerminalSize {
+			err := updateTerminalSize(c, writeMutex, writeWait)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+		oldTerminalSize = newTerminalSize
 	}
 }
