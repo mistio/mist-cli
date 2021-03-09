@@ -3,25 +3,23 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-	"os/signal"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
-	"log"
 
-	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
-	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
-	"github.com/pkg/errors"
 	"github.com/mistio/cobra"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
+	"github.com/containerd/console"
 )
 
 var logger = log.New(os.Stdout, "", 0)
@@ -76,102 +74,6 @@ $ mist completion fish > ~/.config/fish/completions/mist.fish
 			cmd.Root().GenPowerShellCompletion(os.Stdout)
 		}
 	},
-}
-
-type terminalSize struct {
-	Height int `json:"height"`
-	Width  int `json:"width"`
-}
-
-func updateTerminalSize(c *websocket.Conn, writeMutex *sync.Mutex, writeWait time.Duration) error {
-	width, height, err := terminal.GetSize(int(os.Stdin.Fd()))
-	if err != nil {
-		return fmt.Errorf("Could not get terminal size %s\n", err)
-	}
-	resizeMessage := terminalSize{height, width}
-	resizeMessageBinary, err := json.Marshal(&resizeMessage)
-	if err != nil {
-		return fmt.Errorf("Could not marshal resizeMessage %s\n", err)
-	}
-	writeMutex.Lock()
-	c.SetWriteDeadline(time.Now().Add(writeWait))
-	err = c.WriteMessage(websocket.BinaryMessage, append([]byte{1}, resizeMessageBinary...))
-	writeMutex.Unlock()
-	if err != nil {
-		return fmt.Errorf("write: %s", err)
-	}
-	return nil
-}
-
-func handleTerminalResize(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
-	defer func() { *done <- true }()
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, syscall.SIGWINCH)
-	for {
-		<-sigc
-		err := updateTerminalSize(c, writeMutex, writeWait)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-}
-
-func readFromRemoteStdout(c *websocket.Conn, done *chan bool, pongWait time.Duration) {
-	defer func() { *done <- true }()
-	c.SetReadDeadline(time.Now().Add(pongWait))
-	c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-	for {
-		mt, r, err := c.NextReader()
-		if websocket.IsCloseError(err,
-			websocket.CloseNormalClosure, // Normal.
-		) {
-			return
-		}
-		if err != nil {
-			fmt.Printf("nextreader: %v\n", err)
-			return
-		}
-		if mt != websocket.BinaryMessage {
-			fmt.Println("binary message")
-			return
-		}
-		if _, err := io.Copy(os.Stdout, r); err != nil {
-			fmt.Printf("Reading from websocket: %v\n", err)
-			return
-		}
-	}
-}
-
-func writeToRemoteStdin(c *websocket.Conn, done *chan bool, writeMutex *sync.Mutex, writeWait time.Duration) {
-	defer func() { *done <- true }()
-	for {
-		var input []byte = make([]byte, 1)
-		os.Stdin.Read(input)
-		writeMutex.Lock()
-		c.SetWriteDeadline(time.Now().Add(writeWait))
-		err := c.WriteMessage(websocket.BinaryMessage, append([]byte{0}, input...))
-		writeMutex.Unlock()
-		if err != nil {
-			fmt.Println("write:", err)
-			return
-		}
-	}
-}
-
-func sendPingMessages(c *websocket.Conn, done *chan bool, writeWait time.Duration, pingPeriod time.Duration) {
-	defer func() { *done <- true }()
-	ticker := time.NewTicker(pingPeriod)
-	defer ticker.Stop()
-	for {
-		select {
-		case <-ticker.C:
-			if err := c.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(writeWait)); err != nil {
-				fmt.Println("ping:", err)
-				return
-			}
-		}
-	}
 }
 
 var sshCmd = &cobra.Command{
@@ -248,11 +150,12 @@ var sshCmd = &cobra.Command{
 			fmt.Println(err)
 		}
 
-		oldState, err := terminal.MakeRaw(int(os.Stdin.Fd()))
-		if err != nil {
+		current := console.Current()
+		if err := current.SetRaw(); err != nil {
 			panic(err)
 		}
-		defer terminal.Restore(int(os.Stdin.Fd()), oldState)
+		terminal.NewTerminal(current, "")
+		defer current.Reset()
 		done := make(chan bool)
 
 		var writeMutex sync.Mutex
