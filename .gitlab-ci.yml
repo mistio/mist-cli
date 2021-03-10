@@ -43,13 +43,17 @@ push_cli_binaries:
         build_binaries() {
           local bin_dir="${1?Specify binaries dir}"
           #mkdir $bin_dir
-          oses=("linux"  "darwin"  "freebsd" "openbsd" "netbsd" "windows")
-          archs=("amd64" "arm64")
-          for os in ${oses[@]}; do
-            for arch in ${archs[@]}; do
-              env GOOS=$os GOARCH=$arch go build -o $bin_dir/$os/$arch/mist && \
-              sha256sum $bin_dir/$os/$arch/mist | awk '{print $1}' > $bin_dir/$os/$arch/mist.sha256
-            done
+          platforms=("linux/amd64" "linux/arm64"  "darwin/amd64" "darwin/arm64" "freebsd/amd64" "freebsd/arm64" "openbsd/amd64" "openbsd/arm64" "netbsd/amd64" "netbsd/arm64" "windows/amd64")
+          for platform in "${platforms[@]}"; do
+            platform_split=(${platform//\// })
+            os=${platform_split[0]}
+            arch=${platform_split[1]}
+            bin_name=$bin_dir/$os/$arch/mist
+            if [ $os == "windows" ]; then
+              bin_name=$bin_name.exe
+            fi
+            env GOOS=$os GOARCH=$arch go build -o $bin_name && \
+            sha256sum $bin_name | awk '{print $1}' > $bin_name.sha256
           done
           local return_value=0
           return "$return_value"
@@ -94,6 +98,7 @@ release: &release_template
     - chmod +x /usr/local/bin/submark
     - apk add curl
     - apk add jq
+    - apk add bash
   script:
     #- mkdir release
     #- cp artifacts/docker-compose.yml release/docker-compose.yml
@@ -104,17 +109,36 @@ release: &release_template
     - sed "s/TAG/$CI_BUILD_REF_NAME/g;s/REPO/$CI_PROJECT_NAME/g" ci/release.md >> release.md
     - VERSION=$CI_COMMIT_TAG
     - |
-      table=""
+      #! /usr/bin/env bash
       bins=$(curl -G -d "prefix=cli/${VERSION}/bin/" -d "delimeter=/" -s  https://content-storage.googleapis.com/storage/v1/b/mist-downloads/o | jq '.items[] | {name: .name, url: ("https://dl.mist.io/" + .name)}' | jq -s)
+      bins_tuples=()
       for bin in $(echo "${bins}" | jq -c '.[]'); do
-              name=$(echo $bin | jq '.name' | tr -d '\"' | awk -F/ '{print $(NF-2)"/"$(NF-1)"/"$NF}')
-              url=$(echo $bin | jq '.url' | tr -d '\"')
-              if ! echo $name | grep -q -E '\.sha256$'; then
-                sha256=$(curl -s "$url.sha256")
-                table="${table}[${name}](${url}) | ${sha256}\n"
-              fi
+        name=$(echo $bin | jq '.name' | tr -d '\"' | awk -F/ '{print $(NF-2)" "$(NF-1)" "$NF}')
+        url=$(echo $bin | jq '.url' | tr -d '\"')
+        if ! echo $name | grep -q -E '\.sha256$'; then
+          sha256=$(curl -s "$url.sha256")
+          bins_tuples+=( "${name} ${url} ${sha256}" )
+        fi
       done
-      echo -e $table >> release.md
+      oses_order=("linux" "darwin" "windows" "freebsd" "openbsd" "netbsd")
+      tables=""
+      IFS=$'\n'
+      for os in ${oses_order[@]}; do
+        IFS=$'\n'
+        uppercase_os="$(tr '[:lower:]' '[:upper:]' <<< ${os:0:1})${os:1}"
+        table="####${uppercase_os}\nARCH | SHA256\n------------ | -------------\n"
+        for bin_tuple in ${bins_tuples[@]}; do
+          case $bin_tuple in $os*)
+            echo $bin_tuple
+            IFS=$' '
+            bin_array=($bin_tuple)
+            table="${table}[${bin_array[1]}](${bin_array[3]}) | ${bin_array[4]}\n"
+          esac
+        done
+        tables=$tables$table
+      done
+      echo $tables
+      echo -e $tables >> release.md
     #- ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
     - ./ci/release.py $RELEASE_ARGS --draft -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
   only:
