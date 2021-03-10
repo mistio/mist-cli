@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+VERSION=$CI_COMMIT_TAG
 bins=$(curl -G -d "prefix=cli/${VERSION}/bin/" -d "delimeter=/" -s  https://content-storage.googleapis.com/storage/v1/b/mist-downloads/o | jq '.items[] | {name: .name, url: ("https://dl.mist.io/" + .name)}' | jq -s)
 bins_tuples=()
 for bin in $(echo "${bins}" | jq -c '.[]'); do
