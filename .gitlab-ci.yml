@@ -14,9 +14,7 @@ build_cli_binaries:
 
 push_cli_binaries:
   stage: build
-  #image: mist/cli-automation
-  image: vpapav/cli-automation
-
+  image: mist/cli-automation
   script:
     - |
         #! /usr/bin/env bash
