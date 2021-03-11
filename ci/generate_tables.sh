@@ -22,7 +22,7 @@ for bin_tuple in ${bins_tuples[@]}; do
     echo $bin_tuple
     IFS=$' '
     bin_array=($bin_tuple)
-    table="${table}[${bin_array[1]}](${bin_array[3]}) | ${bin_array[4]}\n"
+    table="${table}[${bin_array[1]}](${bin_array[3]}) | <sub>\`${bin_array[4]}\`</sub>\n"
     esac
 done
 tables="${tables}${table}\n"
