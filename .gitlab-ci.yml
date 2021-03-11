@@ -1,0 +1,124 @@
+stages:
+  - build
+  - release
+
+#################### BUILD STAGE ####################
+build_cli_binaries:
+  stage: build
+  image: golang/1.16.0-buster
+  script:
+    - go build -o mist
+  tags:
+    - builder
+  dependencies: []
+
+push_cli_binaries:
+  stage: build
+  image: mist/cli-automation
+  script:
+    - |
+        #! /usr/bin/env bash
+
+        gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
+        set -o errexit
+        set -o nounset
+        set -o pipefail
+        readonly REPO_URL=https://mist-downloads.storage.googleapis.com/
+        readonly GCS_BUCKET=gs://mist-downloads
+        export VERSION=$CI_COMMIT_TAG
+        echo "VERSION=$VERSION"
+
+
+        main() {
+          if ! build_binaries "cli/$VERSION/bin"; then
+              log_error "Not all binaries could be built!"
+          fi
+          if ! upload_binaries "cli" "$GCS_BUCKET"; then
+              log_error "Not all binaries could be uploaded!"
+          fi
+        }
+
+        build_binaries() {
+          local bin_dir="${1?Specify binaries dir}"
+          #mkdir $bin_dir
+          platforms=("linux/amd64" "linux/arm64"  "darwin/amd64" "darwin/arm64" "freebsd/amd64" "freebsd/arm64" "openbsd/amd64" "openbsd/arm64" "netbsd/amd64" "netbsd/arm64" "windows/amd64")
+          for platform in "${platforms[@]}"; do
+            platform_split=(${platform//\// })
+            os=${platform_split[0]}
+            arch=${platform_split[1]}
+            bin_name=$bin_dir/$os/$arch/mist
+            if [ $os == "windows" ]; then
+              bin_name=$bin_name.exe
+            fi
+            env GOOS=$os GOARCH=$arch go build -o $bin_name && \
+            sha256sum $bin_name | awk '{print $1}' > $bin_name.sha256
+          done
+          local return_value=0
+          return "$return_value"
+        }
+
+        upload_binaries() {
+          local bin_dir="${1?Specify binary dir to upload}"
+          local bucket="${2?Specify bucket to upload binaries to}"
+
+          if ! gsutil -m cp -r $bin_dir $bucket; then
+            log_error "Failed to upload the binaries to the bucket"
+            exit 1
+          fi
+
+          local return_value=0
+          return "$return_value"
+        }
+
+        log_error() {
+          printf '\e[31mERROR: %s\n\e[39m' "$1" >&2
+        }
+
+        main
+  only:
+    # only for references that match a version string (v1.2.3)
+    - /^v\d+\.\d+\.\d+$/
+  except:
+    # Except branches, meaning it'll only apply to git tags
+    - branches
+  dependencies: []
+
+#################### RELEASE STAGE ####################
+release: &release_template
+  when: manual
+  stage: release
+  image: python:2.7-alpine
+  before_script:
+    - apk add --update libmagic openssl
+    - pip install requests python-magic
+    - wget -O /usr/local/bin/submark https://github.com/dahlia/submark/releases/download/0.2.0/submark-linux-x86_64
+    - chmod +x /usr/local/bin/submark
+    - chmod +x ./ci/generate_tables.sh
+    - apk add curl
+    - apk add jq
+    - apk add bash
+  script:
+    - HEADER=$(sed -n "s/^## \($CI_BUILD_REF_NAME .*\)$/\1/p" CHANGELOG.md)
+    - submark --omit-heading --h2="$HEADER" --out-file=release.md CHANGELOG.md
+    - sed -i 's/^### Changes/## Changes/' release.md
+    - echo >> release.md
+    - sed "s/TAG/$CI_BUILD_REF_NAME/g;s/REPO/$CI_PROJECT_NAME/g" ci/release.md >> release.md
+    - sed -i "s/<version>/$CI_COMMIT_TAG/g" release.md
+    - ./ci/generate_tables.sh
+    - ./ci/release.py $RELEASE_ARGS --draft -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
+  only:
+    # only for references that match a version string (v1.2.3)
+    - /^v\d+\.\d+\.\d+$/
+  except:
+    # Except branches, meaning it'll only apply to git tags
+    - branches
+  dependencies:
+    - push_cli_binaries
+
+prerelease:
+  <<: *release_template
+  variables:
+    RELEASE_ARGS: "--prerelease"
+  only:
+    # only for references that match a prelease version string (v1.2.3-beta)
+    - /^v\d+\.\d+\.\d+-.+$/
