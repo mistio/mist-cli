@@ -16,7 +16,7 @@ IFS=$'\n'
 for os in ${oses_order[@]}; do
 IFS=$'\n'
 uppercase_os="$(tr '[:lower:]' '[:upper:]' <<< ${os:0:1})${os:1}"
-table="#### ${uppercase_os}\nARCH | SHA256\n------------ | -------------\n"
+table="#### ${uppercase_os}\nArch | SHA256\n------------ | -------------\n"
 for bin_tuple in ${bins_tuples[@]}; do
     case $bin_tuple in $os*)
     echo $bin_tuple
