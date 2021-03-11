@@ -77,7 +77,6 @@ push_cli_binaries:
         }
 
         main
-  when: manual
   only:
     # only for references that match a version string (v1.2.3)
     - /^v\d+\.\d+\.\d+$/
@@ -101,8 +100,6 @@ release: &release_template
     - apk add jq
     - apk add bash
   script:
-    #- mkdir release
-    #- cp artifacts/docker-compose.yml release/docker-compose.yml
     - HEADER=$(sed -n "s/^## \($CI_BUILD_REF_NAME .*\)$/\1/p" CHANGELOG.md)
     - submark --omit-heading --h2="$HEADER" --out-file=release.md CHANGELOG.md
     - sed -i 's/^### Changes/## Changes/' release.md
@@ -110,7 +107,6 @@ release: &release_template
     - sed "s/TAG/$CI_BUILD_REF_NAME/g;s/REPO/$CI_PROJECT_NAME/g" ci/release.md >> release.md
     - sed -i "s/<version>/$CI_COMMIT_TAG/g" release.md
     - ./ci/generate_tables.sh
-    #- ./ci/release.py $RELEASE_ARGS --draft -f release/* -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
     - ./ci/release.py $RELEASE_ARGS --draft -m @release.md mistio $CI_PROJECT_NAME $CI_BUILD_REF_NAME
   only:
     # only for references that match a version string (v1.2.3)

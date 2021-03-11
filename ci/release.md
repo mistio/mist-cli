@@ -25,7 +25,7 @@
     mist: FAILED
     sha256sum: WARNING: 1 computed checksum did NOT match
     ```
-3. Make mist binary executable:\
+3. Make mist binary executable:
     ```
     chmod +x ./mist
     ```
@@ -82,7 +82,7 @@
         ```
         echo $BASH_VERSION
         ```
-    - Install bash to v4.0+ if older
+    - Install/upgrade bash to v4.0+ if older
         ```
         brew install bash
         ```
