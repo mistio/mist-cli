@@ -49,7 +49,32 @@ gke-machine                                     GCE mist                running
 xtest-DO-w-volume                               Digital Ocean 3         running                           
 test                                            KVM                     terminated
 ```
-### Listings in a different output format
+### Listings with specific columns
+```
+ mist get clouds --only name,provider
+NAME                     	PROVIDER       	
+Aliyun ECS Silicon Valley	aliyun_ecs  	
+Azure ARM New            	azure_arm   	
+DigitalOcean             	digitalocean	
+DockerHost - VSphere     	docker      	
+EC2 Frankfurt            	ec2         	         	
+EC2 N. California        	ec2         	        	
+Equinix Metal            	equinixmetal	
+G8                       	gig_g8      	
+GCE staging          	    gce         	        	
+KVM                      	libvirt     	
+KubeVirt                 	kubevirt    	
+LXD                      	lxd         	
+Linode                   	linode      	      	
+Maxihost 2               	maxihost    	
+OnApp                    	onapp       	
+OpenStack train test     	openstack   	
+Rackspace Dallas         	rackspace   	  	
+SoftLayer                	softlayer   	
+Vultr New                	vultr       	
+vSphere 7 on Metal       	vsphere     	 
+```
+### Listings in different output formats
 ```
 $ mist get machines InfluxDB1 -o yaml
 data:
@@ -84,11 +109,11 @@ LAMP           	Linode	running
 debian-ap-south	Linode	running	
 ```
 Note: instead of: `"state:running AND cloud:Linode"` we could also have written: `"state:running cloud:Linode"`
-### Listing with JMESPath query manipulation
-Get the total number of instances
+### Listings with JMESPath query manipulation
+Get the total number of your clouds
 ```
-$ mist get machines -q meta.total
-102
+$ mist get clouds -q meta.total
+29
 ```
 List the names and private IPs of all the machines
 ```
@@ -120,6 +145,11 @@ $ mist get machine --only name,cost -o csv
 InfluxDB1,0.013888888888888888,10
 debian-ap-south,0.027777777777777776,20
 LAMP,0.006944444444444444,5
+```
+### Find your public key
+```
+$ mist get key staging -q data.public
+ssh-rsa XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...
 ```
 ### SSH
 By associating a key to a machine with mist, you can ssh into it without having to fiddle around with ssh keys. When deploying instances with mist you can always have an associated key 
