@@ -3,7 +3,7 @@
 ## [Releases and installation instructions](https://github.com/mistio/mist-cli/releases)
 
 ## Overview
-Mist CLI is a command line tool for managing multicloud infrastructure. It closely resembles [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) both in functionality and ease of use. Sign up with [mist](https://mist.io/), the opensource multicloud management platform, or take a look on mist's other offerings and with this companion CLI tool, you can manage all your clouds and instances efficiently and do even more. Take a look below to see all the functionality you can gain from the `mist` + `mist CLI` combo.
+Mist CLI is a command line tool for managing multicloud infrastructure. It closely resembles [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) both in functionality and ease of use. You can connect it to multiple instances of the Mist Cloud Management Platform, including [Mist CE](https://github.com/mistio/mist-ce) & [Mist EE](https://github.com/mistio/mist-ee). The fastest way to get started is by signing up to the hosted service at [mist.io](https://mist.io/).
 
 ### Syntax
 Use the following syntax to run `mist` CLI commands from your terminal window:
