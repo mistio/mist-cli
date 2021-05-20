@@ -613,6 +613,66 @@ func MistApiV2AddKey(params *viper.Viper, body string) (*gentleman.Response, map
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
 }
 
+// MistApiV2EditKey Edit key
+func MistApiV2EditKey(paramKey string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-key"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/keys/{key}"
+	url = strings.Replace(url, "{key}", paramKey, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	paramName := params.GetString("name")
+	if paramName != "" {
+		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
+	}
+	paramDefault := params.GetBool("default")
+	if paramDefault != false {
+		req = req.AddQuery("default", fmt.Sprintf("%v", paramDefault))
+	}
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return nil, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
+}
+
 // MistApiV2DeleteKey Delete key
 func MistApiV2DeleteKey(paramKey string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "delete-key"
@@ -722,66 +782,6 @@ func MistApiV2GetKey(paramKey string, params *viper.Viper) (*gentleman.Response,
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}}, nil
-}
-
-// MistApiV2EditKey Edit key
-func MistApiV2EditKey(paramKey string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-key"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/keys/{key}"
-	url = strings.Replace(url, "{key}", paramKey, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	paramName := params.GetString("name")
-	if paramName != "" {
-		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
-	}
-	paramDefault := params.GetBool("default")
-	if paramDefault != false {
-		req = req.AddQuery("default", fmt.Sprintf("%v", paramDefault))
-	}
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return nil, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
 }
 
 // MistApiV2ListLocations List locations
@@ -3103,62 +3103,6 @@ func MistApiV2CreateVolume(params *viper.Viper, body string) (*gentleman.Respons
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
 }
 
-// MistApiV2EditVolume Edit volume
-func MistApiV2EditVolume(paramVolume string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-volume"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/volumes/{volume}"
-	url = strings.Replace(url, "{volume}", paramVolume, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	paramName := params.GetString("name")
-	if paramName != "" {
-		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
-	}
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return nil, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
-}
-
 // MistApiV2GetVolume Get volume
 func MistApiV2GetVolume(paramVolume string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "get-volume"
@@ -3213,6 +3157,62 @@ func MistApiV2GetVolume(paramVolume string, params *viper.Viper) (*gentleman.Res
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "size", "cloud", "location", "attached_to", "tags"}, []string{"id", "name", "size", "cloud", "location", "external_id", "attached_to", "tags", "owned_by", "created_by"}}, nil
+}
+
+// MistApiV2EditVolume Edit volume
+func MistApiV2EditVolume(paramVolume string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-volume"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/volumes/{volume}"
+	url = strings.Replace(url, "{volume}", paramVolume, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	paramName := params.GetString("name")
+	if paramName != "" {
+		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
+	}
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return nil, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return nil, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}}, nil
 }
 
 // MistApiV2ListZones List zones
@@ -3829,6 +3829,48 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "edit-key key",
+			Short:   "Edit key",
+			Long:    cli.Markdown("Edit target key"),
+			Example: examples,
+			Group:   "keys",
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[1:])
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditKey(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("name", "", "New key name")
+		cmd.Flags().String("default", "", "Set as default")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "delete-key key",
 			Short:   "Delete key",
 			Long:    cli.Markdown("Delete target key"),
@@ -3889,48 +3931,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("sort", "", "Order results by")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "edit-key key",
-			Short:   "Edit key",
-			Long:    cli.Markdown("Edit target key"),
-			Example: examples,
-			Group:   "keys",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[1:])
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2EditKey(args[0], params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("name", "", "New key name")
-		cmd.Flags().String("default", "", "Set as default")
 
 		cli.SetCustomFlags(cmd)
 
@@ -4072,7 +4072,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "create-machine",
 			Short:   "Create machine",
-			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\nallOf:\n- properties:\n    cloud:\n      description: Specify cloud to provision on\n      type: string\n    cloudinit:\n      description: Run this Cloud Init script on first boot\n      type: string\n    disks:\n      description: Configure local disks\n      type: object\n    dry:\n      description: Return provisioning plan and exit without executing it\n      type: boolean\n    expiration:\n      $ref: '#/components/schemas/Expiration'\n    extra:\n      description: Configure additional parameters\n      type: object\n    fqdn:\n      description: Add DNS A Record that points machine's public IP to this Fully\n        Qualified Domain Name. Zone needs to be managed by a configured Cloud DNS\n        provider\n      type: string\n    image:\n      description: Operating System image to boot from\n      oneOf:\n      - type: object\n      - description: Name or ID of the image to boot from\n        type: string\n    key:\n      description: Associate SSH key\n      oneOf:\n      - type: object\n      - description: Name or ID of the SSH key to deploy\n        type: string\n    location:\n      description: Where to provision e.g. region, datacenter, rack\n      type: string\n    monitoring:\n      description: Enable monitoring of this machine\n      type: boolean\n    name:\n      description: Specify machine name\n      type: string\n    net:\n      description: Specify network configuration parameters\n      type: object\n    provider:\n      $ref: '#/components/schemas/SupportedProviders'\n    quantity:\n      description: Provision multiple machines of this type\n      type: number\n    save:\n      description: Save provisioning plan as template\n      type: boolean\n    schedules:\n      description: Configure scheduled actions for the provisioned machine\n      items:\n        allOf:\n        - properties:\n            action:\n              enum:\n              - start\n              - stop\n              - reboot\n              - destroy\n              type: string\n            description:\n              type: string\n            schedule_type:\n              enum:\n              - one_off\n              - crontab\n              - interval\n              type: string\n            script:\n              $ref: '#/components/schemas/PostDeployScript'\n          required:\n          - schedule_type\n          type: object\n        - discriminator:\n            mapping:\n              crontab: '#/components/schemas/CronSchedule'\n              interval: '#/components/schemas/IntervalSchedule'\n              one_off: '#/components/schemas/OneOffSchedule'\n            propertyName: schedule_type\n          oneOf:\n          - $ref: '#/components/schemas/OneOffSchedule'\n          - $ref: '#/components/schemas/CronSchedule'\n          - $ref: '#/components/schemas/IntervalSchedule'\n      type: array\n    scripts:\n      description: Run post deploy scripts over SSH\n      items:\n        allOf:\n        - type: object\n        - oneOf:\n          - $ref: '#/components/schemas/InlineScript'\n          - $ref: '#/components/schemas/PostDeployScript'\n      type: array\n    size:\n      description: Machine sizing spec e.g. cpu/ram/flavor\n      oneOf:\n      - additionalProperties: true\n        properties:\n          cpus:\n            description: Number of cpu cores\n            minimum: 1\n            type: integer\n          ram:\n            description: Ram size in MBs\n            minimum: 256\n            type: integer\n        type: object\n      - description: Name or ID of the size to select for this machine\n        type: string\n    tags:\n      description: Assign tags to provisioned machine\n      type: object\n    template:\n      type: object\n    volumes:\n      description: Configure of attached storage volumes, e.g. cloud disks\n      items:\n        type: object\n      type: array\n  required:\n  - name\n  - size\n  - image\n  type: object\n- anyOf:\n  - $ref: '#/components/schemas/KvmCreateMachineRequest'\n  - $ref: '#/components/schemas/AmazonCreateMachineRequest'\n  - $ref: '#/components/schemas/DigitalOceanCreateMachineRequest'\n  - $ref: '#/components/schemas/EquinixMetalCreateMachineRequest'\n  - $ref: '#/components/schemas/GoogleCreateMachineRequest'\n  - $ref: '#/components/schemas/GenericCreateMachineRequest'\n"),
+			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\nallOf:\n- properties:\n    cloud:\n      description: Specify cloud to provision on\n      type: string\n    cloudinit:\n      description: Run this Cloud Init script on first boot\n      type: string\n    disks:\n      description: Configure local disks\n      type: object\n    dry:\n      description: Return provisioning plan and exit without executing it\n      type: boolean\n    expiration:\n      $ref: '#/components/schemas/Expiration'\n    extra:\n      description: Configure additional parameters\n      type: object\n    fqdn:\n      description: Add DNS A Record that points machine's public IP to this Fully\n        Qualified Domain Name. Zone needs to be managed by a configured Cloud DNS\n        provider\n      type: string\n    image:\n      description: Operating System image to boot from\n      oneOf:\n      - type: object\n      - description: Name or ID of the image to boot from\n        type: string\n    key:\n      description: Associate SSH key\n      oneOf:\n      - type: object\n      - description: Name or ID of the SSH key to deploy\n        type: string\n    location:\n      description: Where to provision e.g. region, datacenter, rack\n      type: string\n    monitoring:\n      description: Enable monitoring of this machine\n      type: boolean\n    name:\n      description: Specify machine name\n      type: string\n    net:\n      description: Specify network configuration parameters\n      type: object\n    provider:\n      $ref: '#/components/schemas/SupportedProviders'\n    quantity:\n      description: Provision multiple machines of this type\n      type: number\n    save:\n      description: Save provisioning plan as template\n      type: boolean\n    schedules:\n      description: Configure scheduled actions for the provisioned machine\n      items:\n        allOf:\n        - properties:\n            action:\n              enum:\n              - start\n              - stop\n              - reboot\n              - destroy\n              type: string\n            description:\n              type: string\n            schedule_type:\n              enum:\n              - one_off\n              - crontab\n              - interval\n              type: string\n            script:\n              $ref: '#/components/schemas/PostDeployScript'\n          required:\n          - schedule_type\n          type: object\n        - discriminator:\n            mapping:\n              crontab: '#/components/schemas/CronSchedule'\n              interval: '#/components/schemas/IntervalSchedule'\n              one_off: '#/components/schemas/OneOffSchedule'\n            propertyName: schedule_type\n          oneOf:\n          - $ref: '#/components/schemas/OneOffSchedule'\n          - $ref: '#/components/schemas/CronSchedule'\n          - $ref: '#/components/schemas/IntervalSchedule'\n      type: array\n    scripts:\n      description: Run post deploy scripts over SSH\n      items:\n        allOf:\n        - type: object\n        - oneOf:\n          - $ref: '#/components/schemas/InlineScript'\n          - $ref: '#/components/schemas/PostDeployScript'\n      type: array\n    size:\n      description: Machine sizing spec e.g. cpu/ram/flavor\n      oneOf:\n      - properties:\n          cpus:\n            description: Number of cpu cores\n            minimum: 1\n            type: integer\n          ram:\n            description: Ram size in MBs\n            minimum: 256\n            type: integer\n        type: object\n      - description: Name or ID of the size to select for this machine\n        type: string\n    tags:\n      description: Assign tags to provisioned machine\n      type: object\n    template:\n      type: object\n    volumes:\n      description: Configure of attached storage volumes, e.g. cloud disks\n      items:\n        type: object\n      type: array\n  required:\n  - name\n  - size\n  - image\n  type: object\n- anyOf:\n  - $ref: '#/components/schemas/KvmCreateMachineRequest'\n  - $ref: '#/components/schemas/AmazonCreateMachineRequest'\n  - $ref: '#/components/schemas/DigitalOceanCreateMachineRequest'\n  - $ref: '#/components/schemas/EquinixMetalCreateMachineRequest'\n  - $ref: '#/components/schemas/GoogleCreateMachineRequest'\n  - $ref: '#/components/schemas/GenericCreateMachineRequest'\n"),
 			Example: examples,
 			Group:   "machines",
 			Args:    cobra.MinimumNArgs(0),
@@ -5562,6 +5562,44 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "get-volume volume",
+			Short:   "Get volume",
+			Long:    cli.Markdown("Get details about target volume"),
+			Example: examples,
+			Group:   "volumes",
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2GetVolume(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "edit-volume volume",
 			Short:   "Edit volume",
 			Long:    cli.Markdown("Edit target volume"),
@@ -5588,44 +5626,6 @@ func mistApiV2Register(subcommand bool) {
 		root.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New volume name")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "get-volume volume",
-			Short:   "Get volume",
-			Long:    cli.Markdown("Get details about target volume"),
-			Example: examples,
-			Group:   "volumes",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2GetVolume(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
