@@ -1,11 +1,33 @@
 # Mist CLI
 
-## [Releases and installation instructions](https://github.com/mistio/mist-cli/releases)
+Mist CLI is a command line tool for managing multicloud infrastructure. It closely resembles [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) both in terms of functionality and ease of use.
 
-## Overview
-Mist CLI is a command line tool for managing multicloud infrastructure. It closely resembles [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) both in functionality and ease of use. You can connect it to multiple instances of the Mist Cloud Management Platform, including [Mist CE](https://github.com/mistio/mist-ce) & [Mist EE](https://github.com/mistio/mist-ee). The fastest way to get started is by signing up to the hosted service at [mist.io](https://mist.io/).
+The CLI requires a connection to at least one instance of the Mist Cloud Management Platform. The available options include [Mist CE](https://github.com/mistio/mist-ce), [Mist EE](https://github.com/mistio/mist-ee) and [Mist HS](https://mist.io). You can connect it to multiple ones.
 
-### Syntax
+## Quickstart
+
+First, install the CLI following the instructions [here](https://github.com/mistio/mist-cli/releases). Mist CLI supports Windows, Linux and MacOS.
+
+If you don't have an account in a Mist instance already, the fastest way to get started is to sign up for a [free trial of Mist HS](https://mist.io/signup).
+
+Sign in Mist and generate an API key from your account section, e.g. https://mist.io/my-account/tokens. Copy the API token generated and, in your local machine, create a new context with the following command:
+
+```
+mist config add-context <name> <api-key>
+```
+
+If you don't use Mist HS, you should add the `--server` flag with the URL of your installation, e.g.
+
+```
+mist config add-context --server <URL> <name> <api-key>
+```
+
+All your configuration settings are saved in the `credentials.json` file in the `$HOME/.mist` directory.
+
+You are now ready to manage your clouds from the command line!
+
+
+## Syntax
 Use the following syntax to run `mist` CLI commands from your terminal window:
 ```
 mist [command] [TYPE] [NAME] [flags]
@@ -25,19 +47,10 @@ where `command`, `TYPE`, `NAME`, and `flags` are:
 
 If you need help, just run `mist help` from the terminal window.
 
-### First time usage
+## Examples
 
-In order to use the mist CLI to interact with a mist installation, you should generate first a mist API key. After that you need to create a new context by applying the following command.
-```
-mist config add-context [flags] <name> <api-key>
-```
-Note: In case you don't use mist.io's Hosted Service, you should add the `--server` flag in the above command with the URL of your installation
-
-Now you should be able to manage your clouds through mist CLI!
-
-Note: All your configuration settings are saved in the `credentials.json` file in the $HOME/.mist directory.
-## Common usage
 ### Listings
+
 ```
 $ mist get machines
 NAME                                            CLOUD                   STATE           TAGS               
@@ -49,17 +62,19 @@ gke-machine                                     GCE mist                running
 xtest-DO-w-volume                               Digital Ocean 3         running                           
 test                                            KVM                     terminated
 ```
+
 ### Listings with specific columns
+
 ```
  mist get clouds --only name,provider
 NAME                     	PROVIDER       	
 Aliyun ECS Silicon Valley	aliyun_ecs  	
 Azure ARM New            	azure_arm   	
-DigitalOcean             	digitalocean	
+DigitalOcean             	digitalocean
 DockerHost - VSphere     	docker      	
 EC2 Frankfurt            	ec2         	         	
 EC2 N. California        	ec2         	        	
-Equinix Metal            	equinixmetal	
+Equinix Metal            	equinixmetal
 G8                       	gig_g8      	
 GCE staging          	    gce         	        	
 KVM                      	libvirt     	
@@ -74,7 +89,13 @@ SoftLayer                	softlayer
 Vultr New                	vultr       	
 vSphere 7 on Metal       	vsphere     	 
 ```
+
 ### Listings in different output formats
+
+You can output data in JSON, YAML and CSV format by using the `-o <format>` flag. The supported `format` options are `json`, `csv`, and `yaml`.
+
+Here is an example with YAML:
+
 ```
 $ mist get machines InfluxDB1 -o yaml
 data:
@@ -99,23 +120,30 @@ meta:
   start: 0
   total: 2
 ```
-Note: You can also output data in json and csv form by using the `-o <format>` flag where format can be `json`, `csv`, or `yaml`
+
 ### Listings with searching by attributes
+
 ```
 $ mist get machines --search "state:running AND cloud:Linode"
-NAME           	CLOUD 	STATE  	TAGS 
-InfluxDB1      	Linode	running	staging	
+NAME           	CLOUD 	STATE  	TAGS
+InfluxDB1      	Linode	running	staging
 LAMP           	Linode	running	    	
-debian-ap-south	Linode	running	
+debian-ap-south	Linode	running
 ```
-Note: instead of: `"state:running AND cloud:Linode"` we could also have written: `"state:running cloud:Linode"`
+
+`"state:running AND cloud:Linode"` is also equivalent to `"state:running cloud:Linode"`.
+
 ### Listings with JMESPath query manipulation
-Get the total number of your clouds
+
+Get the total number of your clouds:
+
 ```
 $ mist get clouds -q meta.total
 29
 ```
-List the names and private IPs of all the machines
+
+List the names and private IPs of all the machines:
+
 ```
 $ mist get machines -q "data[:].[name, private_ips]"
 [
@@ -137,8 +165,11 @@ $ mist get machines -q "data[:].[name, private_ips]"
   ]
 ]
 ```
-Note: `-q "data[:].[name, private_ips]"` is equivalent to this `-q data[:].[name,private_ips]`. The double quotes help you to escape white space on the queries. For more information about JMESPath check this [tutorial](https://jmespath.org/tutorial.html).
+
+`-q "data[:].[name, private_ips]"` is also equivalent to `-q data[:].[name,private_ips]`. The double quotes help you escape white space on the queries. For more information about JMESPath check this [tutorial](https://jmespath.org/tutorial.html).
+
 ### Filter Data for reporting
+
 ```
 $ mist get machine --only name,cost -o csv
 /name,/cost/hourly,/cost/monthly
@@ -146,13 +177,18 @@ InfluxDB1,0.013888888888888888,10
 debian-ap-south,0.027777777777777776,20
 LAMP,0.006944444444444444,5
 ```
+
 ### Find your public key
+
 ```
 $ mist get key staging -q data.public
 ssh-rsa XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...
 ```
+
 ### SSH
-By associating a key to a machine with mist, you can ssh into it without having to fiddle around with ssh keys. When deploying instances with mist you can always have an associated key 
+
+If a machine is associated with an SSH key in Mist, you can connect to it without access to the private key.
+
 ```
 $ mist ssh machine-name
 
@@ -165,141 +201,7 @@ permitted by applicable law.
 Last login: Tue Mar 23 18:57:52 2021 from mist-ce_huproxy_1.mist-ce_default
 root@3a088b51795b:~#
 ```
-Tip: Use `CTRL + D` or type `logout` to the remote terminal to exit.\
-Note: The public key needs to be in the user's `~/.ssh/authorized_keys` file in the target machine.\
-This can easily be achieved with machines deployed through mist by assigning them a key during creation.
-## Installation
 
-### Instructions
+You can use `CTRL + D` or type `logout` to the remote terminal to exit.
 
-#### Linux
-1. Download the latest release with the command:
-    ```
-    curl -LO "https://dl.mist.io/cli/<version>/bin/linux/amd64/mist"
-    ```
-2. Validate the binary (optional):\
-    Download the mist checksum file:
-    ```
-    curl -LO "https://dl.mist.io/cli/<version>/bin/linux/amd64/mist.sha256"
-    ```
-    Validate the mist binary against the checksum file:
-    ```
-    echo "$(<mist.sha256) mist" | sha256sum --check
-    ```
-    If valid, the output is:
-    ```
-    mist: OK
-    ```
-    If the check fails, sha256 exits with nonzero status and prints output similar to:
-    ```
-    mist: FAILED
-    sha256sum: WARNING: 1 computed checksum did NOT match
-    ```
-3. Make mist binary executable:
-    ```
-    chmod +x ./mist
-    ```
-4. Install mist on path (optional):\
-    e.g.
-    ```
-    sudo mv mist /usr/local/bin/mist
-    ```
-5. Enable mist autocompletion on all your sessions (optional):\
-    Bash
-    ```
-    echo 'source <(mist completion bash)' >>~/.bashrc
-    ```
-    Zsh
-    ```
-    echo 'source <(mist completion zsh)' >>~/.zshrc
-    ```
-#### MacOS
-1. Download the latest release with the command:
-    ```
-    curl -LO "https://dl.mist.io/cli/<version>/bin/darwin/amd64/mist"
-    ```
-2. Validate the binary (optional):\
-    Download the mist checksum file:
-    ```
-    curl -LO "https://dl.mist.io/cli/<version>/bin/darwin/amd64/mist.sha256"
-    ```
-    Validate the mist binary against the checksum file:
-    ```
-    echo "$(<mist.sha256) mist" | sha256sum --check
-    ```
-    If valid, the output is:
-    ```
-    mist: OK
-    ```
-    If the check fails, sha256 exits with nonzero status and prints output similar to:
-    ```
-    mist: FAILED
-    sha256sum: WARNING: 1 computed checksum did NOT match
-    ```
-3. Make mist binary executable:
-    ```
-    chmod +x ./mist
-    ```
-3. Install mist on path (optional):\
-    e.g.
-    ```
-    sudo mv ./mist /usr/local/bin/mist
-    sudo chown root: /usr/local/bin/mist
-    ```
-4. Enable mist autocompletion on all your sessions (optional):\
-    Bash
-    - Check bash version
-        ```
-        echo $BASH_VERSION
-        ```
-    - Install/upgrade bash to v4.0+ if older
-        ```
-        brew install bash
-        ```
-    - Source completion script
-        ```
-        echo 'source <(mist completion bash)' >>~/.bash_profile
-        ```
-    Zsh
-    ```
-    echo 'source <(mist completion zsh)' >>~/.zshrc
-    ```
-#### Windows
-1. Download the latest release with the command:
-    ```
-    curl -LO "https://dl.mist.io/cli/<version>/bin/windows/amd64/mist.exe"
-    ```
-2. Validate the binary (optional):\
-    Download the mist checksum file:
-    ```
-    curl -LO "https://dl.mist.io/cli/<version>/bin/windows/amd64/mist.exe.sha256"
-    ```
-    Validate the mist binary against the checksum file:
-    - Using Command Prompt to manually compare CertUtil's output to the checksum file downloaded:
-        ```
-        CertUtil -hashfile mist.exe SHA256
-        type mist.exe.sha256
-        ```
-    - Using PowerShell to automate the verification using the -eq operator to get a True or False result:
-        ```
-        $($(CertUtil -hashfile .\mist.exe SHA256)[1] -replace " ", "") -eq $(type .\mist.exe.sha256)
-        ```
-3. Add the binary in to your `PATH`.
-4. Install mist on path (optional):\
-    e.g.
-    ```
-    mv mist /usr/local/bin/mist
-    ```
-5. Enable mist autocompletion on all your sessions (optional):\
-    Powershell
-    ```
-    mist completion powershell
-    ```
-    Bash
-    ```
-    echo 'source <(mist completion bash)' >>~/.bashrc
-    ```
-    Zsh
-    ```
-    echo 'source <(mist completion zsh)' >>~/.zshrc
-    ```
+Please note, that the public key needs to be in the user's `~/.ssh/authorized_keys` file in the target machine. This is done automatically when you create a machine through Mist.
