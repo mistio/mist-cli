@@ -7,19 +7,23 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
+	"math"
 
+	"github.com/containerd/console"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
 	"github.com/mistio/cobra"
+	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
-	"github.com/containerd/console"
 )
 
 var logger = log.New(os.Stdout, "", 0)
@@ -173,6 +177,161 @@ var sshCmd = &cobra.Command{
 
 		<-done
 	},
+}
+
+func generateMeteringTable(metricsSet map[string]bool, machineMetrics map[string]map[string]string) {
+	table := tablewriter.NewWriter(os.Stdout)
+	metricsList := []string{}
+	for metric, _ := range metricsSet {
+		metricsList = append(metricsList, metric)
+	}
+	sort.Strings(metricsList)
+	machines := make([]string, 0, len(machineMetrics))
+	for machine, _ := range machineMetrics {
+		machines = append(machines, machine)
+	}
+	sort.Strings(machines)
+	for _, machine := range machines {
+		row := []string{machine}
+		for _, metric := range metricsList {
+			row = append(row, machineMetrics[machine][metric])
+		}
+		table.Append(row)
+	}
+	if len(machines) > 0 {
+		headers := []string{"machine_id"}
+		headers = append(headers, metricsList...)
+		table.SetHeader(headers)
+		cli.KubectlifyTable(table)
+		table.Render()
+	}
+}
+
+func parseTime(s string) (time.Time, error) {
+	if t, err := strconv.ParseFloat(s, 64); err == nil {
+		s, ns := math.Modf(t)
+		return time.Unix(int64(s), int64(ns*float64(time.Second))).UTC(), nil
+	}
+	if t, err := time.Parse(time.RFC3339Nano, s); err == nil {
+		return t, nil
+	}
+	return time.Time{}, errors.Errorf("cannot parse %q to a valid timestamp", s)
+}
+
+func getMeteringData(dtStart, dtEnd, queryTemplate string) (map[string]bool, map[string]map[string]string) {
+	paramsGetDatapoints := viper.New()
+	paramsGetDatapoints.Set("time", dtEnd)
+	dtStartTime, _ := parseTime(dtStart)
+	dtEndTime, _ := parseTime(dtEnd)
+	timeRange := int((dtEndTime.Sub(dtStartTime)).Seconds())
+	query := fmt.Sprintf(queryTemplate, timeRange)
+	_, decoded, outputOptions, err := MistApiV2GetDatapoints(query, paramsGetDatapoints)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
+	}
+
+	type resultItem struct {
+		Metric map[string]string `json:"metric"`
+		Value  []interface{}     `json:"value"`
+	}
+
+	type promqlResponse struct {
+		Data struct {
+			DataPromql struct {
+				Result []resultItem `json:"result"`
+			} `json:"data"`
+		} `json:"data"`
+		Metadata map[string]interface{}
+	}
+
+	rawResponse, err := json.Marshal(decoded)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	var response promqlResponse
+	err = json.Unmarshal(rawResponse, &response)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	metricsSet := make(map[string]bool)
+	machineMetrics := make(map[string]map[string]string)
+
+	for _, item := range response.Data.DataPromql.Result {
+		if machineMetrics[item.Metric["machine_id"]] == nil {
+			machineMetrics[item.Metric["machine_id"]] = make(map[string]string)
+		}
+		if item.Value != nil {
+			machineMetrics[item.Metric["machine_id"]][item.Metric["__name__"]] = item.Value[1].(string)
+		}
+		metricsSet[item.Metric["__name__"]] = true
+	}
+
+	if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+		logger.Fatalf("Formatting failed: %s", err.Error())
+	}
+
+	return metricsSet, machineMetrics
+}
+
+func calculateDiffs(machineMetricsStart map[string]map[string]string, machineMetricsEnd map[string]map[string]string) map[string]map[string]string {
+	for machineId, metrics := range machineMetricsEnd {
+		for metric, valueEnd := range metrics {
+			if _, ok := machineMetricsStart[machineId]; !ok {
+				continue
+			}
+			if _, ok := machineMetricsStart[machineId][metric]; !ok {
+				continue
+			}
+			valueStart := machineMetricsStart[machineId][metric]
+			valueStartFloat, err := strconv.ParseFloat(valueStart, 64)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			valueEndFloat, err := strconv.ParseFloat(valueEnd, 64)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			machineMetricsEnd[machineId][metric] = fmt.Sprintf("%f", valueEndFloat-valueStartFloat)
+		}
+	}
+	return machineMetricsEnd
+}
+
+func meteringCmd() *cobra.Command {
+	params := viper.New()
+	cmd := &cobra.Command{
+		Use:   "metering",
+		Short: "Get metering data",
+		Args:  cobra.ExactValidArgs(0),
+		Group: "metering",
+		Run: func(cmd *cobra.Command, args []string) {
+			dtStart := params.GetString("start")
+			if dtStart == "" {
+				dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60-60*30)
+			}
+			dtEnd := params.GetString("end")
+			if dtEnd == "" {
+				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix()-60*30)
+			}
+			_, machineMetricsStart := getMeteringData(dtStart, dtEnd, "first_over_time({metering=\"true\"}[%ds])")
+			metricsSet, machineMetricsEnd := getMeteringData(dtStart, dtEnd, "last_over_time({metering=\"true\"}[%ds])")
+			machineMetricsGauges := calculateDiffs(machineMetricsStart, machineMetricsEnd)
+			generateMeteringTable(metricsSet, machineMetricsGauges)
+		},
+	}
+	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
+	cmd.Flags().String("end", "", "end <rfc3339 | unix_timestamp>")
+
+	cli.SetCustomFlags(cmd)
+
+	if cmd.Flags().HasFlags() {
+		params.BindPFlags(cmd.Flags())
+	}
+	return cmd
 }
 
 var resourceTypes = []string{"cloud", "machine", "volume", "network", "zone", "image", "key"}
@@ -352,6 +511,9 @@ func main() {
 
 	// Add ssh command
 	cli.Root.AddCommand(sshCmd)
+
+	// Add metering command
+	cli.Root.AddCommand(meteringCmd())
 
 	// Add get commend
 	cli.Root.AddCommand(getCmd())
