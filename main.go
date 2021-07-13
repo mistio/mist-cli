@@ -311,11 +311,11 @@ func meteringCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			dtStart := params.GetString("start")
 			if dtStart == "" {
-				dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60-60*30)
+				dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60)
 			}
 			dtEnd := params.GetString("end")
 			if dtEnd == "" {
-				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix()-60*30)
+				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
 			}
 			_, machineMetricsStart := getMeteringData(dtStart, dtEnd, "first_over_time({metering=\"true\"}[%ds])")
 			metricsSet, machineMetricsEnd := getMeteringData(dtStart, dtEnd, "last_over_time({metering=\"true\"}[%ds])")
