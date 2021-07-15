@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"sort"
@@ -12,13 +13,11 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"math"
 
 	"github.com/containerd/console"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
 	"github.com/mistio/cobra"
-	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
@@ -179,8 +178,7 @@ var sshCmd = &cobra.Command{
 	},
 }
 
-func generateMeteringTable(metricsSet map[string]bool, machineMetrics map[string]map[string]string) {
-	table := tablewriter.NewWriter(os.Stdout)
+func formatMeteringData(metricsSet map[string]string, machineMetrics map[string]map[string]string, machineNames map[string]string) {
 	metricsList := []string{}
 	for metric, _ := range metricsSet {
 		metricsList = append(metricsList, metric)
@@ -191,19 +189,23 @@ func generateMeteringTable(metricsSet map[string]bool, machineMetrics map[string
 		machines = append(machines, machine)
 	}
 	sort.Strings(machines)
+	data := make(map[string][]interface{})
 	for _, machine := range machines {
-		row := []string{machine}
+		machineData := make(map[string]string)
 		for _, metric := range metricsList {
-			row = append(row, machineMetrics[machine][metric])
+			if _, ok := machineData["machine_id"]; !ok {
+				machineData["machine_id"] = machine
+				machineData["name"] = machineNames[machine]
+			}
+			machineData[metric] = machineMetrics[machine][metric]
 		}
-		table.Append(row)
+		if _, ok := data["data"]; !ok {
+			data["data"] = make([]interface{}, 0)
+		}
+		data["data"] = append(data["data"], machineData)
 	}
-	if len(machines) > 0 {
-		headers := []string{"machine_id"}
-		headers = append(headers, metricsList...)
-		table.SetHeader(headers)
-		cli.KubectlifyTable(table)
-		table.Render()
+	if err := cli.Formatter.Format(data, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...)}); err != nil {
+		logger.Fatalf("Formatting failed: %s", err.Error())
 	}
 }
 
@@ -218,14 +220,14 @@ func parseTime(s string) (time.Time, error) {
 	return time.Time{}, errors.Errorf("cannot parse %q to a valid timestamp", s)
 }
 
-func getMeteringData(dtStart, dtEnd, queryTemplate string) (map[string]bool, map[string]map[string]string) {
+func getMeteringData(dtStart, dtEnd, queryTemplate string) (map[string]string, map[string]map[string]string, map[string]string) {
 	paramsGetDatapoints := viper.New()
 	paramsGetDatapoints.Set("time", dtEnd)
 	dtStartTime, _ := parseTime(dtStart)
 	dtEndTime, _ := parseTime(dtEnd)
 	timeRange := int((dtEndTime.Sub(dtStartTime)).Seconds())
 	query := fmt.Sprintf(queryTemplate, timeRange)
-	_, decoded, outputOptions, err := MistApiV2GetDatapoints(query, paramsGetDatapoints)
+	_, decoded, _, err := MistApiV2GetDatapoints(query, paramsGetDatapoints)
 	if err != nil {
 		logger.Fatalf("Error calling operation: %s", err.Error())
 	}
@@ -255,29 +257,30 @@ func getMeteringData(dtStart, dtEnd, queryTemplate string) (map[string]bool, map
 		fmt.Println("error:", err)
 	}
 
-	metricsSet := make(map[string]bool)
+	metricsSet := make(map[string]string)
 	machineMetrics := make(map[string]map[string]string)
+	machineNames := make(map[string]string)
 
 	for _, item := range response.Data.DataPromql.Result {
 		if machineMetrics[item.Metric["machine_id"]] == nil {
 			machineMetrics[item.Metric["machine_id"]] = make(map[string]string)
+			machineNames[item.Metric["machine_id"]] = item.Metric["name"]
 		}
 		if item.Value != nil {
 			machineMetrics[item.Metric["machine_id"]][item.Metric["__name__"]] = item.Value[1].(string)
 		}
-		metricsSet[item.Metric["__name__"]] = true
+		metricsSet[item.Metric["__name__"]] = item.Metric["value_type"]
 	}
 
-	if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-		logger.Fatalf("Formatting failed: %s", err.Error())
-	}
-
-	return metricsSet, machineMetrics
+	return metricsSet, machineMetrics, machineNames
 }
 
-func calculateDiffs(machineMetricsStart map[string]map[string]string, machineMetricsEnd map[string]map[string]string) map[string]map[string]string {
+func calculateDiffs(machineMetricsStart map[string]map[string]string, machineMetricsEnd map[string]map[string]string, metricsSet map[string]string) map[string]map[string]string {
 	for machineId, metrics := range machineMetricsEnd {
 		for metric, valueEnd := range metrics {
+			if metricsSet[metric] != "counter" {
+				continue
+			}
 			if _, ok := machineMetricsStart[machineId]; !ok {
 				continue
 			}
@@ -317,10 +320,10 @@ func meteringCmd() *cobra.Command {
 			if dtEnd == "" {
 				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
 			}
-			_, machineMetricsStart := getMeteringData(dtStart, dtEnd, "first_over_time({metering=\"true\"}[%ds])")
-			metricsSet, machineMetricsEnd := getMeteringData(dtStart, dtEnd, "last_over_time({metering=\"true\"}[%ds])")
-			machineMetricsGauges := calculateDiffs(machineMetricsStart, machineMetricsEnd)
-			generateMeteringTable(metricsSet, machineMetricsGauges)
+			_, machineMetricsStart, _ := getMeteringData(dtStart, dtEnd, "first_over_time({metering=\"true\"}[%ds])")
+			metricsSet, machineMetricsEnd, machineNames := getMeteringData(dtStart, dtEnd, "last_over_time({metering=\"true\"}[%ds])")
+			machineMetricsGauges := calculateDiffs(machineMetricsStart, machineMetricsEnd, metricsSet)
+			formatMeteringData(metricsSet, machineMetricsGauges, machineNames)
 		},
 	}
 	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
