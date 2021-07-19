@@ -204,7 +204,22 @@ func formatMeteringData(metricsSet map[string]string, machineMetrics map[string]
 		}
 		data["data"] = append(data["data"], machineData)
 	}
-	if err := cli.Formatter.Format(data, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...)}); err != nil {
+	metricSums := make(map[string]float64)
+	for _, machineData := range data["data"] {
+		for _, metric := range metricsList {
+			value, err := strconv.ParseFloat(machineData.((map[string]string))[metric], 64)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				metricSums[metric] += value
+			}
+		}
+	}
+	sums := make([]string, len(metricsList))
+	for i, metric := range metricsList {
+		sums[i] = fmt.Sprintf("%f", metricSums[metric])
+	}
+	if err := cli.Formatter.Format(data, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...),append([]string{"TOTAL",}, sums...),append([]string{"TOTAL", ""}, sums...)}); err != nil {
 		logger.Fatalf("Formatting failed: %s", err.Error())
 	}
 }
