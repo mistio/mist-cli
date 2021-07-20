@@ -9,11 +9,10 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mistio/cobra v1.0.1-0.20210224172045-90a16e415d8c
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1 // indirect
-	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20210709211134-23b532580913
+	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20210719224511-4630a9d10747
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/h2non/gentleman.v2 v2.0.5
