@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/containerd/console"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
 	"github.com/mistio/cobra"
@@ -19,7 +20,6 @@ import (
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
-	"github.com/containerd/console"
 )
 
 var logger = log.New(os.Stdout, "", 0)
@@ -173,6 +173,39 @@ var sshCmd = &cobra.Command{
 
 		<-done
 	},
+}
+
+func meteringCmd() *cobra.Command {
+	params := viper.New()
+	cmd := &cobra.Command{
+		Use:   "metering",
+		Short: "Get metering data",
+		Args:  cobra.ExactValidArgs(0),
+		Group: "metering",
+		Run: func(cmd *cobra.Command, args []string) {
+			dtStart := params.GetString("start")
+			if dtStart == "" {
+				dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60)
+			}
+			dtEnd := params.GetString("end")
+			if dtEnd == "" {
+				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
+			}
+			_, machineMetricsStart, _ := getMeteringData(dtStart, dtEnd, "first_over_time({metering=\"true\"}[%ds])")
+			metricsSet, machineMetricsEnd, machineNames := getMeteringData(dtStart, dtEnd, "last_over_time({metering=\"true\"}[%ds])")
+			machineMetricsGauges := calculateDiffs(machineMetricsStart, machineMetricsEnd, metricsSet)
+			formatMeteringData(metricsSet, machineMetricsGauges, machineNames)
+		},
+	}
+	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
+	cmd.Flags().String("end", "", "end <rfc3339 | unix_timestamp>")
+
+	cli.SetCustomFlags(cmd)
+
+	if cmd.Flags().HasFlags() {
+		params.BindPFlags(cmd.Flags())
+	}
+	return cmd
 }
 
 var resourceTypes = []string{"cloud", "machine", "volume", "network", "zone", "image", "key"}
@@ -352,6 +385,9 @@ func main() {
 
 	// Add ssh command
 	cli.Root.AddCommand(sshCmd)
+
+	// Add metering command
+	cli.Root.AddCommand(meteringCmd())
 
 	// Add get commend
 	cli.Root.AddCommand(getCmd())
