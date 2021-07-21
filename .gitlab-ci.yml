@@ -87,7 +87,7 @@ push_cli_binaries:
 release: &release_template
   when: manual
   stage: release
-  image: python:2.7-alpine
+  image: python:3.8-alpine
   before_script:
     - apk add --update libmagic openssl
     - pip install requests python-magic
