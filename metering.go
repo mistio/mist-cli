@@ -70,9 +70,10 @@ func parseTime(s string) (time.Time, error) {
 	return time.Time{}, errors.Errorf("cannot parse %q to a valid timestamp", s)
 }
 
-func getMeteringData(dtStart, dtEnd, queryTemplate string) (map[string]string, map[string]map[string]string, map[string]string) {
+func getMeteringData(dtStart, dtEnd, search, queryTemplate string) (map[string]string, map[string]map[string]string, map[string]string) {
 	paramsGetDatapoints := viper.New()
 	paramsGetDatapoints.Set("time", dtEnd)
+	paramsGetDatapoints.Set("search", search)
 	dtStartTime, _ := parseTime(dtStart)
 	dtEndTime, _ := parseTime(dtEnd)
 	timeRange := int((dtEndTime.Sub(dtStartTime)).Seconds())
