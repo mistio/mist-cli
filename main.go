@@ -175,13 +175,13 @@ var sshCmd = &cobra.Command{
 	},
 }
 
-func meteringCmd() *cobra.Command {
+func meterCmd() *cobra.Command {
 	params := viper.New()
 	cmd := &cobra.Command{
-		Use:   "metering",
+		Use:   "meter",
 		Short: "Get metering data",
 		Args:  cobra.ExactValidArgs(0),
-		Group: "metering",
+		Group: "meter",
 		Run: func(cmd *cobra.Command, args []string) {
 			dtStart := params.GetString("start")
 			if dtStart == "" {
@@ -387,7 +387,7 @@ func main() {
 	cli.Root.AddCommand(sshCmd)
 
 	// Add metering command
-	cli.Root.AddCommand(meteringCmd())
+	cli.Root.AddCommand(meterCmd())
 
 	// Add get commend
 	cli.Root.AddCommand(getCmd())
