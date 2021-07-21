@@ -206,57 +206,6 @@ func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, m
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
-// MistApiV2EditCloud Edit cloud
-func MistApiV2EditCloud(paramCloud string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-cloud"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/clouds/{cloud}"
-	url = strings.Replace(url, "{cloud}", paramCloud, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2DeleteCloud Delete cloud
 func MistApiV2DeleteCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "delete-cloud"
@@ -364,6 +313,107 @@ func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Respo
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "provider", "tags"}, []string{"id", "name", "provider", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
 }
 
+// MistApiV2EditCloud Edit cloud
+func MistApiV2EditCloud(paramCloud string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-cloud"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/clouds/{cloud}"
+	url = strings.Replace(url, "{cloud}", paramCloud, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2CreateCluster Create cluster
+func MistApiV2CreateCluster(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "create-cluster"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/clusters"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2ListClusters List clusters
 func MistApiV2ListClusters(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-clusters"
@@ -412,56 +462,6 @@ func MistApiV2ListClusters(params *viper.Viper) (*gentleman.Response, map[string
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
-// MistApiV2CreateCluster Create cluster
-func MistApiV2CreateCluster(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "create-cluster"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/clusters"
-
-	req := cli.Client.Post().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -1387,62 +1387,6 @@ func MistApiV2CreateMachine(params *viper.Viper, body string) (*gentleman.Respon
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
-// MistApiV2EditMachine Edit machine
-func MistApiV2EditMachine(paramMachine string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-machine"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/machines/{machine}"
-	url = strings.Replace(url, "{machine}", paramMachine, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	paramName := params.GetString("name")
-	if paramName != "" {
-		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
-	}
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2GetMachine Get machine
 func MistApiV2GetMachine(paramMachine string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "get-machine"
@@ -1497,6 +1441,62 @@ func MistApiV2GetMachine(paramMachine string, params *viper.Viper) (*gentleman.R
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "state", "tags"}, []string{"id", "name", "state", "cloud", "external_id", "public_ips", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2EditMachine Edit machine
+func MistApiV2EditMachine(paramMachine string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-machine"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/machines/{machine}"
+	url = strings.Replace(url, "{machine}", paramMachine, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	paramName := params.GetString("name")
+	if paramName != "" {
+		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
+	}
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2AssociateKey Associate a key with a machine
@@ -4564,45 +4564,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-cloud cloud",
-			Short:   "Edit cloud",
-			Long:    cli.Markdown("Update target cloud title or credentials\n## Request Schema (application/json)\n\nanyOf:\n- $ref: '#/components/schemas/EditCloudRequest_anyOf'\n- allOf:\n  - properties:\n      provider:\n        description: The provider of the cloud\n        enum:\n        - alibaba\n        - amazon\n        - azure\n        - cloudsigma\n        - digitalocean\n        - equinix\n        - google\n        - ibm\n        - kvm\n        - kubevirt\n        - kubernetes\n        - openshift\n        - linode\n        - lxd\n        - maxihost\n        - onapp\n        - openstack\n        - other\n        - rackspace\n        - vcloud\n        - vsphere\n        - vultr\n        type: string\n    required:\n    - provider\n    type: object\n  - discriminator:\n      mapping:\n        alibaba: '#/components/schemas/AlibabaCloudRequest'\n        amazon: '#/components/schemas/AmazonCloudRequest'\n        azure: '#/components/schemas/AzureCloudRequest'\n        cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n        docker: '#/components/schemas/DockerCloudRequest'\n        equinix: '#/components/schemas/EquinixCloudRequest'\n        google: '#/components/schemas/GoogleCloudRequest'\n        ibm: '#/components/schemas/IbmCloudRequest'\n        kubernetes: '#/components/schemas/KubernetesCloudRequest'\n        kubevirt: '#/components/schemas/KubevirtCloudRequest'\n        kvm: '#/components/schemas/KvmCloudRequest'\n        linode: '#/components/schemas/LinodeCloudRequest'\n        lxd: '#/components/schemas/LxdCloudRequest'\n        maxihost: '#/components/schemas/MaxihostCloudRequest'\n        onapp: '#/components/schemas/OnappCloudRequest'\n        openshift: '#/components/schemas/OpenshiftCloudRequest'\n        openstack: '#/components/schemas/OpenstackCloudRequest'\n        other: '#/components/schemas/OtherCloudRequest'\n        rackspace: '#/components/schemas/RackspaceCloudRequest'\n        vcloud: '#/components/schemas/VcloudCloudRequest'\n        vsphere: '#/components/schemas/VsphereCloudRequest'\n        vultr: '#/components/schemas/VultrCloudRequest'\n      propertyName: provider\n    oneOf:\n    - $ref: '#/components/schemas/AmazonCloudRequest'\n    - $ref: '#/components/schemas/AzureCloudRequest'\n    - $ref: '#/components/schemas/GoogleCloudRequest'\n    - $ref: '#/components/schemas/AlibabaCloudRequest'\n    - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n    - $ref: '#/components/schemas/EquinixCloudRequest'\n    - $ref: '#/components/schemas/IbmCloudRequest'\n    - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n    - $ref: '#/components/schemas/LinodeCloudRequest'\n    - $ref: '#/components/schemas/RackspaceCloudRequest'\n    - $ref: '#/components/schemas/MaxihostCloudRequest'\n    - $ref: '#/components/schemas/VultrCloudRequest'\n    - $ref: '#/components/schemas/OpenstackCloudRequest'\n    - $ref: '#/components/schemas/OnappCloudRequest'\n    - $ref: '#/components/schemas/VsphereCloudRequest'\n    - $ref: '#/components/schemas/VcloudCloudRequest'\n    - $ref: '#/components/schemas/KvmCloudRequest'\n    - $ref: '#/components/schemas/LxdCloudRequest'\n    - $ref: '#/components/schemas/DockerCloudRequest'\n    - $ref: '#/components/schemas/KubernetesCloudRequest'\n    - $ref: '#/components/schemas/KubevirtCloudRequest'\n    - $ref: '#/components/schemas/OpenshiftCloudRequest'\n    - $ref: '#/components/schemas/OtherCloudRequest'\n"),
-			Example: examples,
-			Group:   "clouds",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[1:])
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2EditCloud(args[0], params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
 			Use:     "delete-cloud cloud",
 			Short:   "Delete cloud",
 			Long:    cli.Markdown("Delete target cloud"),
@@ -4677,15 +4638,19 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-clusters",
-			Short:   "List clusters",
-			Long:    cli.Markdown("List clusters"),
+			Use:     "edit-cloud cloud",
+			Short:   "Edit cloud",
+			Long:    cli.Markdown("Update target cloud title or credentials\n## Request Schema (application/json)\n\nanyOf:\n- $ref: '#/components/schemas/EditCloudRequest_anyOf'\n- allOf:\n  - properties:\n      provider:\n        description: The provider of the cloud\n        enum:\n        - alibaba\n        - amazon\n        - azure\n        - cloudsigma\n        - digitalocean\n        - equinix\n        - google\n        - ibm\n        - kvm\n        - kubevirt\n        - kubernetes\n        - openshift\n        - linode\n        - lxd\n        - maxihost\n        - onapp\n        - openstack\n        - other\n        - rackspace\n        - vcloud\n        - vsphere\n        - vultr\n        type: string\n    required:\n    - provider\n    type: object\n  - discriminator:\n      mapping:\n        alibaba: '#/components/schemas/AlibabaCloudRequest'\n        amazon: '#/components/schemas/AmazonCloudRequest'\n        azure: '#/components/schemas/AzureCloudRequest'\n        cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n        docker: '#/components/schemas/DockerCloudRequest'\n        equinix: '#/components/schemas/EquinixCloudRequest'\n        google: '#/components/schemas/GoogleCloudRequest'\n        ibm: '#/components/schemas/IbmCloudRequest'\n        kubernetes: '#/components/schemas/KubernetesCloudRequest'\n        kubevirt: '#/components/schemas/KubevirtCloudRequest'\n        kvm: '#/components/schemas/KvmCloudRequest'\n        linode: '#/components/schemas/LinodeCloudRequest'\n        lxd: '#/components/schemas/LxdCloudRequest'\n        maxihost: '#/components/schemas/MaxihostCloudRequest'\n        onapp: '#/components/schemas/OnappCloudRequest'\n        openshift: '#/components/schemas/OpenshiftCloudRequest'\n        openstack: '#/components/schemas/OpenstackCloudRequest'\n        other: '#/components/schemas/OtherCloudRequest'\n        rackspace: '#/components/schemas/RackspaceCloudRequest'\n        vcloud: '#/components/schemas/VcloudCloudRequest'\n        vsphere: '#/components/schemas/VsphereCloudRequest'\n        vultr: '#/components/schemas/VultrCloudRequest'\n      propertyName: provider\n    oneOf:\n    - $ref: '#/components/schemas/AmazonCloudRequest'\n    - $ref: '#/components/schemas/AzureCloudRequest'\n    - $ref: '#/components/schemas/GoogleCloudRequest'\n    - $ref: '#/components/schemas/AlibabaCloudRequest'\n    - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n    - $ref: '#/components/schemas/EquinixCloudRequest'\n    - $ref: '#/components/schemas/IbmCloudRequest'\n    - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n    - $ref: '#/components/schemas/LinodeCloudRequest'\n    - $ref: '#/components/schemas/RackspaceCloudRequest'\n    - $ref: '#/components/schemas/MaxihostCloudRequest'\n    - $ref: '#/components/schemas/VultrCloudRequest'\n    - $ref: '#/components/schemas/OpenstackCloudRequest'\n    - $ref: '#/components/schemas/OnappCloudRequest'\n    - $ref: '#/components/schemas/VsphereCloudRequest'\n    - $ref: '#/components/schemas/VcloudCloudRequest'\n    - $ref: '#/components/schemas/KvmCloudRequest'\n    - $ref: '#/components/schemas/LxdCloudRequest'\n    - $ref: '#/components/schemas/DockerCloudRequest'\n    - $ref: '#/components/schemas/KubernetesCloudRequest'\n    - $ref: '#/components/schemas/KubevirtCloudRequest'\n    - $ref: '#/components/schemas/OpenshiftCloudRequest'\n    - $ref: '#/components/schemas/OtherCloudRequest'\n"),
 			Example: examples,
-			Group:   "clusters",
-			Args:    cobra.MinimumNArgs(0),
+			Group:   "clouds",
+			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:])
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
 
-				_, decoded, outputOptions, err := MistApiV2ListClusters(params)
+				_, decoded, outputOptions, err := MistApiV2EditCloud(args[0], params, body)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -4697,14 +4662,6 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
-
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
@@ -4744,6 +4701,49 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "list-clusters",
+			Short:   "List clusters",
+			Long:    cli.Markdown("List clusters"),
+			Example: examples,
+			Group:   "clusters",
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListClusters(params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("cloud", "", "")
+		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("sort", "", "Order results by")
+		cmd.Flags().String("start", "", "Start results from index or id")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5370,6 +5370,44 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "get-machine machine",
+			Short:   "Get machine",
+			Long:    cli.Markdown("Get details about target machine"),
+			Example: examples,
+			Group:   "machines",
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2GetMachine(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "edit-machine machine",
 			Short:   "Edit machine",
 			Long:    cli.Markdown("Edit target machine"),
@@ -5396,44 +5434,6 @@ func mistApiV2Register(subcommand bool) {
 		root.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New machine name")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "get-machine machine",
-			Short:   "Get machine",
-			Long:    cli.Markdown("Get details about target machine"),
-			Example: examples,
-			Group:   "machines",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2GetMachine(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
