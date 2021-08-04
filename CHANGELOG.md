@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.0 (4 Aug 2021)
+
+ - Feature: Add support for Kubernetes Clusters
+
 ## v0.3.0 (21 Jul 2021)
 
  - Feature: Introduce `meter` command for metering resources
