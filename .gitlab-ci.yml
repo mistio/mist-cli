@@ -30,6 +30,9 @@ push_cli_binaries:
 
 
         main() {
+          if ! set_cli_version; then
+              log_error "Could not set CLI version"
+          fi
           if ! build_binaries "cli/$VERSION/bin"; then
               log_error "Not all binaries could be built!"
           fi
@@ -37,6 +40,18 @@ push_cli_binaries:
               log_error "Not all binaries could be uploaded!"
           fi
         }
+
+        set_cli_version() {
+          if [ -n "$CI_COMMIT_TAG" ]; then
+            CLI_VERSION=${CI_COMMIT_TAG:1}
+          else
+            CLI_VERSION=0.0.0
+          fi
+          export CLI_VERSION
+          envsubst < ./main.go > /tmp/main.go
+          mv /tmp/main.go ./main.go
+        }
+
 
         build_binaries() {
           local bin_dir="${1?Specify binaries dir}"
