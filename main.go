@@ -359,7 +359,7 @@ func main() {
 	cli.Init(&cli.Config{
 		AppName:   "mist",
 		EnvPrefix: "MIST",
-		Version:   "1.0.0",
+		Version:   "$CLI_VERSION",
 	})
 
 	// Initialize the API key authentication.
