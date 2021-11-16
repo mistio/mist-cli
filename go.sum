@@ -232,8 +232,8 @@ github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijb
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/yukithm/json2csv v0.1.2 h1:b2aIY9+TOY5Wss9lCku4wjqnQrENv5Ix1G0ZHN1FE2Q=
 github.com/yukithm/json2csv v0.1.2/go.mod h1:Ul6ZenFV94YeUm08AqppOd+/hB9JsmiU4KXPs9ZvgwQ=
-gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20210719224511-4630a9d10747 h1:Cd/uZpU8tgOv69p08rjTMzasFtEA/9axgIu8HrbXTzI=
-gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20210719224511-4630a9d10747/go.mod h1:DNyYjtboilhb3ZPSq9AgsppW+UNRRDWAZgzrDZTLyQs=
+gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20211115130620-ff25471080c8 h1:qPcqM2tc0OCojeS0yn5MFh9brtxvHuUVkVpx68r7ZGw=
+gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20211115130620-ff25471080c8/go.mod h1:DNyYjtboilhb3ZPSq9AgsppW+UNRRDWAZgzrDZTLyQs=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
