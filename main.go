@@ -76,6 +76,56 @@ $ mist completion fish > ~/.config/fish/completions/mist.fish
 	},
 }
 
+func versionCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Get CLI & API version",
+		Args:  cobra.ExactValidArgs(0),
+		Group: "version",
+		Run: func(cmd *cobra.Command, args []string) {
+			type version struct {
+				Sha      string `json:"sha"`
+				Name     string `json:"name"`
+				Repo     string `json:"repo"`
+				Modified bool   `json:"modified"`
+			}
+			type versionResp struct {
+				Version version `json:"version"`
+			}
+			err := setMistContext()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			server, err := getServer()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			url := server + "/version"
+			req := cli.Client.Get().URL(url)
+			resp, err := req.Do()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			var ver versionResp
+			err = resp.JSON(&ver)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("CLI version: $CLI_VERSION")
+			fmt.Printf("Server version: %s - %s#%s", ver.Version.Name, ver.Version.Repo, ver.Version.Sha)
+			if ver.Version.Modified {
+				fmt.Printf(" modified")
+			}
+			fmt.Println("")
+		},
+	}
+	return cmd
+}
+
 var sshCmd = &cobra.Command{
 	Use:   "ssh",
 	Short: "Open a shell to a machine",
@@ -359,7 +409,7 @@ func main() {
 	cli.Init(&cli.Config{
 		AppName:   "mist",
 		EnvPrefix: "MIST",
-		Version:   "$CLI_VERSION",
+		Version:   "",
 	})
 
 	// Initialize the API key authentication.
@@ -383,6 +433,9 @@ func main() {
 
 	// Register auto-generated commands
 	mistApiV2Register(false)
+
+	// Add version command
+	cli.Root.AddCommand(versionCmd())
 
 	// Add ssh command
 	cli.Root.AddCommand(sshCmd)
