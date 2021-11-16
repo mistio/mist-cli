@@ -12,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1 // indirect
-	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20210719224511-4630a9d10747
+	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20211115130620-ff25471080c8
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/h2non/gentleman.v2 v2.0.5
