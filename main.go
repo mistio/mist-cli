@@ -392,7 +392,7 @@ func getCmd() *cobra.Command {
 			}
 		},
 	}
-
+	cmd.SetErr(os.Stderr)
 	cmd.Flags().String("search", "", "Only return results matching search filter")
 	cmd.Flags().String("only", "", "Only return these fields")
 	cmd.Flags().String("deref", "", "Dereference foreign keys")
