@@ -43,11 +43,10 @@ push_cli_binaries:
 
         set_cli_version() {
           if [ -n "$CI_COMMIT_TAG" ]; then
-            CLI_VERSION=${CI_COMMIT_TAG:1}
+            export CLI_VERSION=${CI_COMMIT_TAG:1}
           else
-            CLI_VERSION=0.0.0
+            export CLI_VERSION=0.0.0
           fi
-          export CLI_VERSION
           envsubst < ./main.go > /tmp/main.go
           mv /tmp/main.go ./main.go
         }
