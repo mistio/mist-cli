@@ -15,12 +15,12 @@ import (
 
 func formatMeteringData(metricsSet map[string]string, machineMetrics map[string]map[string]string, machineNames map[string]string) {
 	metricsList := []string{}
-	for metric, _ := range metricsSet {
+	for metric := range metricsSet {
 		metricsList = append(metricsList, metric)
 	}
 	sort.Strings(metricsList)
 	machines := make([]string, 0, len(machineMetrics))
-	for machine, _ := range machineMetrics {
+	for machine := range machineMetrics {
 		machines = append(machines, machine)
 	}
 	sort.Strings(machines)
@@ -54,7 +54,7 @@ func formatMeteringData(metricsSet map[string]string, machineMetrics map[string]
 	for i, metric := range metricsList {
 		sums[i] = fmt.Sprintf("%f", metricSums[metric])
 	}
-	if err := cli.Formatter.Format(data, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...),append([]string{"TOTAL",}, sums...),append([]string{"TOTAL", ""}, sums...)}); err != nil {
+	if err := cli.Formatter.Format(data, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...), append([]string{"TOTAL"}, sums...), append([]string{"TOTAL", ""}, sums...)}); err != nil {
 		logger.Fatalf("Formatting failed: %s", err.Error())
 	}
 }
@@ -112,10 +112,19 @@ func getMeteringData(dtStart, dtEnd, search, queryTemplate string) (map[string]s
 	machineMetrics := make(map[string]map[string]string)
 	machineNames := make(map[string]string)
 
+	paramsListMachines := viper.New()
+	paramsListMachines.Set("search", search)
+	_, decoded, _, err = MistApiV2ListMachines(paramsListMachines)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
+	}
+	for _, item := range decoded["data"].([]interface{}) {
+		machineNames[item.(map[string]interface{})["id"].(string)] = item.(map[string]interface{})["name"].(string)
+	}
+
 	for _, item := range response.Data.DataPromql.Result {
 		if machineMetrics[item.Metric["machine_id"]] == nil {
 			machineMetrics[item.Metric["machine_id"]] = make(map[string]string)
-			machineNames[item.Metric["machine_id"]] = item.Metric["name"]
 		}
 		if item.Value != nil {
 			machineMetrics[item.Metric["machine_id"]][item.Metric["__name__"]] = item.Value[1].(string)
