@@ -1,6 +1,22 @@
 # Changelog
 
-## v0.4.0 (4 Aug 2021)
+## v0.7.1 (4 Dec 2021)
+
+ - Bugfix: Fix meter command
+
+## v0.7.0 (29 Nov 2021)
+
+ - Change: Use spaces instead of dashes on all commands
+
+## v0.6.0 (22 Nov 2021)
+
+ - Feature: Introduce version command
+
+## v0.5.0 (22 Oct 2021)
+
+ - Change: Update create-machine params
+
+## v0.4.0 (04 Aug 2021)
 
  - Feature: Add support for Kubernetes Clusters
 
@@ -19,6 +35,7 @@
 
  - Feature: Add support for `create machine` on DigitalOcean, Equinix Metal, AWS, KVM
  - Change: Update openapi-cli-generator
+ - Change: Drop GigG8 support
 
 ## v0.1.0 (11 Mar 2021)
 
