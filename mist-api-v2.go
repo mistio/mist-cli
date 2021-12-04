@@ -75,7 +75,7 @@ func getServer() (string, error) {
 			}
 		}
 	}
-	return server, nil
+	return strings.TrimSuffix(server, "/"), nil
 }
 
 func getToken() (string, error) {
