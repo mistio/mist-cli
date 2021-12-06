@@ -14,7 +14,7 @@ import (
 	"github.com/containerd/console"
 	"github.com/gorilla/websocket"
 	"github.com/jmespath/go-jmespath"
-	"github.com/mistio/cobra"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
@@ -80,7 +80,6 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Get CLI & API version",
 		Args:  cobra.ExactValidArgs(0),
-		Group: "version",
 		Run: func(cmd *cobra.Command, args []string) {
 			type version struct {
 				Sha      string `json:"sha"`
@@ -130,7 +129,6 @@ func sshCmd() *cobra.Command {
 		Use:   "ssh",
 		Short: "Open a shell to a machine",
 		Args:  cobra.ExactValidArgs(1),
-		Group: "machines",
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 			if len(args) == 0 {
@@ -251,7 +249,6 @@ func meterCmd() *cobra.Command {
 		Use:   "meter",
 		Short: "Get metering data",
 		Args:  cobra.ExactValidArgs(0),
-		Group: "meter",
 		Run: func(cmd *cobra.Command, args []string) {
 			dtStart := params.GetString("start")
 			if dtStart == "" {

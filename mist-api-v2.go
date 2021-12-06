@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/jmespath/go-jmespath"
-	"github.com/mistio/cobra"
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
@@ -208,53 +208,6 @@ func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, m
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
-// MistApiV2RemoveCloud Remove cloud
-func MistApiV2RemoveCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "remove-cloud"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/clouds/{cloud}"
-	url = strings.Replace(url, "{cloud}", paramCloud, 1)
-
-	req := cli.Client.Delete().URL(url)
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2GetCloud Get cloud
 func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "get-cloud"
@@ -340,6 +293,53 @@ func MistApiV2EditCloud(paramCloud string, params *viper.Viper, body string) (*g
 	if body != "" {
 		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
 	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2RemoveCloud Remove cloud
+func MistApiV2RemoveCloud(paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "remove-cloud"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/clouds/{cloud}"
+	url = strings.Replace(url, "{cloud}", paramCloud, 1)
+
+	req := cli.Client.Delete().URL(url)
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -491,53 +491,6 @@ func MistApiV2CreateCluster(params *viper.Viper, body string) (*gentleman.Respon
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
-// MistApiV2DestroyCluster Destroy cluster
-func MistApiV2DestroyCluster(paramCluster string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "destroy-cluster"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/clusters/{cluster}"
-	url = strings.Replace(url, "{cluster}", paramCluster, 1)
-
-	req := cli.Client.Delete().URL(url)
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2GetCluster Get cluster
 func MistApiV2GetCluster(paramCluster string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "get-cluster"
@@ -592,6 +545,53 @@ func MistApiV2GetCluster(paramCluster string, params *viper.Viper) (*gentleman.R
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2DestroyCluster Destroy cluster
+func MistApiV2DestroyCluster(paramCluster string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "destroy-cluster"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/clusters/{cluster}"
+	url = strings.Replace(url, "{cluster}", paramCluster, 1)
+
+	req := cli.Client.Delete().URL(url)
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2GetDatapoints Get datapoints
@@ -2119,53 +2119,6 @@ func MistApiV2UndefineMachine(paramMachine string, params *viper.Viper, body str
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
-// MistApiV2ListSnapshots List machine snapshots
-func MistApiV2ListSnapshots(paramMachine string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "list-snapshots"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/machines/{machine}/snapshots"
-	url = strings.Replace(url, "{machine}", paramMachine, 1)
-
-	req := cli.Client.Get().URL(url)
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2CreateSnapshot Create snapshot
 func MistApiV2CreateSnapshot(paramMachine string, paramName string, params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "create-snapshot"
@@ -2193,6 +2146,53 @@ func MistApiV2CreateSnapshot(paramMachine string, paramName string, params *vipe
 	if body != "" {
 		req = req.AddHeader("Content-Type", "").BodyString(body)
 	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2ListSnapshots List machine snapshots
+func MistApiV2ListSnapshots(paramMachine string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "list-snapshots"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/machines/{machine}/snapshots"
+	url = strings.Replace(url, "{machine}", paramMachine, 1)
+
+	req := cli.Client.Get().URL(url)
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -2605,6 +2605,56 @@ func MistApiV2EditNetwork(paramNetwork string, params *viper.Viper, body string)
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
+// MistApiV2AddRule Add rule
+func MistApiV2AddRule(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "add-rule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/rules"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2ListRules List rules
 func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-rules"
@@ -2670,109 +2720,6 @@ func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]in
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2AddRule Add rule
-func MistApiV2AddRule(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "add-rule"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/rules"
-
-	req := cli.Client.Post().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
-// MistApiV2ToggleRule Toggle rule
-func MistApiV2ToggleRule(paramRule string, paramAction string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "toggle-rule"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/rules/{rule}"
-	url = strings.Replace(url, "{rule}", paramRule, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	req = req.AddQuery("action", paramAction)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2DeleteRule Delete rule
@@ -2977,6 +2924,59 @@ func MistApiV2EditRule(paramRule string, params *viper.Viper, body string) (*gen
 	after := cli.HandleAfter(handlerPath, params, resp, decoded)
 	if after != nil {
 		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2ToggleRule Toggle rule
+func MistApiV2ToggleRule(paramRule string, paramAction string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "toggle-rule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/rules/{rule}"
+	url = strings.Replace(url, "{rule}", paramRule, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	req = req.AddQuery("action", paramAction)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
@@ -3738,6 +3738,62 @@ func MistApiV2CreateVolume(params *viper.Viper, body string) (*gentleman.Respons
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
+// MistApiV2EditVolume Edit volume
+func MistApiV2EditVolume(paramVolume string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-volume"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/volumes/{volume}"
+	url = strings.Replace(url, "{volume}", paramVolume, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	paramName := params.GetString("name")
+	if paramName != "" {
+		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
+	}
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2DeleteVolume Delete volume
 func MistApiV2DeleteVolume(paramVolume string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "delete-volume"
@@ -3839,62 +3895,6 @@ func MistApiV2GetVolume(paramVolume string, params *viper.Viper) (*gentleman.Res
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "size", "cloud", "location", "attached_to", "tags"}, []string{"id", "name", "size", "cloud", "location", "external_id", "attached_to", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2EditVolume Edit volume
-func MistApiV2EditVolume(paramVolume string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-volume"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/volumes/{volume}"
-	url = strings.Replace(url, "{volume}", paramVolume, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	paramName := params.GetString("name")
-	if paramName != "" {
-		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
-	}
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2ListZones List zones
@@ -4432,7 +4432,7 @@ func mistApiV2Register(subcommand bool) {
 	func() {
 		params := viper.New()
 		cmd := &cobra.Command{
-			Use:   "job-finished job-id",
+			Use:   "job-finished JOB-ID",
 			Short: "Wait job",
 			Long:  cli.Markdown("Wait until job finishes"),
 			Args:  cobra.MinimumNArgs(1),
@@ -4463,7 +4463,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List clouds owned by the active org. READ permission required on cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4480,10 +4479,10 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
 		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -4506,7 +4505,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Adds a new cloud and returns the cloud's id. ADD permission required on cloud.\n## Request Schema (application/json)\n\nallOf:\n- properties:\n    name:\n      description: The name of the cloud to add\n      type: string\n    provider:\n      $ref: '#/components/schemas/SupportedProviders'\n  required:\n  - name\n  - provider\n  type: object\n- discriminator:\n    mapping:\n      alibaba: '#/components/schemas/AlibabaCloudRequest'\n      amazon: '#/components/schemas/AmazonCloudRequest'\n      azure: '#/components/schemas/AzureCloudRequest'\n      cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n      docker: '#/components/schemas/DockerCloudRequest'\n      equinix: '#/components/schemas/EquinixCloudRequest'\n      google: '#/components/schemas/GoogleCloudRequest'\n      ibm: '#/components/schemas/IbmCloudRequest'\n      kubernetes: '#/components/schemas/KubernetesCloudRequest'\n      kubevirt: '#/components/schemas/KubevirtCloudRequest'\n      kvm: '#/components/schemas/KvmCloudRequest'\n      linode: '#/components/schemas/LinodeCloudRequest'\n      lxd: '#/components/schemas/LxdCloudRequest'\n      maxihost: '#/components/schemas/MaxihostCloudRequest'\n      onapp: '#/components/schemas/OnappCloudRequest'\n      openshift: '#/components/schemas/OpenshiftCloudRequest'\n      openstack: '#/components/schemas/OpenstackCloudRequest'\n      other: '#/components/schemas/OtherCloudRequest'\n      rackspace: '#/components/schemas/RackspaceCloudRequest'\n      vsphere: '#/components/schemas/VsphereCloudRequest'\n      vultr: '#/components/schemas/VultrCloudRequest'\n    propertyName: provider\n  oneOf:\n  - $ref: '#/components/schemas/AmazonCloudRequest'\n  - $ref: '#/components/schemas/AzureCloudRequest'\n  - $ref: '#/components/schemas/GoogleCloudRequest'\n  - $ref: '#/components/schemas/AlibabaCloudRequest'\n  - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n  - $ref: '#/components/schemas/EquinixCloudRequest'\n  - $ref: '#/components/schemas/IbmCloudRequest'\n  - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n  - $ref: '#/components/schemas/LinodeCloudRequest'\n  - $ref: '#/components/schemas/RackspaceCloudRequest'\n  - $ref: '#/components/schemas/MaxihostCloudRequest'\n  - $ref: '#/components/schemas/VultrCloudRequest'\n  - $ref: '#/components/schemas/OpenstackCloudRequest'\n  - $ref: '#/components/schemas/OnappCloudRequest'\n  - $ref: '#/components/schemas/VsphereCloudRequest'\n  - $ref: '#/components/schemas/KvmCloudRequest'\n  - $ref: '#/components/schemas/LxdCloudRequest'\n  - $ref: '#/components/schemas/DockerCloudRequest'\n  - $ref: '#/components/schemas/KubernetesCloudRequest'\n  - $ref: '#/components/schemas/KubevirtCloudRequest'\n  - $ref: '#/components/schemas/OpenshiftCloudRequest'\n  - $ref: '#/components/schemas/OtherCloudRequest'\nexample:\n  credentials:\n    email: email\n    privateKey: privateKey\n    projectId: projectId\n  name: my-cloud\n  provider: google\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -4542,48 +4540,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "remove-cloud cloud",
-			Short:   "Remove cloud",
-			Long:    cli.Markdown("Remove target cloud"),
-			Hidden:  true,
-			Example: examples,
-			Group:   "clouds",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2RemoveCloud(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "get-cloud cloud",
+			Use:     "get-cloud CLOUD",
 			Short:   "Get cloud",
 			Long:    cli.Markdown("Get details about target cloud"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4618,12 +4579,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-cloud cloud",
+			Use:     "edit-cloud CLOUD",
 			Short:   "Edit cloud",
 			Long:    cli.Markdown("Update target cloud name or credentials\n## Request Schema (application/json)\n\nanyOf:\n- $ref: '#/components/schemas/EditCloudRequest_anyOf'\n- allOf:\n  - properties:\n      provider:\n        $ref: '#/components/schemas/SupportedProviders'\n    required:\n    - provider\n    type: object\n  - discriminator:\n      mapping:\n        alibaba: '#/components/schemas/AlibabaCloudRequest'\n        amazon: '#/components/schemas/AmazonCloudRequest'\n        azure: '#/components/schemas/AzureCloudRequest'\n        cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n        docker: '#/components/schemas/DockerCloudRequest'\n        equinix: '#/components/schemas/EquinixCloudRequest'\n        google: '#/components/schemas/GoogleCloudRequest'\n        ibm: '#/components/schemas/IbmCloudRequest'\n        kubernetes: '#/components/schemas/KubernetesCloudRequest'\n        kubevirt: '#/components/schemas/KubevirtCloudRequest'\n        kvm: '#/components/schemas/KvmCloudRequest'\n        linode: '#/components/schemas/LinodeCloudRequest'\n        lxd: '#/components/schemas/LxdCloudRequest'\n        maxihost: '#/components/schemas/MaxihostCloudRequest'\n        onapp: '#/components/schemas/OnappCloudRequest'\n        openshift: '#/components/schemas/OpenshiftCloudRequest'\n        openstack: '#/components/schemas/OpenstackCloudRequest'\n        other: '#/components/schemas/OtherCloudRequest'\n        rackspace: '#/components/schemas/RackspaceCloudRequest'\n        vsphere: '#/components/schemas/VsphereCloudRequest'\n        vultr: '#/components/schemas/VultrCloudRequest'\n      propertyName: provider\n    oneOf:\n    - $ref: '#/components/schemas/AmazonCloudRequest'\n    - $ref: '#/components/schemas/AzureCloudRequest'\n    - $ref: '#/components/schemas/GoogleCloudRequest'\n    - $ref: '#/components/schemas/AlibabaCloudRequest'\n    - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n    - $ref: '#/components/schemas/EquinixCloudRequest'\n    - $ref: '#/components/schemas/IbmCloudRequest'\n    - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n    - $ref: '#/components/schemas/LinodeCloudRequest'\n    - $ref: '#/components/schemas/RackspaceCloudRequest'\n    - $ref: '#/components/schemas/MaxihostCloudRequest'\n    - $ref: '#/components/schemas/VultrCloudRequest'\n    - $ref: '#/components/schemas/OpenstackCloudRequest'\n    - $ref: '#/components/schemas/OnappCloudRequest'\n    - $ref: '#/components/schemas/VsphereCloudRequest'\n    - $ref: '#/components/schemas/KvmCloudRequest'\n    - $ref: '#/components/schemas/LxdCloudRequest'\n    - $ref: '#/components/schemas/DockerCloudRequest'\n    - $ref: '#/components/schemas/KubernetesCloudRequest'\n    - $ref: '#/components/schemas/KubevirtCloudRequest'\n    - $ref: '#/components/schemas/OpenshiftCloudRequest'\n    - $ref: '#/components/schemas/OtherCloudRequest'\nexample:\n  name: my-renamed-cloud\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clouds",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
@@ -4659,12 +4619,46 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "remove-cloud CLOUD",
+			Short:   "Remove cloud",
+			Long:    cli.Markdown("Remove target cloud"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2RemoveCloud(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "list-clusters",
 			Short:   "List clusters",
 			Long:    cli.Markdown("List clusters"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clusters",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4681,11 +4675,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -4708,7 +4702,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Create a new cluster and return the cluster's id\n## Request Schema (application/json)\n\nallOf:\n- properties:\n    cloud:\n      description: The cloud the cluster belongs to\n      type: string\n    name:\n      description: The name of the cluster to create\n      type: string\n    provider:\n      $ref: '#/components/schemas/ClusterProviders'\n  required:\n  - name\n  - cloud\n  - provider\n  type: object\n- discriminator:\n    mapping:\n      amazon: '#/components/schemas/AmazonClusterRequest'\n      google: '#/components/schemas/GoogleClusterRequest'\n    propertyName: provider\n  oneOf:\n  - $ref: '#/components/schemas/AmazonClusterRequest'\n  - $ref: '#/components/schemas/GoogleClusterRequest'\nexample:\n  cloud: my-cloud\n  location: my-location\n  name: my-cluster\n  provider: google\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clusters",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -4744,48 +4737,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "destroy-cluster cluster",
-			Short:   "Destroy cluster",
-			Long:    cli.Markdown("Destroy target clusters"),
-			Hidden:  true,
-			Example: examples,
-			Group:   "clusters",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2DestroyCluster(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "get-cluster cluster",
+			Use:     "get-cluster CLUSTER",
 			Short:   "Get cluster",
 			Long:    cli.Markdown("Get details about target cluster"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "clusters",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4819,12 +4775,46 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-datapoints query",
+			Use:     "destroy-cluster CLUSTER",
+			Short:   "Destroy cluster",
+			Long:    cli.Markdown("Destroy target clusters"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DestroyCluster(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "get-datapoints QUERY",
 			Short:   "Get datapoints",
 			Long:    cli.Markdown("Get datapoints for a specific query"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "datapoints",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4867,7 +4857,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List images owned by the active org. READ permission required on image & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "images",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4884,11 +4873,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -4906,12 +4895,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-image image",
+			Use:     "get-image IMAGE",
 			Short:   "Get image",
 			Long:    cli.Markdown("Get details about target image"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "images",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4945,12 +4933,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-job job-id",
+			Use:     "get-job JOB-ID",
 			Short:   "Get job",
 			Long:    cli.Markdown(""),
 			Hidden:  true,
 			Example: examples,
-			Group:   "jobs",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -4986,7 +4973,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List keys owned by the active org. READ permission required on key."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "keys",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5003,10 +4989,10 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
 		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -5029,7 +5015,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- properties:\n    certificate:\n      description: The signed public key, when using signed ssh keys\n      type: string\n    name:\n      description: The key's name\n      type: string\n    private:\n      description: The private key\n      type: string\n  required:\n  - name\n  - private\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n    name:\n      description: The key's name\n      type: string\n  required:\n  - name\n  - generate\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n  required:\n  - generate\n  - dry\nexample:\n  name: my-key\n  private: |-\n    -----BEGIN RSA PRIVATE KEY-----\n    MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5 1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh 3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2 pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n    -----END RSA PRIVATE KEY-----\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "keys",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -5065,12 +5050,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-key key",
+			Use:     "delete-key KEY",
 			Short:   "Delete key",
 			Long:    cli.Markdown("Delete target key"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "keys",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5101,12 +5085,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-key key",
+			Use:     "get-key KEY",
 			Short:   "Get key",
 			Long:    cli.Markdown("Get details about target key"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "keys",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5142,12 +5125,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-key key",
+			Use:     "edit-key KEY",
 			Short:   "Edit key",
 			Long:    cli.Markdown("Edit target key"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "keys",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5191,7 +5173,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List locations owned by the active org. READ permission required on location & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "locations",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5208,11 +5189,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -5230,12 +5211,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-location location",
+			Use:     "get-location LOCATION",
 			Short:   "Get location",
 			Long:    cli.Markdown("Get details about target location"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "locations",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5274,7 +5254,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List machines owned by the active org. READ permission required on machine & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5291,11 +5270,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -5315,10 +5294,9 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "create-machine",
 			Short:   "Create machine",
-			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  cloudinit:\n    description: Run this Cloud Init script on first boot\n    type: string\n  disks:\n    description: Configure local disks\n    properties:\n      disk_path:\n        description: KVM specific parameter. Where the VM disk file will be created\n        type: string\n      disk_size:\n        description: KVM, CloudSigma specific parameter\n        type: integer\n    type: object\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  expiration:\n    $ref: '#/components/schemas/Expiration'\n  extra:\n    anyOf:\n    - $ref: '#/components/schemas/AzureExtra'\n    - $ref: '#/components/schemas/DockerExtra'\n    - $ref: '#/components/schemas/EquinixMetalExtra'\n    - $ref: '#/components/schemas/LinodeExtra'\n    - $ref: '#/components/schemas/LXDExtra'\n    - $ref: '#/components/schemas/VSphereExtra'\n    - $ref: '#/components/schemas/VultrExtra'\n    description: Configure additional parameters\n  fqdn:\n    description: Add DNS A Record that points machine's public IP to this Fully Qualified Domain Name. Zone needs to be managed by a configured Cloud DNS provider\n    type: string\n  image:\n    description: Operating System image to boot from\n    example: Debian\n    oneOf:\n    - type: object\n    - description: Name or ID of the image to boot from\n      type: string\n  key:\n    description: Associate SSH key\n    oneOf:\n    - properties:\n        key:\n          description: Name or ID of the SSH key to deploy\n          type: string\n        user:\n          description: SSH user, supported on Google\n          type: string\n      type: object\n    - description: Name or ID of the SSH key to deploy\n      type: string\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    oneOf:\n    - properties:\n        prefer:\n          type: string\n      type: object\n    - type: string\n  monitoring:\n    description: Enable monitoring of this machine\n    type: boolean\n  name:\n    description: Specify machine name\n    example: DB mirror\n    type: string\n  net:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaNet'\n    - $ref: '#/components/schemas/AmazonNet'\n    - $ref: '#/components/schemas/AzureNet'\n    - $ref: '#/components/schemas/DockerNet'\n    - $ref: '#/components/schemas/EquinixMetalNet'\n    - $ref: '#/components/schemas/GoogleNet'\n    - $ref: '#/components/schemas/KVMNet'\n    - $ref: '#/components/schemas/LinodeNet'\n    - $ref: '#/components/schemas/LXDNet'\n    - $ref: '#/components/schemas/OpenstackNet'\n    - $ref: '#/components/schemas/VSphereNet'\n    - $ref: '#/components/schemas/VultrNet'\n    description: Specify network configuration parameters\n  optimize:\n    description: Criteria optimization, e.g \"cost\"\n    type: string\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple machines of this type\n    type: number\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  schedules:\n    description: Configure scheduled actions for the provisioned machine\n    items:\n      allOf:\n      - properties:\n          action:\n            enum:\n            - start\n            - stop\n            - reboot\n            - destroy\n            type: string\n          description:\n            type: string\n          schedule_type:\n            enum:\n            - one_off\n            - crontab\n            - interval\n            type: string\n          script:\n            $ref: '#/components/schemas/PostDeployScript'\n        required:\n        - schedule_type\n        type: object\n      - discriminator:\n          mapping:\n            crontab: '#/components/schemas/CronSchedule'\n            interval: '#/components/schemas/IntervalSchedule'\n            one_off: '#/components/schemas/OneOffSchedule'\n          propertyName: schedule_type\n        oneOf:\n        - $ref: '#/components/schemas/OneOffSchedule'\n        - $ref: '#/components/schemas/CronSchedule'\n        - $ref: '#/components/schemas/IntervalSchedule'\n    type: array\n  scripts:\n    description: Run post deploy scripts over SSH\n    items:\n      allOf:\n      - type: object\n      - oneOf:\n        - $ref: '#/components/schemas/InlineScript'\n        - $ref: '#/components/schemas/PostDeployScript'\n    type: array\n  size:\n    description: Machine sizing spec e.g. cpu/ram/flavor\n    example: m1.small\n    oneOf:\n    - properties:\n        accelerators:\n          description: Google specific parameter\n          properties:\n            accelerator_count:\n              description: The number of the accelerator cards exposed to this machine\n              type: integer\n            accelerator_type:\n              description: Accelerator type to attach to this machine. e.g. 'nvidia-tesla-p100'\n              type: string\n          type: object\n        cpu:\n          description: Number of cpu cores. On container based providers this value will be used as the cpu limit. Mutually exclusive with 'search'\n          type: number\n        memory:\n          description: Memory size in MBs. On container based providers this value will be used as the memory limit. Mutually exclusive with 'search'\n          type: integer\n        prefer:\n          description: Optional properties to be used if applicable.\n          properties:\n            cpu_shares:\n              description: Docker specific parameter. An integer value representing this container's relative CPU weight versus other containers\n              type: integer\n            prefix:\n              description: A size name prefix. Used only on providers with standard sizes\n              type: string\n          type: object\n        search:\n          description: Name or ID of the size to select for this machine. Mutually exclusive with 'cpu' and 'memory'\n          type: string\n      type: object\n    - description: Name or ID of the size to select for this machine\n      type: string\n  tags:\n    description: Assign tags to provisioned machine\n    type: object\n  template:\n    type: object\n  volumes:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaVolumes'\n    - $ref: '#/components/schemas/AmazonVolumes'\n    - $ref: '#/components/schemas/AzureVolumes'\n    - $ref: '#/components/schemas/CloudSigmaVolumes'\n    - $ref: '#/components/schemas/DigitalOceanVolumes'\n    - $ref: '#/components/schemas/GoogleVolumes'\n    - $ref: '#/components/schemas/LinodeVolumes'\n    - $ref: '#/components/schemas/LXDVolumes'\n    - $ref: '#/components/schemas/OpenstackVolumes'\n    - $ref: '#/components/schemas/VultrVolumes'\n    description: Configure of attached storage volumes, e.g. cloud disks\nrequired:\n- name\n- image\ntype: object\n"),
+			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  cloudinit:\n    description: Run this Cloud Init script on first boot\n    type: string\n  disks:\n    description: Configure local disks\n    properties:\n      disk_path:\n        description: KVM specific parameter. Where the VM disk file will be created\n        type: string\n      disk_size:\n        description: KVM, CloudSigma specific parameter\n        type: integer\n    type: object\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  expiration:\n    $ref: '#/components/schemas/Expiration'\n  extra:\n    anyOf:\n    - $ref: '#/components/schemas/AzureExtra'\n    - $ref: '#/components/schemas/DockerExtra'\n    - $ref: '#/components/schemas/EquinixMetalExtra'\n    - $ref: '#/components/schemas/LinodeExtra'\n    - $ref: '#/components/schemas/LXDExtra'\n    - $ref: '#/components/schemas/VSphereExtra'\n    - $ref: '#/components/schemas/VultrExtra'\n    description: Configure additional parameters\n  fqdn:\n    description: Add DNS A Record that points machine's public IP to this Fully Qualified\n      Domain Name. Zone needs to be managed by a configured Cloud DNS provider\n    type: string\n  image:\n    description: Operating System image to boot from\n    example: Debian\n    oneOf:\n    - type: object\n    - description: Name or ID of the image to boot from\n      type: string\n  key:\n    description: Associate SSH key\n    oneOf:\n    - properties:\n        key:\n          description: Name or ID of the SSH key to deploy\n          type: string\n        user:\n          description: SSH user, supported on Google\n          type: string\n      type: object\n    - description: Name or ID of the SSH key to deploy\n      type: string\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    oneOf:\n    - properties:\n        prefer:\n          type: string\n      type: object\n    - type: string\n  monitoring:\n    description: Enable monitoring of this machine\n    type: boolean\n  name:\n    description: Specify machine name\n    example: DB mirror\n    type: string\n  net:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaNet'\n    - $ref: '#/components/schemas/AmazonNet'\n    - $ref: '#/components/schemas/AzureNet'\n    - $ref: '#/components/schemas/DockerNet'\n    - $ref: '#/components/schemas/EquinixMetalNet'\n    - $ref: '#/components/schemas/GoogleNet'\n    - $ref: '#/components/schemas/KVMNet'\n    - $ref: '#/components/schemas/LinodeNet'\n    - $ref: '#/components/schemas/LXDNet'\n    - $ref: '#/components/schemas/OpenstackNet'\n    - $ref: '#/components/schemas/VSphereNet'\n    - $ref: '#/components/schemas/VultrNet'\n    description: Specify network configuration parameters\n  optimize:\n    description: Criteria optimization, e.g \"cost\"\n    type: string\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple machines of this type\n    type: number\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  schedules:\n    description: Configure scheduled actions for the provisioned machine\n    items:\n      allOf:\n      - properties:\n          action:\n            enum:\n            - start\n            - stop\n            - reboot\n            - destroy\n            type: string\n          description:\n            type: string\n          schedule_type:\n            enum:\n            - one_off\n            - crontab\n            - interval\n            type: string\n          script:\n            $ref: '#/components/schemas/PostDeployScript'\n        required:\n        - schedule_type\n        type: object\n      - discriminator:\n          mapping:\n            crontab: '#/components/schemas/CronSchedule'\n            interval: '#/components/schemas/IntervalSchedule'\n            one_off: '#/components/schemas/OneOffSchedule'\n          propertyName: schedule_type\n        oneOf:\n        - $ref: '#/components/schemas/OneOffSchedule'\n        - $ref: '#/components/schemas/CronSchedule'\n        - $ref: '#/components/schemas/IntervalSchedule'\n    type: array\n  scripts:\n    description: Run post deploy scripts over SSH\n    items:\n      allOf:\n      - type: object\n      - oneOf:\n        - $ref: '#/components/schemas/InlineScript'\n        - $ref: '#/components/schemas/PostDeployScript'\n    type: array\n  size:\n    description: Machine sizing spec e.g. cpu/ram/flavor\n    example: m1.small\n    oneOf:\n    - properties:\n        accelerators:\n          description: Google specific parameter\n          properties:\n            accelerator_count:\n              description: The number of the accelerator cards exposed to this machine\n              type: integer\n            accelerator_type:\n              description: Accelerator type to attach to this machine. e.g. 'nvidia-tesla-p100'\n              type: string\n          type: object\n        cpu:\n          description: Number of cpu cores. On container based providers this value\n            will be used as the cpu limit. Mutually exclusive with 'search'\n          type: number\n        memory:\n          description: Memory size in MBs. On container based providers this value\n            will be used as the memory limit. Mutually exclusive with 'search'\n          type: integer\n        prefer:\n          description: Optional properties to be used if applicable.\n          properties:\n            cpu_shares:\n              description: Docker specific parameter. An integer value representing\n                this container's relative CPU weight versus other containers\n              type: integer\n            prefix:\n              description: A size name prefix. Used only on providers with standard\n                sizes\n              type: string\n          type: object\n        search:\n          description: Name or ID of the size to select for this machine. Mutually\n            exclusive with 'cpu' and 'memory'\n          type: string\n      type: object\n    - description: Name or ID of the size to select for this machine\n      type: string\n  tags:\n    description: Assign tags to provisioned machine\n    type: object\n  template:\n    type: object\n  volumes:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaVolumes'\n    - $ref: '#/components/schemas/AmazonVolumes'\n    - $ref: '#/components/schemas/AzureVolumes'\n    - $ref: '#/components/schemas/CloudSigmaVolumes'\n    - $ref: '#/components/schemas/DigitalOceanVolumes'\n    - $ref: '#/components/schemas/GoogleVolumes'\n    - $ref: '#/components/schemas/LinodeVolumes'\n    - $ref: '#/components/schemas/LXDVolumes'\n    - $ref: '#/components/schemas/OpenstackVolumes'\n    - $ref: '#/components/schemas/VultrVolumes'\n    description: Configure of attached storage volumes, e.g. cloud disks\nrequired:\n- name\n- image\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -5374,12 +5352,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-machine machine",
+			Use:     "get-machine MACHINE",
 			Short:   "Get machine",
 			Long:    cli.Markdown("Get details about target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5413,12 +5390,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-machine machine",
+			Use:     "edit-machine MACHINE",
 			Short:   "Edit machine",
 			Long:    cli.Markdown("Edit target machine\n## Request Schema (application/json)\n\nproperties:\n  expiration:\n    properties:\n      action:\n        enum:\n        - stop\n        - destroy\n        type: string\n      date:\n        description: format should be ΥΥΥΥ-ΜΜ-DD HH:MM:SS\n        type: string\n      notify:\n        description: seconds before the expiration date to be notified\n        type: integer\n    required:\n    - date\n    - action\n    type: object\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
@@ -5454,12 +5430,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "associate-key machine",
+			Use:     "associate-key MACHINE",
 			Short:   "Associate a key with a machine",
 			Long:    cli.Markdown("Associate a key with a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key to associate\n    type: string\n  port:\n    description: SSH port\n    type: integer\n  user:\n    description: SSH user\n    type: string\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
@@ -5495,12 +5470,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "clone-machine machine name",
+			Use:     "clone-machine MACHINE NAME",
 			Short:   "Clone machine",
 			Long:    cli.Markdown("Clone target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
@@ -5538,12 +5512,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "destroy-machine machine",
+			Use:     "destroy-machine MACHINE",
 			Short:   "Destroy machine",
 			Long:    cli.Markdown("Destroy target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5579,12 +5552,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "disassociate-key machine",
+			Use:     "disassociate-key MACHINE",
 			Short:   "Disassociate a key from a machine",
 			Long:    cli.Markdown("Disassociate a key from a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key to disassociate\n    type: string\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -5615,12 +5587,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "reboot-machine machine",
+			Use:     "reboot-machine MACHINE",
 			Short:   "Reboot machine",
 			Long:    cli.Markdown("Reboot target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5656,12 +5627,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "rename-machine machine name",
+			Use:     "rename-machine MACHINE NAME",
 			Short:   "Rename machine",
 			Long:    cli.Markdown("Rename target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
@@ -5697,12 +5667,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "resize-machine machine size",
+			Use:     "resize-machine MACHINE SIZE",
 			Short:   "Resize machine",
 			Long:    cli.Markdown("Resize target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
@@ -5738,12 +5707,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "resume-machine machine",
+			Use:     "resume-machine MACHINE",
 			Short:   "Resume machine",
 			Long:    cli.Markdown("Resume target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5779,12 +5747,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "start-machine machine",
+			Use:     "start-machine MACHINE",
 			Short:   "Start machine",
 			Long:    cli.Markdown("Start target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5820,12 +5787,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "stop-machine machine",
+			Use:     "stop-machine MACHINE",
 			Short:   "Stop machine",
 			Long:    cli.Markdown("Stop target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5861,12 +5827,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "suspend-machine machine",
+			Use:     "suspend-machine MACHINE",
 			Short:   "Suspend machine",
 			Long:    cli.Markdown("Suspend target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5902,12 +5867,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "undefine-machine machine",
+			Use:     "undefine-machine MACHINE",
 			Short:   "Undefine machine",
 			Long:    cli.Markdown("Undefine target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "machines",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -5943,48 +5907,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-snapshots machine",
-			Short:   "List machine snapshots",
-			Long:    cli.Markdown("List snapshots of target machine"),
-			Hidden:  true,
-			Example: examples,
-			Group:   "snapshots",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2ListSnapshots(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "create-snapshot machine name",
+			Use:     "create-snapshot MACHINE NAME",
 			Short:   "Create snapshot",
 			Long:    cli.Markdown("Create snapshots of target machine"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "snapshots",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
@@ -6020,12 +5947,46 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "remove-snapshot machine snapshot",
+			Use:     "list-snapshots MACHINE",
+			Short:   "List machine snapshots",
+			Long:    cli.Markdown("List snapshots of target machine"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListSnapshots(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "remove-snapshot MACHINE SNAPSHOT",
 			Short:   "Remove snapshot",
 			Long:    cli.Markdown("Remove target machine snapshot"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "snapshots",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6056,12 +6017,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "revert-to-snapshot machine snapshot",
+			Use:     "revert-to-snapshot MACHINE SNAPSHOT",
 			Short:   "Revert to snapshot",
 			Long:    cli.Markdown("Revert machine to snapshot"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "snapshots",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
@@ -6102,7 +6062,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List networks owned by the active org. READ permission required on network & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "networks",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6119,11 +6078,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -6146,7 +6105,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters, e.g. cidr (EC2 network)\n    type: object\n  name:\n    description: Specify network name\n    example: my-network\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned network\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "networks",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -6182,12 +6140,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-network network cloud",
+			Use:     "delete-network NETWORK CLOUD",
 			Short:   "Delete network",
 			Long:    cli.Markdown("Delete target network"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "networks",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6218,12 +6175,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-network network",
+			Use:     "get-network NETWORK",
 			Short:   "Get network",
 			Long:    cli.Markdown("Get details about target network"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "networks",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6257,12 +6213,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-network network",
+			Use:     "edit-network NETWORK",
 			Short:   "Edit network",
 			Long:    cli.Markdown("Edit target network"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "networks",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -6300,54 +6255,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-rules",
-			Short:   "List rules",
-			Long:    cli.Markdown("Return a filtered list of rules"),
-			Hidden:  true,
-			Example: examples,
-			Group:   "rules",
-			Args:    cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2ListRules(params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
-		cmd.Flags().String("only", "", "Only return these fields")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
 			Use:     "add-rule",
 			Short:   "Add rule",
 			Long:    cli.Markdown("Add a new rule, READ permission required on target resource, ADD permission required on Rule\n## Request Schema (application/json)\n\nproperties:\n  actions:\n    $ref: '#/components/schemas/RuleActions'\n  data_type:\n    $ref: '#/components/schemas/DataType'\n  frequency:\n    $ref: '#/components/schemas/Frequency'\n  queries:\n    $ref: '#/components/schemas/Queries'\n  selectors:\n    $ref: '#/components/schemas/Selector'\n  trigger_after:\n    $ref: '#/components/schemas/TriggerAfter'\n  window:\n    $ref: '#/components/schemas/Window'\nrequired:\n- queries\n- window\n- frequency\n- trigger_after\n- actions\n- data_type\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "rules",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -6383,20 +6295,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "toggle-rule rule action",
-			Short:   "Toggle rule",
-			Long:    cli.Markdown("Enable or disable a rule"),
+			Use:     "list-rules",
+			Short:   "List rules",
+			Long:    cli.Markdown("Return a filtered list of rules"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "rules",
-			Args:    cobra.MinimumNArgs(2),
+			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
 
-				_, decoded, outputOptions, err := MistApiV2ToggleRule(args[0], args[1], params, body)
+				_, decoded, outputOptions, err := MistApiV2ListRules(params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -6408,7 +6315,12 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6424,12 +6336,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-rule rule",
+			Use:     "delete-rule RULE",
 			Short:   "Delete rule",
 			Long:    cli.Markdown("Delete a rule given its UUID."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "rules",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6460,12 +6371,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-rule rule",
+			Use:     "get-rule RULE",
 			Short:   "Get rule",
 			Long:    cli.Markdown("Get details about target rule"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "rules",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6499,12 +6409,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "rename-rule rule name",
+			Use:     "rename-rule RULE NAME",
 			Short:   "Rename rule",
 			Long:    cli.Markdown("Rename a rule"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "rules",
 			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
@@ -6540,12 +6449,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-rule rule",
+			Use:     "edit-rule RULE",
 			Short:   "Update rule",
 			Long:    cli.Markdown("Edit a rule given its UUID, EDIT permission required on rule\n## Request Schema (application/json)\n\nproperties:\n  actions:\n    $ref: '#/components/schemas/RuleActions'\n  frequency:\n    $ref: '#/components/schemas/Frequency'\n  queries:\n    $ref: '#/components/schemas/Queries'\n  selectors:\n    $ref: '#/components/schemas/Selector'\n  trigger_after:\n    $ref: '#/components/schemas/TriggerAfter'\n  window:\n    $ref: '#/components/schemas/Window'\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "rules",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
@@ -6581,12 +6489,51 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "toggle-rule RULE ACTION",
+			Short:   "Toggle rule",
+			Long:    cli.Markdown("Enable or disable a rule"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(2),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2ToggleRule(args[0], args[1], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "list-scripts",
 			Short:   "List scripts",
 			Long:    cli.Markdown("List scripts owned by the active org. READ permission required on script."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6603,10 +6550,10 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -6629,7 +6576,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Add script to user scripts\n## Request Schema (application/json)\n\nproperties:\n  description:\n    type: string\n  entrypoint:\n    example: entrypoint.sh\n    type: string\n  exec_type:\n    enum:\n    - executable\n    - ansible\n    example: executable\n    type: string\n  location_type:\n    enum:\n    - inline\n    - github\n    - url\n    example: inline\n    type: string\n  name:\n    example: my-script\n    type: string\n  script:\n    example: |-\n      #!/usr/bin/env bash\n      echo Hello, World!\n    type: string\nrequired:\n- name\n- script\n- location_type\n- exec_type\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -6665,12 +6611,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-script script",
+			Use:     "edit-script SCRIPT",
 			Short:   "Edit script",
 			Long:    cli.Markdown("Edit target script"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -6709,12 +6654,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-script script",
+			Use:     "delete-script SCRIPT",
 			Short:   "Delete script",
 			Long:    cli.Markdown("Delete target script"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6745,12 +6689,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-script script",
+			Use:     "get-script SCRIPT",
 			Short:   "Get script",
 			Long:    cli.Markdown("Get details about target script"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6784,12 +6727,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "run-script script",
+			Use:     "run-script SCRIPT",
 			Short:   "Run script",
 			Long:    cli.Markdown("Start a script job to run the script.\n## Request Schema (application/json)\n\nproperties:\n  env:\n    example: EXAMPLE_VAR=123\n    type: string\n  job_id:\n    example: ab74e2f0b7ae4999b1e4013e20dac418\n    type: string\n  machine:\n    example: my-machine\n    type: string\n  params:\n    example: -v\n    type: string\n  su:\n    enum:\n    - \"true\"\n    - \"false\"\n    example: \"false\"\n    type: string\nrequired:\n- machine\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
@@ -6825,12 +6767,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "download-script script",
+			Use:     "download-script SCRIPT",
 			Short:   "Download script",
 			Long:    cli.Markdown("Download script file or archive"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6861,12 +6802,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "generate-script-url script",
+			Use:     "generate-script-url SCRIPT",
 			Short:   "Generate script url",
 			Long:    cli.Markdown("Generate url for fetching script file"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "scripts",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6902,7 +6842,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List sizes owned by the active org. READ permission required on size & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "sizes",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6919,11 +6858,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -6941,12 +6880,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-size size",
+			Use:     "get-size SIZE",
 			Short:   "Get size",
 			Long:    cli.Markdown("Get details about target size"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "sizes",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -6985,7 +6923,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Return current user if requester is not admin. Return all users for admin."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "users",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -7028,7 +6965,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("List volumes owned by the active org. READ permission required on volume & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "volumes",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -7045,11 +6981,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -7072,7 +7008,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Creates one or more volumes on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on volume.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  ex_disk_type:\n    description: GCE-specific\n    enum:\n    - pd-standard\n    - pd-ssd\n    example: pd-standard\n    type: string\n  ex_iops:\n    description: EC2-specific. Needs to be specified if volume_type='io1'\n    type: string\n  ex_volume_type:\n    description: EC2-specific\n    enum:\n    - standard\n    - io1\n    - gp2\n    - sc1\n    - st1\n    example: standard\n    type: string\n  extra:\n    description: Configure additional parameters\n    type: object\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    example: us-central1-a\n    type: string\n  name:\n    description: Specify volume name\n    example: my-volume\n    type: string\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple volumes of this type\n    type: integer\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  size:\n    description: Volume sizing spec\n    example: 1\n    type: integer\n  tags:\n    description: Assign tags to provisioned volume\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\n- size\n- location\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "volumes",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -7108,87 +7043,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-volume volume",
-			Short:   "Delete volume",
-			Long:    cli.Markdown("Delete target volume"),
-			Hidden:  true,
-			Example: examples,
-			Group:   "volumes",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2DeleteVolume(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "get-volume volume",
-			Short:   "Get volume",
-			Long:    cli.Markdown("Get details about target volume"),
-			Hidden:  true,
-			Example: examples,
-			Group:   "volumes",
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2GetVolume(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "edit-volume volume",
+			Use:     "edit-volume VOLUME",
 			Short:   "Edit volume",
 			Long:    cli.Markdown("Edit target volume"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "volumes",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -7226,12 +7085,84 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "delete-volume VOLUME",
+			Short:   "Delete volume",
+			Long:    cli.Markdown("Delete target volume"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteVolume(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "get-volume VOLUME",
+			Short:   "Get volume",
+			Long:    cli.Markdown("Get details about target volume"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2GetVolume(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "list-zones",
 			Short:   "List zones",
 			Long:    cli.Markdown("List zones owned by the active org. READ permission required on zone & cloud."),
 			Hidden:  true,
 			Example: examples,
-			Group:   "zones",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -7248,11 +7179,11 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -7275,7 +7206,6 @@ func mistApiV2Register(subcommand bool) {
 			Long:    cli.Markdown("Creates one or more zones on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on zone.\n## Request Schema (application/json)\n\nexample:\n  cloud: my-cloud\n  name: my-zone\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters\n    type: object\n  name:\n    description: Specify zone name/domain (e.g. example.com)\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned zone\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "zones",
 			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
@@ -7311,12 +7241,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-zone zone",
+			Use:     "delete-zone ZONE",
 			Short:   "Delete zone",
 			Long:    cli.Markdown("Delete target zone"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "zones",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -7347,12 +7276,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-zone zone",
+			Use:     "get-zone ZONE",
 			Short:   "Get zone",
 			Long:    cli.Markdown("Get details about target zone"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "zones",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
@@ -7386,12 +7314,11 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-zone zone",
+			Use:     "edit-zone ZONE",
 			Short:   "Edit zone",
 			Long:    cli.Markdown("Edit target zone"),
 			Hidden:  true,
 			Example: examples,
-			Group:   "zones",
 			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
@@ -7427,11 +7354,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "cloud",
+			Use:     "cloud [CLOUD]",
 			Short:   "List clouds",
 			Long:    cli.Markdown("List clouds owned by the active org. READ permission required on cloud."),
 			Example: examples,
-			Group:   "clouds",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -7476,10 +7402,10 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
 		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -7501,7 +7427,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Add cloud",
 			Long:    cli.Markdown("Adds a new cloud and returns the cloud's id. ADD permission required on cloud.\n## Request Schema (application/json)\n\nallOf:\n- properties:\n    name:\n      description: The name of the cloud to add\n      type: string\n    provider:\n      $ref: '#/components/schemas/SupportedProviders'\n  required:\n  - name\n  - provider\n  type: object\n- discriminator:\n    mapping:\n      alibaba: '#/components/schemas/AlibabaCloudRequest'\n      amazon: '#/components/schemas/AmazonCloudRequest'\n      azure: '#/components/schemas/AzureCloudRequest'\n      cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n      docker: '#/components/schemas/DockerCloudRequest'\n      equinix: '#/components/schemas/EquinixCloudRequest'\n      google: '#/components/schemas/GoogleCloudRequest'\n      ibm: '#/components/schemas/IbmCloudRequest'\n      kubernetes: '#/components/schemas/KubernetesCloudRequest'\n      kubevirt: '#/components/schemas/KubevirtCloudRequest'\n      kvm: '#/components/schemas/KvmCloudRequest'\n      linode: '#/components/schemas/LinodeCloudRequest'\n      lxd: '#/components/schemas/LxdCloudRequest'\n      maxihost: '#/components/schemas/MaxihostCloudRequest'\n      onapp: '#/components/schemas/OnappCloudRequest'\n      openshift: '#/components/schemas/OpenshiftCloudRequest'\n      openstack: '#/components/schemas/OpenstackCloudRequest'\n      other: '#/components/schemas/OtherCloudRequest'\n      rackspace: '#/components/schemas/RackspaceCloudRequest'\n      vsphere: '#/components/schemas/VsphereCloudRequest'\n      vultr: '#/components/schemas/VultrCloudRequest'\n    propertyName: provider\n  oneOf:\n  - $ref: '#/components/schemas/AmazonCloudRequest'\n  - $ref: '#/components/schemas/AzureCloudRequest'\n  - $ref: '#/components/schemas/GoogleCloudRequest'\n  - $ref: '#/components/schemas/AlibabaCloudRequest'\n  - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n  - $ref: '#/components/schemas/EquinixCloudRequest'\n  - $ref: '#/components/schemas/IbmCloudRequest'\n  - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n  - $ref: '#/components/schemas/LinodeCloudRequest'\n  - $ref: '#/components/schemas/RackspaceCloudRequest'\n  - $ref: '#/components/schemas/MaxihostCloudRequest'\n  - $ref: '#/components/schemas/VultrCloudRequest'\n  - $ref: '#/components/schemas/OpenstackCloudRequest'\n  - $ref: '#/components/schemas/OnappCloudRequest'\n  - $ref: '#/components/schemas/VsphereCloudRequest'\n  - $ref: '#/components/schemas/KvmCloudRequest'\n  - $ref: '#/components/schemas/LxdCloudRequest'\n  - $ref: '#/components/schemas/DockerCloudRequest'\n  - $ref: '#/components/schemas/KubernetesCloudRequest'\n  - $ref: '#/components/schemas/KubevirtCloudRequest'\n  - $ref: '#/components/schemas/OpenshiftCloudRequest'\n  - $ref: '#/components/schemas/OtherCloudRequest'\nexample:\n  credentials:\n    email: email\n    privateKey: privateKey\n    projectId: projectId\n  name: my-cloud\n  provider: google\n"),
 			Example: examples,
-			Group:   "clouds",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -7541,11 +7466,67 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "cloud cloud",
+			Use:     "cloud CLOUD",
+			Short:   "Edit cloud",
+			Long:    cli.Markdown("Update target cloud name or credentials\n## Request Schema (application/json)\n\nanyOf:\n- $ref: '#/components/schemas/EditCloudRequest_anyOf'\n- allOf:\n  - properties:\n      provider:\n        $ref: '#/components/schemas/SupportedProviders'\n    required:\n    - provider\n    type: object\n  - discriminator:\n      mapping:\n        alibaba: '#/components/schemas/AlibabaCloudRequest'\n        amazon: '#/components/schemas/AmazonCloudRequest'\n        azure: '#/components/schemas/AzureCloudRequest'\n        cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n        docker: '#/components/schemas/DockerCloudRequest'\n        equinix: '#/components/schemas/EquinixCloudRequest'\n        google: '#/components/schemas/GoogleCloudRequest'\n        ibm: '#/components/schemas/IbmCloudRequest'\n        kubernetes: '#/components/schemas/KubernetesCloudRequest'\n        kubevirt: '#/components/schemas/KubevirtCloudRequest'\n        kvm: '#/components/schemas/KvmCloudRequest'\n        linode: '#/components/schemas/LinodeCloudRequest'\n        lxd: '#/components/schemas/LxdCloudRequest'\n        maxihost: '#/components/schemas/MaxihostCloudRequest'\n        onapp: '#/components/schemas/OnappCloudRequest'\n        openshift: '#/components/schemas/OpenshiftCloudRequest'\n        openstack: '#/components/schemas/OpenstackCloudRequest'\n        other: '#/components/schemas/OtherCloudRequest'\n        rackspace: '#/components/schemas/RackspaceCloudRequest'\n        vsphere: '#/components/schemas/VsphereCloudRequest'\n        vultr: '#/components/schemas/VultrCloudRequest'\n      propertyName: provider\n    oneOf:\n    - $ref: '#/components/schemas/AmazonCloudRequest'\n    - $ref: '#/components/schemas/AzureCloudRequest'\n    - $ref: '#/components/schemas/GoogleCloudRequest'\n    - $ref: '#/components/schemas/AlibabaCloudRequest'\n    - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n    - $ref: '#/components/schemas/EquinixCloudRequest'\n    - $ref: '#/components/schemas/IbmCloudRequest'\n    - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n    - $ref: '#/components/schemas/LinodeCloudRequest'\n    - $ref: '#/components/schemas/RackspaceCloudRequest'\n    - $ref: '#/components/schemas/MaxihostCloudRequest'\n    - $ref: '#/components/schemas/VultrCloudRequest'\n    - $ref: '#/components/schemas/OpenstackCloudRequest'\n    - $ref: '#/components/schemas/OnappCloudRequest'\n    - $ref: '#/components/schemas/VsphereCloudRequest'\n    - $ref: '#/components/schemas/KvmCloudRequest'\n    - $ref: '#/components/schemas/LxdCloudRequest'\n    - $ref: '#/components/schemas/DockerCloudRequest'\n    - $ref: '#/components/schemas/KubernetesCloudRequest'\n    - $ref: '#/components/schemas/KubevirtCloudRequest'\n    - $ref: '#/components/schemas/OpenshiftCloudRequest'\n    - $ref: '#/components/schemas/OtherCloudRequest'\nexample:\n  name: my-renamed-cloud\n"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListClouds(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditCloud(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		editCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "cloud CLOUD",
 			Short:   "Remove cloud",
 			Long:    cli.Markdown("Remove target cloud"),
 			Example: examples,
-			Group:   "clouds",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -7594,69 +7575,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "cloud cloud",
-			Short:   "Edit cloud",
-			Long:    cli.Markdown("Update target cloud name or credentials\n## Request Schema (application/json)\n\nanyOf:\n- $ref: '#/components/schemas/EditCloudRequest_anyOf'\n- allOf:\n  - properties:\n      provider:\n        $ref: '#/components/schemas/SupportedProviders'\n    required:\n    - provider\n    type: object\n  - discriminator:\n      mapping:\n        alibaba: '#/components/schemas/AlibabaCloudRequest'\n        amazon: '#/components/schemas/AmazonCloudRequest'\n        azure: '#/components/schemas/AzureCloudRequest'\n        cloudsigma: '#/components/schemas/CloudSigmaCloudRequest'\n        docker: '#/components/schemas/DockerCloudRequest'\n        equinix: '#/components/schemas/EquinixCloudRequest'\n        google: '#/components/schemas/GoogleCloudRequest'\n        ibm: '#/components/schemas/IbmCloudRequest'\n        kubernetes: '#/components/schemas/KubernetesCloudRequest'\n        kubevirt: '#/components/schemas/KubevirtCloudRequest'\n        kvm: '#/components/schemas/KvmCloudRequest'\n        linode: '#/components/schemas/LinodeCloudRequest'\n        lxd: '#/components/schemas/LxdCloudRequest'\n        maxihost: '#/components/schemas/MaxihostCloudRequest'\n        onapp: '#/components/schemas/OnappCloudRequest'\n        openshift: '#/components/schemas/OpenshiftCloudRequest'\n        openstack: '#/components/schemas/OpenstackCloudRequest'\n        other: '#/components/schemas/OtherCloudRequest'\n        rackspace: '#/components/schemas/RackspaceCloudRequest'\n        vsphere: '#/components/schemas/VsphereCloudRequest'\n        vultr: '#/components/schemas/VultrCloudRequest'\n      propertyName: provider\n    oneOf:\n    - $ref: '#/components/schemas/AmazonCloudRequest'\n    - $ref: '#/components/schemas/AzureCloudRequest'\n    - $ref: '#/components/schemas/GoogleCloudRequest'\n    - $ref: '#/components/schemas/AlibabaCloudRequest'\n    - $ref: '#/components/schemas/CloudSigmaCloudRequest'\n    - $ref: '#/components/schemas/EquinixCloudRequest'\n    - $ref: '#/components/schemas/IbmCloudRequest'\n    - $ref: '#/components/schemas/DigitaloceanCloudRequest'\n    - $ref: '#/components/schemas/LinodeCloudRequest'\n    - $ref: '#/components/schemas/RackspaceCloudRequest'\n    - $ref: '#/components/schemas/MaxihostCloudRequest'\n    - $ref: '#/components/schemas/VultrCloudRequest'\n    - $ref: '#/components/schemas/OpenstackCloudRequest'\n    - $ref: '#/components/schemas/OnappCloudRequest'\n    - $ref: '#/components/schemas/VsphereCloudRequest'\n    - $ref: '#/components/schemas/KvmCloudRequest'\n    - $ref: '#/components/schemas/LxdCloudRequest'\n    - $ref: '#/components/schemas/DockerCloudRequest'\n    - $ref: '#/components/schemas/KubernetesCloudRequest'\n    - $ref: '#/components/schemas/KubevirtCloudRequest'\n    - $ref: '#/components/schemas/OpenshiftCloudRequest'\n    - $ref: '#/components/schemas/OtherCloudRequest'\nexample:\n  name: my-renamed-cloud\n"),
-			Example: examples,
-			Group:   "clouds",
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListClouds(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2EditCloud(args[0], params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		editCmd.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "cluster",
+			Use:     "cluster [CLUSTER]",
 			Short:   "List clusters",
 			Long:    cli.Markdown("List clusters"),
 			Example: examples,
-			Group:   "clusters",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -7701,11 +7623,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -7727,7 +7649,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Create cluster",
 			Long:    cli.Markdown("Create a new cluster and return the cluster's id\n## Request Schema (application/json)\n\nallOf:\n- properties:\n    cloud:\n      description: The cloud the cluster belongs to\n      type: string\n    name:\n      description: The name of the cluster to create\n      type: string\n    provider:\n      $ref: '#/components/schemas/ClusterProviders'\n  required:\n  - name\n  - cloud\n  - provider\n  type: object\n- discriminator:\n    mapping:\n      amazon: '#/components/schemas/AmazonClusterRequest'\n      google: '#/components/schemas/GoogleClusterRequest'\n    propertyName: provider\n  oneOf:\n  - $ref: '#/components/schemas/AmazonClusterRequest'\n  - $ref: '#/components/schemas/GoogleClusterRequest'\nexample:\n  cloud: my-cloud\n  location: my-location\n  name: my-cluster\n  provider: google\n"),
 			Example: examples,
-			Group:   "clusters",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -7767,11 +7688,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "cluster cluster",
+			Use:     "cluster CLUSTER",
 			Short:   "Destroy cluster",
 			Long:    cli.Markdown("Destroy target clusters"),
 			Example: examples,
-			Group:   "clusters",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -7820,11 +7740,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "datapoints query",
+			Use:     "datapoints QUERY",
 			Short:   "Get datapoints",
 			Long:    cli.Markdown("Get datapoints for a specific query"),
 			Example: examples,
-			Group:   "datapoints",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				return nil, cobra.ShellCompDirectiveNoFileComp
@@ -7867,11 +7786,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "image",
+			Use:     "image [IMAGE]",
 			Short:   "List images",
 			Long:    cli.Markdown("List images owned by the active org. READ permission required on image & cloud."),
 			Example: examples,
-			Group:   "images",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -7916,11 +7834,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -7938,11 +7856,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "job job-id",
+			Use:     "job JOB-ID",
 			Short:   "Get job",
 			Long:    cli.Markdown(""),
 			Example: examples,
-			Group:   "jobs",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				return nil, cobra.ShellCompDirectiveNoFileComp
@@ -7978,11 +7895,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "key",
+			Use:     "key [KEY]",
 			Short:   "List keys",
 			Long:    cli.Markdown("List keys owned by the active org. READ permission required on key."),
 			Example: examples,
-			Group:   "keys",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -8027,10 +7943,10 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
 		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -8052,7 +7968,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Add key",
 			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- properties:\n    certificate:\n      description: The signed public key, when using signed ssh keys\n      type: string\n    name:\n      description: The key's name\n      type: string\n    private:\n      description: The private key\n      type: string\n  required:\n  - name\n  - private\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n    name:\n      description: The key's name\n      type: string\n  required:\n  - name\n  - generate\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n  required:\n  - generate\n  - dry\nexample:\n  name: my-key\n  private: |-\n    -----BEGIN RSA PRIVATE KEY-----\n    MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5 1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh 3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2 pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n    -----END RSA PRIVATE KEY-----\ntype: object\n"),
 			Example: examples,
-			Group:   "keys",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -8092,11 +8007,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "key key",
+			Use:     "key KEY",
 			Short:   "Delete key",
 			Long:    cli.Markdown("Delete target key"),
 			Example: examples,
-			Group:   "keys",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8145,11 +8059,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "key key",
+			Use:     "key KEY",
 			Short:   "Edit key",
 			Long:    cli.Markdown("Edit target key"),
 			Example: examples,
-			Group:   "keys",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8205,11 +8118,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "location",
+			Use:     "location [LOCATION]",
 			Short:   "List locations",
 			Long:    cli.Markdown("List locations owned by the active org. READ permission required on location & cloud."),
 			Example: examples,
-			Group:   "locations",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -8254,11 +8166,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -8276,11 +8188,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine",
+			Use:     "machine [MACHINE]",
 			Short:   "List machines",
 			Long:    cli.Markdown("List machines owned by the active org. READ permission required on machine & cloud."),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -8325,11 +8236,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -8349,9 +8260,8 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "machine",
 			Short:   "Create machine",
-			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  cloudinit:\n    description: Run this Cloud Init script on first boot\n    type: string\n  disks:\n    description: Configure local disks\n    properties:\n      disk_path:\n        description: KVM specific parameter. Where the VM disk file will be created\n        type: string\n      disk_size:\n        description: KVM, CloudSigma specific parameter\n        type: integer\n    type: object\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  expiration:\n    $ref: '#/components/schemas/Expiration'\n  extra:\n    anyOf:\n    - $ref: '#/components/schemas/AzureExtra'\n    - $ref: '#/components/schemas/DockerExtra'\n    - $ref: '#/components/schemas/EquinixMetalExtra'\n    - $ref: '#/components/schemas/LinodeExtra'\n    - $ref: '#/components/schemas/LXDExtra'\n    - $ref: '#/components/schemas/VSphereExtra'\n    - $ref: '#/components/schemas/VultrExtra'\n    description: Configure additional parameters\n  fqdn:\n    description: Add DNS A Record that points machine's public IP to this Fully Qualified Domain Name. Zone needs to be managed by a configured Cloud DNS provider\n    type: string\n  image:\n    description: Operating System image to boot from\n    example: Debian\n    oneOf:\n    - type: object\n    - description: Name or ID of the image to boot from\n      type: string\n  key:\n    description: Associate SSH key\n    oneOf:\n    - properties:\n        key:\n          description: Name or ID of the SSH key to deploy\n          type: string\n        user:\n          description: SSH user, supported on Google\n          type: string\n      type: object\n    - description: Name or ID of the SSH key to deploy\n      type: string\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    oneOf:\n    - properties:\n        prefer:\n          type: string\n      type: object\n    - type: string\n  monitoring:\n    description: Enable monitoring of this machine\n    type: boolean\n  name:\n    description: Specify machine name\n    example: DB mirror\n    type: string\n  net:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaNet'\n    - $ref: '#/components/schemas/AmazonNet'\n    - $ref: '#/components/schemas/AzureNet'\n    - $ref: '#/components/schemas/DockerNet'\n    - $ref: '#/components/schemas/EquinixMetalNet'\n    - $ref: '#/components/schemas/GoogleNet'\n    - $ref: '#/components/schemas/KVMNet'\n    - $ref: '#/components/schemas/LinodeNet'\n    - $ref: '#/components/schemas/LXDNet'\n    - $ref: '#/components/schemas/OpenstackNet'\n    - $ref: '#/components/schemas/VSphereNet'\n    - $ref: '#/components/schemas/VultrNet'\n    description: Specify network configuration parameters\n  optimize:\n    description: Criteria optimization, e.g \"cost\"\n    type: string\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple machines of this type\n    type: number\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  schedules:\n    description: Configure scheduled actions for the provisioned machine\n    items:\n      allOf:\n      - properties:\n          action:\n            enum:\n            - start\n            - stop\n            - reboot\n            - destroy\n            type: string\n          description:\n            type: string\n          schedule_type:\n            enum:\n            - one_off\n            - crontab\n            - interval\n            type: string\n          script:\n            $ref: '#/components/schemas/PostDeployScript'\n        required:\n        - schedule_type\n        type: object\n      - discriminator:\n          mapping:\n            crontab: '#/components/schemas/CronSchedule'\n            interval: '#/components/schemas/IntervalSchedule'\n            one_off: '#/components/schemas/OneOffSchedule'\n          propertyName: schedule_type\n        oneOf:\n        - $ref: '#/components/schemas/OneOffSchedule'\n        - $ref: '#/components/schemas/CronSchedule'\n        - $ref: '#/components/schemas/IntervalSchedule'\n    type: array\n  scripts:\n    description: Run post deploy scripts over SSH\n    items:\n      allOf:\n      - type: object\n      - oneOf:\n        - $ref: '#/components/schemas/InlineScript'\n        - $ref: '#/components/schemas/PostDeployScript'\n    type: array\n  size:\n    description: Machine sizing spec e.g. cpu/ram/flavor\n    example: m1.small\n    oneOf:\n    - properties:\n        accelerators:\n          description: Google specific parameter\n          properties:\n            accelerator_count:\n              description: The number of the accelerator cards exposed to this machine\n              type: integer\n            accelerator_type:\n              description: Accelerator type to attach to this machine. e.g. 'nvidia-tesla-p100'\n              type: string\n          type: object\n        cpu:\n          description: Number of cpu cores. On container based providers this value will be used as the cpu limit. Mutually exclusive with 'search'\n          type: number\n        memory:\n          description: Memory size in MBs. On container based providers this value will be used as the memory limit. Mutually exclusive with 'search'\n          type: integer\n        prefer:\n          description: Optional properties to be used if applicable.\n          properties:\n            cpu_shares:\n              description: Docker specific parameter. An integer value representing this container's relative CPU weight versus other containers\n              type: integer\n            prefix:\n              description: A size name prefix. Used only on providers with standard sizes\n              type: string\n          type: object\n        search:\n          description: Name or ID of the size to select for this machine. Mutually exclusive with 'cpu' and 'memory'\n          type: string\n      type: object\n    - description: Name or ID of the size to select for this machine\n      type: string\n  tags:\n    description: Assign tags to provisioned machine\n    type: object\n  template:\n    type: object\n  volumes:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaVolumes'\n    - $ref: '#/components/schemas/AmazonVolumes'\n    - $ref: '#/components/schemas/AzureVolumes'\n    - $ref: '#/components/schemas/CloudSigmaVolumes'\n    - $ref: '#/components/schemas/DigitalOceanVolumes'\n    - $ref: '#/components/schemas/GoogleVolumes'\n    - $ref: '#/components/schemas/LinodeVolumes'\n    - $ref: '#/components/schemas/LXDVolumes'\n    - $ref: '#/components/schemas/OpenstackVolumes'\n    - $ref: '#/components/schemas/VultrVolumes'\n    description: Configure of attached storage volumes, e.g. cloud disks\nrequired:\n- name\n- image\ntype: object\n"),
+			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  cloudinit:\n    description: Run this Cloud Init script on first boot\n    type: string\n  disks:\n    description: Configure local disks\n    properties:\n      disk_path:\n        description: KVM specific parameter. Where the VM disk file will be created\n        type: string\n      disk_size:\n        description: KVM, CloudSigma specific parameter\n        type: integer\n    type: object\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  expiration:\n    $ref: '#/components/schemas/Expiration'\n  extra:\n    anyOf:\n    - $ref: '#/components/schemas/AzureExtra'\n    - $ref: '#/components/schemas/DockerExtra'\n    - $ref: '#/components/schemas/EquinixMetalExtra'\n    - $ref: '#/components/schemas/LinodeExtra'\n    - $ref: '#/components/schemas/LXDExtra'\n    - $ref: '#/components/schemas/VSphereExtra'\n    - $ref: '#/components/schemas/VultrExtra'\n    description: Configure additional parameters\n  fqdn:\n    description: Add DNS A Record that points machine's public IP to this Fully Qualified\n      Domain Name. Zone needs to be managed by a configured Cloud DNS provider\n    type: string\n  image:\n    description: Operating System image to boot from\n    example: Debian\n    oneOf:\n    - type: object\n    - description: Name or ID of the image to boot from\n      type: string\n  key:\n    description: Associate SSH key\n    oneOf:\n    - properties:\n        key:\n          description: Name or ID of the SSH key to deploy\n          type: string\n        user:\n          description: SSH user, supported on Google\n          type: string\n      type: object\n    - description: Name or ID of the SSH key to deploy\n      type: string\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    oneOf:\n    - properties:\n        prefer:\n          type: string\n      type: object\n    - type: string\n  monitoring:\n    description: Enable monitoring of this machine\n    type: boolean\n  name:\n    description: Specify machine name\n    example: DB mirror\n    type: string\n  net:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaNet'\n    - $ref: '#/components/schemas/AmazonNet'\n    - $ref: '#/components/schemas/AzureNet'\n    - $ref: '#/components/schemas/DockerNet'\n    - $ref: '#/components/schemas/EquinixMetalNet'\n    - $ref: '#/components/schemas/GoogleNet'\n    - $ref: '#/components/schemas/KVMNet'\n    - $ref: '#/components/schemas/LinodeNet'\n    - $ref: '#/components/schemas/LXDNet'\n    - $ref: '#/components/schemas/OpenstackNet'\n    - $ref: '#/components/schemas/VSphereNet'\n    - $ref: '#/components/schemas/VultrNet'\n    description: Specify network configuration parameters\n  optimize:\n    description: Criteria optimization, e.g \"cost\"\n    type: string\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple machines of this type\n    type: number\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  schedules:\n    description: Configure scheduled actions for the provisioned machine\n    items:\n      allOf:\n      - properties:\n          action:\n            enum:\n            - start\n            - stop\n            - reboot\n            - destroy\n            type: string\n          description:\n            type: string\n          schedule_type:\n            enum:\n            - one_off\n            - crontab\n            - interval\n            type: string\n          script:\n            $ref: '#/components/schemas/PostDeployScript'\n        required:\n        - schedule_type\n        type: object\n      - discriminator:\n          mapping:\n            crontab: '#/components/schemas/CronSchedule'\n            interval: '#/components/schemas/IntervalSchedule'\n            one_off: '#/components/schemas/OneOffSchedule'\n          propertyName: schedule_type\n        oneOf:\n        - $ref: '#/components/schemas/OneOffSchedule'\n        - $ref: '#/components/schemas/CronSchedule'\n        - $ref: '#/components/schemas/IntervalSchedule'\n    type: array\n  scripts:\n    description: Run post deploy scripts over SSH\n    items:\n      allOf:\n      - type: object\n      - oneOf:\n        - $ref: '#/components/schemas/InlineScript'\n        - $ref: '#/components/schemas/PostDeployScript'\n    type: array\n  size:\n    description: Machine sizing spec e.g. cpu/ram/flavor\n    example: m1.small\n    oneOf:\n    - properties:\n        accelerators:\n          description: Google specific parameter\n          properties:\n            accelerator_count:\n              description: The number of the accelerator cards exposed to this machine\n              type: integer\n            accelerator_type:\n              description: Accelerator type to attach to this machine. e.g. 'nvidia-tesla-p100'\n              type: string\n          type: object\n        cpu:\n          description: Number of cpu cores. On container based providers this value\n            will be used as the cpu limit. Mutually exclusive with 'search'\n          type: number\n        memory:\n          description: Memory size in MBs. On container based providers this value\n            will be used as the memory limit. Mutually exclusive with 'search'\n          type: integer\n        prefer:\n          description: Optional properties to be used if applicable.\n          properties:\n            cpu_shares:\n              description: Docker specific parameter. An integer value representing\n                this container's relative CPU weight versus other containers\n              type: integer\n            prefix:\n              description: A size name prefix. Used only on providers with standard\n                sizes\n              type: string\n          type: object\n        search:\n          description: Name or ID of the size to select for this machine. Mutually\n            exclusive with 'cpu' and 'memory'\n          type: string\n      type: object\n    - description: Name or ID of the size to select for this machine\n      type: string\n  tags:\n    description: Assign tags to provisioned machine\n    type: object\n  template:\n    type: object\n  volumes:\n    anyOf:\n    - $ref: '#/components/schemas/AlibabaVolumes'\n    - $ref: '#/components/schemas/AmazonVolumes'\n    - $ref: '#/components/schemas/AzureVolumes'\n    - $ref: '#/components/schemas/CloudSigmaVolumes'\n    - $ref: '#/components/schemas/DigitalOceanVolumes'\n    - $ref: '#/components/schemas/GoogleVolumes'\n    - $ref: '#/components/schemas/LinodeVolumes'\n    - $ref: '#/components/schemas/LXDVolumes'\n    - $ref: '#/components/schemas/OpenstackVolumes'\n    - $ref: '#/components/schemas/VultrVolumes'\n    description: Configure of attached storage volumes, e.g. cloud disks\nrequired:\n- name\n- image\ntype: object\n"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -8411,11 +8321,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Edit machine",
 			Long:    cli.Markdown("Edit target machine\n## Request Schema (application/json)\n\nproperties:\n  expiration:\n    properties:\n      action:\n        enum:\n        - stop\n        - destroy\n        type: string\n      date:\n        description: format should be ΥΥΥΥ-ΜΜ-DD HH:MM:SS\n        type: string\n      notify:\n        description: seconds before the expiration date to be notified\n        type: integer\n    required:\n    - date\n    - action\n    type: object\ntype: object\n"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8469,11 +8378,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "key machine",
+			Use:     "key MACHINE",
 			Short:   "Associate a key with a machine",
 			Long:    cli.Markdown("Associate a key with a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key to associate\n    type: string\n  port:\n    description: SSH port\n    type: integer\n  user:\n    description: SSH user\n    type: string\ntype: object\n"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8527,11 +8435,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine name",
+			Use:     "machine MACHINE NAME",
 			Short:   "Clone machine",
 			Long:    cli.Markdown("Clone target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8587,11 +8494,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Destroy machine",
 			Long:    cli.Markdown("Destroy target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8644,11 +8550,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "key machine",
+			Use:     "key MACHINE",
 			Short:   "Disassociate a key from a machine",
 			Long:    cli.Markdown("Disassociate a key from a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key to disassociate\n    type: string\ntype: object\n"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8698,11 +8603,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Reboot machine",
 			Long:    cli.Markdown("Reboot target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8755,11 +8659,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine name",
+			Use:     "machine MACHINE NAME",
 			Short:   "Rename machine",
 			Long:    cli.Markdown("Rename target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8813,11 +8716,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine size",
+			Use:     "machine MACHINE SIZE",
 			Short:   "Resize machine",
 			Long:    cli.Markdown("Resize target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8884,11 +8786,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Resume machine",
 			Long:    cli.Markdown("Resume target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8941,11 +8842,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Start machine",
 			Long:    cli.Markdown("Start target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -8998,11 +8898,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Stop machine",
 			Long:    cli.Markdown("Stop target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9055,11 +8954,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Suspend machine",
 			Long:    cli.Markdown("Suspend target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9112,11 +9010,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "machine machine",
+			Use:     "machine MACHINE",
 			Short:   "Undefine machine",
 			Long:    cli.Markdown("Undefine target machine"),
 			Example: examples,
-			Group:   "machines",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9169,64 +9066,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "snapshots machine",
-			Short:   "List machine snapshots",
-			Long:    cli.Markdown("List snapshots of target machine"),
-			Example: examples,
-			Group:   "snapshots",
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListMachines(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2ListSnapshots(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		getCmd.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "snapshot machine name",
+			Use:     "snapshot MACHINE NAME",
 			Short:   "Create snapshot",
 			Long:    cli.Markdown("Create snapshots of target machine"),
 			Example: examples,
-			Group:   "snapshots",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9280,11 +9123,62 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "snapshot machine snapshot",
+			Use:     "snapshots MACHINE",
+			Short:   "List machine snapshots",
+			Long:    cli.Markdown("List snapshots of target machine"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListMachines(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListSnapshots(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		getCmd.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "snapshot MACHINE SNAPSHOT",
 			Short:   "Remove snapshot",
 			Long:    cli.Markdown("Remove target machine snapshot"),
 			Example: examples,
-			Group:   "snapshots",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9347,11 +9241,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "to-snapshot machine snapshot",
+			Use:     "to-snapshot MACHINE SNAPSHOT",
 			Short:   "Revert to snapshot",
 			Long:    cli.Markdown("Revert machine to snapshot"),
 			Example: examples,
-			Group:   "snapshots",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9418,11 +9311,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "network",
+			Use:     "network [NETWORK]",
 			Short:   "List networks",
 			Long:    cli.Markdown("List networks owned by the active org. READ permission required on network & cloud."),
 			Example: examples,
-			Group:   "networks",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -9467,11 +9359,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -9493,7 +9385,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Create network",
 			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters, e.g. cidr (EC2 network)\n    type: object\n  name:\n    description: Specify network name\n    example: my-network\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned network\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
 			Example: examples,
-			Group:   "networks",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -9533,11 +9424,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "network network cloud",
+			Use:     "network NETWORK CLOUD",
 			Short:   "Delete network",
 			Long:    cli.Markdown("Delete target network"),
 			Example: examples,
-			Group:   "networks",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9600,11 +9490,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "network network",
+			Use:     "network NETWORK",
 			Short:   "Edit network",
 			Long:    cli.Markdown("Edit target network"),
 			Example: examples,
-			Group:   "networks",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9660,10 +9549,52 @@ func mistApiV2Register(subcommand bool) {
 
 		cmd := &cobra.Command{
 			Use:     "rule",
+			Short:   "Add rule",
+			Long:    cli.Markdown("Add a new rule, READ permission required on target resource, ADD permission required on Rule\n## Request Schema (application/json)\n\nproperties:\n  actions:\n    $ref: '#/components/schemas/RuleActions'\n  data_type:\n    $ref: '#/components/schemas/DataType'\n  frequency:\n    $ref: '#/components/schemas/Frequency'\n  queries:\n    $ref: '#/components/schemas/Queries'\n  selectors:\n    $ref: '#/components/schemas/Selector'\n  trigger_after:\n    $ref: '#/components/schemas/TriggerAfter'\n  window:\n    $ref: '#/components/schemas/Window'\nrequired:\n- queries\n- window\n- frequency\n- trigger_after\n- actions\n- data_type\ntype: object\n"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2AddRule(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		addCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "rule [RULE]",
 			Short:   "List rules",
 			Long:    cli.Markdown("Return a filtered list of rules"),
 			Example: examples,
-			Group:   "rules",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -9708,10 +9639,10 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
 		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 
 		cli.SetCustomFlags(cmd)
@@ -9728,113 +9659,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "rule",
-			Short:   "Add rule",
-			Long:    cli.Markdown("Add a new rule, READ permission required on target resource, ADD permission required on Rule\n## Request Schema (application/json)\n\nproperties:\n  actions:\n    $ref: '#/components/schemas/RuleActions'\n  data_type:\n    $ref: '#/components/schemas/DataType'\n  frequency:\n    $ref: '#/components/schemas/Frequency'\n  queries:\n    $ref: '#/components/schemas/Queries'\n  selectors:\n    $ref: '#/components/schemas/Selector'\n  trigger_after:\n    $ref: '#/components/schemas/TriggerAfter'\n  window:\n    $ref: '#/components/schemas/Window'\nrequired:\n- queries\n- window\n- frequency\n- trigger_after\n- actions\n- data_type\ntype: object\n"),
-			Example: examples,
-			Group:   "rules",
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2AddRule(params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		addCmd.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "rule rule action",
-			Short:   "Toggle rule",
-			Long:    cli.Markdown("Enable or disable a rule"),
-			Example: examples,
-			Group:   "rules",
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListRules(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(2),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2ToggleRule(args[0], args[1], params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		toggleCmd.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "rule rule",
+			Use:     "rule RULE",
 			Short:   "Delete rule",
 			Long:    cli.Markdown("Delete a rule given its UUID."),
 			Example: examples,
-			Group:   "rules",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9883,11 +9711,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "rule rule name",
+			Use:     "rule RULE NAME",
 			Short:   "Rename rule",
 			Long:    cli.Markdown("Rename a rule"),
 			Example: examples,
-			Group:   "rules",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9941,11 +9768,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "rule rule",
+			Use:     "rule RULE",
 			Short:   "Update rule",
 			Long:    cli.Markdown("Edit a rule given its UUID, EDIT permission required on rule\n## Request Schema (application/json)\n\nproperties:\n  actions:\n    $ref: '#/components/schemas/RuleActions'\n  frequency:\n    $ref: '#/components/schemas/Frequency'\n  queries:\n    $ref: '#/components/schemas/Queries'\n  selectors:\n    $ref: '#/components/schemas/Selector'\n  trigger_after:\n    $ref: '#/components/schemas/TriggerAfter'\n  window:\n    $ref: '#/components/schemas/Window'\ntype: object\n"),
 			Example: examples,
-			Group:   "rules",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -9999,11 +9825,67 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "script",
+			Use:     "rule RULE ACTION",
+			Short:   "Toggle rule",
+			Long:    cli.Markdown("Enable or disable a rule"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListRules(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(2),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2ToggleRule(args[0], args[1], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		toggleCmd.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "script [SCRIPT]",
 			Short:   "List scripts",
 			Long:    cli.Markdown("List scripts owned by the active org. READ permission required on script."),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -10048,10 +9930,10 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -10073,7 +9955,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Add script",
 			Long:    cli.Markdown("Add script to user scripts\n## Request Schema (application/json)\n\nproperties:\n  description:\n    type: string\n  entrypoint:\n    example: entrypoint.sh\n    type: string\n  exec_type:\n    enum:\n    - executable\n    - ansible\n    example: executable\n    type: string\n  location_type:\n    enum:\n    - inline\n    - github\n    - url\n    example: inline\n    type: string\n  name:\n    example: my-script\n    type: string\n  script:\n    example: |-\n      #!/usr/bin/env bash\n      echo Hello, World!\n    type: string\nrequired:\n- name\n- script\n- location_type\n- exec_type\ntype: object\n"),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -10113,11 +9994,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "script script",
+			Use:     "script SCRIPT",
 			Short:   "Edit script",
 			Long:    cli.Markdown("Edit target script"),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10173,11 +10053,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "script script",
+			Use:     "script SCRIPT",
 			Short:   "Delete script",
 			Long:    cli.Markdown("Delete target script"),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10226,11 +10105,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "script script",
+			Use:     "script SCRIPT",
 			Short:   "Run script",
 			Long:    cli.Markdown("Start a script job to run the script.\n## Request Schema (application/json)\n\nproperties:\n  env:\n    example: EXAMPLE_VAR=123\n    type: string\n  job_id:\n    example: ab74e2f0b7ae4999b1e4013e20dac418\n    type: string\n  machine:\n    example: my-machine\n    type: string\n  params:\n    example: -v\n    type: string\n  su:\n    enum:\n    - \"true\"\n    - \"false\"\n    example: \"false\"\n    type: string\nrequired:\n- machine\ntype: object\n"),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10284,11 +10162,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "script script",
+			Use:     "script SCRIPT",
 			Short:   "Download script",
 			Long:    cli.Markdown("Download script file or archive"),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10337,11 +10214,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "script-url script",
+			Use:     "script-url SCRIPT",
 			Short:   "Generate script url",
 			Long:    cli.Markdown("Generate url for fetching script file"),
 			Example: examples,
-			Group:   "scripts",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10390,11 +10266,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "size",
+			Use:     "size [SIZE]",
 			Short:   "List sizes",
 			Long:    cli.Markdown("List sizes owned by the active org. READ permission required on size & cloud."),
 			Example: examples,
-			Group:   "sizes",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -10439,11 +10314,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -10465,7 +10340,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "List users",
 			Long:    cli.Markdown("Return current user if requester is not admin. Return all users for admin."),
 			Example: examples,
-			Group:   "users",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -10507,11 +10381,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "volume",
+			Use:     "volume [VOLUME]",
 			Short:   "List volumes",
 			Long:    cli.Markdown("List volumes owned by the active org. READ permission required on volume & cloud."),
 			Example: examples,
-			Group:   "volumes",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -10556,11 +10429,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -10582,7 +10455,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Create volume",
 			Long:    cli.Markdown("Creates one or more volumes on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on volume.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  ex_disk_type:\n    description: GCE-specific\n    enum:\n    - pd-standard\n    - pd-ssd\n    example: pd-standard\n    type: string\n  ex_iops:\n    description: EC2-specific. Needs to be specified if volume_type='io1'\n    type: string\n  ex_volume_type:\n    description: EC2-specific\n    enum:\n    - standard\n    - io1\n    - gp2\n    - sc1\n    - st1\n    example: standard\n    type: string\n  extra:\n    description: Configure additional parameters\n    type: object\n  location:\n    description: Where to provision e.g. region, datacenter, rack\n    example: us-central1-a\n    type: string\n  name:\n    description: Specify volume name\n    example: my-volume\n    type: string\n  provider:\n    $ref: '#/components/schemas/SupportedProviders'\n  quantity:\n    description: Provision multiple volumes of this type\n    type: integer\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  size:\n    description: Volume sizing spec\n    example: 1\n    type: integer\n  tags:\n    description: Assign tags to provisioned volume\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\n- size\n- location\ntype: object\n"),
 			Example: examples,
-			Group:   "volumes",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -10622,64 +10494,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "volume volume",
-			Short:   "Delete volume",
-			Long:    cli.Markdown("Delete target volume"),
-			Example: examples,
-			Group:   "volumes",
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListVolumes(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2DeleteVolume(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		deleteCmd.AddCommand(cmd)
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "volume volume",
+			Use:     "volume VOLUME",
 			Short:   "Edit volume",
 			Long:    cli.Markdown("Edit target volume"),
 			Example: examples,
-			Group:   "volumes",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10734,11 +10552,62 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "zone",
+			Use:     "volume VOLUME",
+			Short:   "Delete volume",
+			Long:    cli.Markdown("Delete target volume"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListVolumes(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteVolume(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		deleteCmd.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "zone [ZONE]",
 			Short:   "List zones",
 			Long:    cli.Markdown("List zones owned by the active org. READ permission required on zone & cloud."),
 			Example: examples,
-			Group:   "zones",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
@@ -10783,11 +10652,11 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().String("cloud", "", "")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -10809,7 +10678,6 @@ func mistApiV2Register(subcommand bool) {
 			Short:   "Create zone",
 			Long:    cli.Markdown("Creates one or more zones on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on zone.\n## Request Schema (application/json)\n\nexample:\n  cloud: my-cloud\n  name: my-zone\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters\n    type: object\n  name:\n    description: Specify zone name/domain (e.g. example.com)\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned zone\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
 			Example: examples,
-			Group:   "zones",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
@@ -10849,11 +10717,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "zone zone",
+			Use:     "zone ZONE",
 			Short:   "Delete zone",
 			Long:    cli.Markdown("Delete target zone"),
 			Example: examples,
-			Group:   "zones",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
@@ -10902,11 +10769,10 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "zone zone",
+			Use:     "zone ZONE",
 			Short:   "Edit zone",
 			Long:    cli.Markdown("Edit target zone"),
 			Example: examples,
-			Group:   "zones",
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
 				if len(args) == 0 {
