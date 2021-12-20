@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.2 (20 Dec 2021)
+
+ - Change: Improve help messages
+ - Change: Add delete_domain_image query param to undefine action
+ - Bugfix: Trim always trailing slash on server URLs
+
 ## v0.7.1 (4 Dec 2021)
 
  - Bugfix: Fix meter command
