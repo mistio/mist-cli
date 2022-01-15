@@ -793,6 +793,56 @@ func MistApiV2GetJob(paramJobId string, params *viper.Viper) (*gentleman.Respons
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
+// MistApiV2AddKey Add key
+func MistApiV2AddKey(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "add-key"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/keys"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2ListKeys List keys
 func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-keys"
@@ -862,116 +912,6 @@ func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]int
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2AddKey Add key
-func MistApiV2AddKey(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "add-key"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/keys"
-
-	req := cli.Client.Post().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
-// MistApiV2EditKey Edit key
-func MistApiV2EditKey(paramKey string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-key"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/keys/{key}"
-	url = strings.Replace(url, "{key}", paramKey, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	paramName := params.GetString("name")
-	if paramName != "" {
-		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
-	}
-	paramDefault := params.GetBool("default")
-	if paramDefault != false {
-		req = req.AddQuery("default", fmt.Sprintf("%v", paramDefault))
-	}
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2DeleteKey Delete key
@@ -1083,6 +1023,66 @@ func MistApiV2GetKey(paramKey string, params *viper.Viper) (*gentleman.Response,
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2EditKey Edit key
+func MistApiV2EditKey(paramKey string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-key"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/keys/{key}"
+	url = strings.Replace(url, "{key}", paramKey, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	paramName := params.GetString("name")
+	if paramName != "" {
+		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
+	}
+	paramDefault := params.GetBool("default")
+	if paramDefault != false {
+		req = req.AddQuery("default", fmt.Sprintf("%v", paramDefault))
+	}
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2ListLocations List locations
@@ -2222,56 +2222,6 @@ func MistApiV2RevertToSnapshot(paramMachine string, paramSnapshot string, params
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
-// MistApiV2CreateNetwork Create network
-func MistApiV2CreateNetwork(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "create-network"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/networks"
-
-	req := cli.Client.Post().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2ListNetworks List networks
 func MistApiV2ListNetworks(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-networks"
@@ -2345,6 +2295,112 @@ func MistApiV2ListNetworks(params *viper.Viper) (*gentleman.Response, map[string
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "external_id", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2CreateNetwork Create network
+func MistApiV2CreateNetwork(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "create-network"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/networks"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2EditNetwork Edit network
+func MistApiV2EditNetwork(paramNetwork string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-network"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/networks/{network}"
+	url = strings.Replace(url, "{network}", paramNetwork, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	paramName := params.GetString("name")
+	if paramName != "" {
+		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
+	}
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2DeleteNetwork Delete network
@@ -2450,62 +2506,6 @@ func MistApiV2GetNetwork(paramNetwork string, params *viper.Viper) (*gentleman.R
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "location", "external_id", "subnets", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2EditNetwork Edit network
-func MistApiV2EditNetwork(paramNetwork string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "edit-network"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/networks/{network}"
-	url = strings.Replace(url, "{network}", paramNetwork, 1)
-
-	req := cli.Client.Put().URL(url)
-
-	paramName := params.GetString("name")
-	if paramName != "" {
-		req = req.AddQuery("name", fmt.Sprintf("%v", paramName))
-	}
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2ListRules List rules
@@ -2620,115 +2620,6 @@ func MistApiV2AddRule(params *viper.Viper, body string) (*gentleman.Response, ma
 	after := cli.HandleAfter(handlerPath, params, resp, decoded)
 	if after != nil {
 		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
-// MistApiV2GetRule Get rule
-func MistApiV2GetRule(paramRule string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "get-rule"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/rules/{rule}"
-	url = strings.Replace(url, "{rule}", paramRule, 1)
-
-	req := cli.Client.Get().URL(url)
-
-	paramSort := params.GetString("sort")
-	if paramSort != "" {
-		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
-	}
-	paramOnly := params.GetString("only")
-	if paramOnly != "" {
-		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2RenameRule Rename rule
-func MistApiV2RenameRule(paramRule string, paramName string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "rename-rule"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/rules/{rule}"
-	url = strings.Replace(url, "{rule}", paramRule, 1)
-
-	req := cli.Client.Patch().URL(url)
-
-	req = req.AddQuery("name", paramName)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
@@ -2885,6 +2776,165 @@ func MistApiV2DeleteRule(paramRule string, params *viper.Viper) (*gentleman.Resp
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
+// MistApiV2GetRule Get rule
+func MistApiV2GetRule(paramRule string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "get-rule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/rules/{rule}"
+	url = strings.Replace(url, "{rule}", paramRule, 1)
+
+	req := cli.Client.Get().URL(url)
+
+	paramSort := params.GetString("sort")
+	if paramSort != "" {
+		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
+	}
+	paramOnly := params.GetString("only")
+	if paramOnly != "" {
+		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2RenameRule Rename rule
+func MistApiV2RenameRule(paramRule string, paramName string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "rename-rule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/rules/{rule}"
+	url = strings.Replace(url, "{rule}", paramRule, 1)
+
+	req := cli.Client.Patch().URL(url)
+
+	req = req.AddQuery("name", paramName)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2AddScript Add script
+func MistApiV2AddScript(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "add-script"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/scripts"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2ListScripts List scripts
 func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-scripts"
@@ -2954,56 +3004,6 @@ func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]
 	}
 
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2AddScript Add script
-func MistApiV2AddScript(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "add-script"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/scripts"
-
-	req := cli.Client.Post().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
 // MistApiV2DeleteScript Delete script
@@ -4708,48 +4708,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-keys",
-			Short:   "List keys",
-			Long:    cli.Markdown("List keys owned by the active org. READ permission required on key."),
-			Hidden:  true,
-			Example: examples,
-			Args:    cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2ListKeys(params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
 			Use:     "add-key",
 			Short:   "Add key",
 			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- properties:\n    certificate:\n      description: The signed public key, when using signed ssh keys\n      type: string\n    name:\n      description: The key's name\n      type: string\n    private:\n      description: The private key\n      type: string\n  required:\n  - name\n  - private\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n    name:\n      description: The key's name\n      type: string\n  required:\n  - name\n  - generate\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n  required:\n  - generate\n  - dry\nexample:\n  name: my-key\n  private: |-\n    -----BEGIN RSA PRIVATE KEY-----\n    MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5 1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh 3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2 pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n    -----END RSA PRIVATE KEY-----\ntype: object\n"),
@@ -4790,19 +4748,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-key KEY",
-			Short:   "Edit key",
-			Long:    cli.Markdown("Edit target key"),
+			Use:     "list-keys",
+			Short:   "List keys",
+			Long:    cli.Markdown("List keys owned by the active org. READ permission required on key."),
 			Hidden:  true,
 			Example: examples,
-			Args:    cobra.MinimumNArgs(1),
+			Args:    cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
 
-				_, decoded, outputOptions, err := MistApiV2EditKey(args[0], params, body)
+				_, decoded, outputOptions, err := MistApiV2ListKeys(params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -4814,10 +4768,13 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
 
-		cmd.Flags().String("name", "", "New key name")
-		cmd.Flags().String("default", "", "Set as default")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
@@ -4893,6 +4850,49 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("sort", "", "Order results by")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "edit-key KEY",
+			Short:   "Edit key",
+			Long:    cli.Markdown("Edit target key"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditKey(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cmd.Flags().String("name", "", "New key name")
+		cmd.Flags().String("default", "", "Set as default")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5112,7 +5112,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "associate-key MACHINE",
 			Short:   "Associate a key with a machine",
-			Long:    cli.Markdown("Associate a key with a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key to associate\n    type: string\n  port:\n    description: SSH port\n    type: integer\n  user:\n    description: SSH user\n    type: string\ntype: object\n"),
+			Long:    cli.Markdown("Associate a key with a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key\n    type: string\n  last_used:\n    description: Last used time\n    type: string\n  machine:\n    description: Name or ID of the machine\n    type: string\n  port:\n    description: SSH port\n    type: integer\n  user:\n    description: SSH user\n    type: string\ntype: object\n"),
 			Hidden:  true,
 			Example: examples,
 			Args:    cobra.MinimumNArgs(1),
@@ -5739,6 +5739,49 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "list-networks",
+			Short:   "List networks",
+			Long:    cli.Markdown("List networks owned by the active org. READ permission required on network & cloud."),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListNetworks(params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("cloud", "", "(Only for listings)")
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "create-network",
 			Short:   "Create network",
 			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters, e.g. cidr (EC2 network)\n    type: object\n  name:\n    description: Specify network name\n    example: my-network\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned network\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
@@ -5779,15 +5822,19 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-networks",
-			Short:   "List networks",
-			Long:    cli.Markdown("List networks owned by the active org. READ permission required on network & cloud."),
+			Use:     "edit-network NETWORK",
+			Short:   "Edit network",
+			Long:    cli.Markdown("Edit target network"),
 			Hidden:  true,
 			Example: examples,
-			Args:    cobra.MinimumNArgs(0),
+			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
 
-				_, decoded, outputOptions, err := MistApiV2ListNetworks(params)
+				_, decoded, outputOptions, err := MistApiV2EditNetwork(args[0], params, body)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -5799,14 +5846,9 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
 
-		cmd.Flags().String("cloud", "", "(Only for listings)")
-		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
-		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
-		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("name", "", "New network name")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5895,48 +5937,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "edit-network NETWORK",
-			Short:   "Edit network",
-			Long:    cli.Markdown("Edit target network"),
-			Hidden:  true,
-			Example: examples,
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[1:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2EditNetwork(args[0], params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cmd.Flags().String("name", "", "New network name")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
 			Use:     "list-rules",
 			Short:   "List rules",
 			Long:    cli.Markdown("Return a filtered list of rules"),
@@ -5991,84 +5991,6 @@ func mistApiV2Register(subcommand bool) {
 				}
 
 				_, decoded, outputOptions, err := MistApiV2AddRule(params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "get-rule RULE",
-			Short:   "Get rule",
-			Long:    cli.Markdown("Get details about target rule"),
-			Hidden:  true,
-			Example: examples,
-			Args:    cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2GetRule(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("only", "", "Only return these fields")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "rename-rule RULE NAME",
-			Short:   "Rename rule",
-			Long:    cli.Markdown("Rename a rule"),
-			Hidden:  true,
-			Example: examples,
-			Args:    cobra.MinimumNArgs(2),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2RenameRule(args[0], args[1], params, body)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -6211,15 +6133,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-scripts",
-			Short:   "List scripts",
-			Long:    cli.Markdown("List scripts owned by the active org. READ permission required on script."),
+			Use:     "get-rule RULE",
+			Short:   "Get rule",
+			Long:    cli.Markdown("Get details about target rule"),
 			Hidden:  true,
 			Example: examples,
-			Args:    cobra.MinimumNArgs(0),
+			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, outputOptions, err := MistApiV2ListScripts(params)
+				_, decoded, outputOptions, err := MistApiV2GetRule(args[0], params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -6232,12 +6154,48 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
-		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
-		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by")
 		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "rename-rule RULE NAME",
+			Short:   "Rename rule",
+			Long:    cli.Markdown("Rename a rule"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(2),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2RenameRule(args[0], args[1], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6278,6 +6236,48 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "list-scripts",
+			Short:   "List scripts",
+			Long:    cli.Markdown("List scripts owned by the active org. READ permission required on script."),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListScripts(params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7520,6 +7520,49 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "key",
+			Short:   "Add key",
+			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- properties:\n    certificate:\n      description: The signed public key, when using signed ssh keys\n      type: string\n    name:\n      description: The key's name\n      type: string\n    private:\n      description: The private key\n      type: string\n  required:\n  - name\n  - private\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n    name:\n      description: The key's name\n      type: string\n  required:\n  - name\n  - generate\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n  required:\n  - generate\n  - dry\nexample:\n  name: my-key\n  private: |-\n    -----BEGIN RSA PRIVATE KEY-----\n    MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5 1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh 3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2 pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n    -----END RSA PRIVATE KEY-----\ntype: object\n"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2AddKey(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		addCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "key [KEY]",
 			Short:   "List keys",
 			Long:    cli.Markdown("List keys owned by the active org. READ permission required on key."),
@@ -7589,21 +7632,31 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "key",
-			Short:   "Add key",
-			Long:    cli.Markdown("Adds a new key and returns the key's id. ADD permission required on key.\n## Request Schema (application/json)\n\nanyOf:\n- properties:\n    certificate:\n      description: The signed public key, when using signed ssh keys\n      type: string\n    name:\n      description: The key's name\n      type: string\n    private:\n      description: The private key\n      type: string\n  required:\n  - name\n  - private\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n    name:\n      description: The key's name\n      type: string\n  required:\n  - name\n  - generate\n- properties:\n    dry:\n      description: Return generated key without actually adding it\n      type: boolean\n    generate:\n      description: Generate a keypair instead of providing one\n      type: boolean\n  required:\n  - generate\n  - dry\nexample:\n  name: my-key\n  private: |-\n    -----BEGIN RSA PRIVATE KEY-----\n    MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5 1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh 3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2 pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=\n    -----END RSA PRIVATE KEY-----\ntype: object\n"),
+			Use:     "key KEY",
+			Short:   "Delete key",
+			Long:    cli.Markdown("Delete target key"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListKeys(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
-			Args: cobra.MinimumNArgs(0),
+			Args: cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
 
-				_, decoded, outputOptions, err := MistApiV2AddKey(params, body)
+				_, decoded, outputOptions, err := MistApiV2DeleteKey(args[0], params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -7615,8 +7668,7 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		addCmd.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
+		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
 
@@ -7676,58 +7728,6 @@ func mistApiV2Register(subcommand bool) {
 
 		cmd.Flags().String("name", "", "New key name")
 		cmd.Flags().String("default", "", "Set as default")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "key KEY",
-			Short:   "Delete key",
-			Long:    cli.Markdown("Delete target key"),
-			Example: examples,
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListKeys(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2DeleteKey(args[0], params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
 
@@ -7942,7 +7942,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "key MACHINE",
 			Short:   "Associate a key with a machine",
-			Long:    cli.Markdown("Associate a key with a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key to associate\n    type: string\n  port:\n    description: SSH port\n    type: integer\n  user:\n    description: SSH user\n    type: string\ntype: object\n"),
+			Long:    cli.Markdown("Associate a key with a machine.\n## Request Schema (application/json)\n\nproperties:\n  key:\n    description: Name or ID of the SSH key\n    type: string\n  last_used:\n    description: Last used time\n    type: string\n  machine:\n    description: Name or ID of the machine\n    type: string\n  port:\n    description: SSH port\n    type: integer\n  user:\n    description: SSH user\n    type: string\ntype: object\n"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
@@ -8875,49 +8875,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "network",
-			Short:   "Create network",
-			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters, e.g. cidr (EC2 network)\n    type: object\n  name:\n    description: Specify network name\n    example: my-network\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned network\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
-			Example: examples,
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2CreateNetwork(params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		createCmd.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
 			Use:     "network [NETWORK]",
 			Short:   "List networks",
 			Long:    cli.Markdown("List networks owned by the active org. READ permission required on network & cloud."),
@@ -8988,45 +8945,21 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "network NETWORK CLOUD",
-			Short:   "Delete network",
-			Long:    cli.Markdown("Delete target network"),
+			Use:     "network",
+			Short:   "Create network",
+			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n## Request Schema (application/json)\n\nproperties:\n  cloud:\n    description: Specify cloud to provision on\n    example: my-cloud\n    type: string\n  dry:\n    description: Return provisioning plan and exit without executing it\n    type: boolean\n  extra:\n    description: Configure additional parameters, e.g. cidr (EC2 network)\n    type: object\n  name:\n    description: Specify network name\n    example: my-network\n    type: string\n  save:\n    description: Save provisioning plan as template\n    type: boolean\n  tags:\n    description: Assign tags to provisioned network\n    type: object\n  template:\n    type: object\nrequired:\n- name\n- cloud\ntype: object\n"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListNetworks(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-
-				if len(args) == 1 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListClouds(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
-			Args: cobra.MinimumNArgs(2),
+			Args: cobra.MinimumNArgs(0),
 			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
 
-				_, decoded, outputOptions, err := MistApiV2DeleteNetwork(args[0], args[1], params)
+				_, decoded, outputOptions, err := MistApiV2CreateNetwork(params, body)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -9038,7 +8971,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		deleteCmd.AddCommand(cmd)
+		createCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
 
 		cli.SetCustomFlags(cmd)
 
@@ -9097,6 +9031,72 @@ func mistApiV2Register(subcommand bool) {
 		editCmd.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New network name")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "network NETWORK CLOUD",
+			Short:   "Delete network",
+			Long:    cli.Markdown("Delete target network"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListNetworks(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+
+				if len(args) == 1 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListClouds(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(2),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteNetwork(args[0], args[1], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
 
@@ -9208,63 +9208,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetErr(os.Stderr)
 		addCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "rule RULE NAME",
-			Short:   "Rename rule",
-			Long:    cli.Markdown("Rename a rule"),
-			Example: examples,
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-				if len(args) == 0 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListRules(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
-
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(2),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2RenameRule(args[0], args[1], params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		renameCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
 
@@ -9446,6 +9389,106 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "rule RULE NAME",
+			Short:   "Rename rule",
+			Long:    cli.Markdown("Rename a rule"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListRules(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(2),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("", args[2:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2RenameRule(args[0], args[1], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		renameCmd.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "script",
+			Short:   "Add script",
+			Long:    cli.Markdown("Add script to user scripts\n## Request Schema (application/json)\n\nproperties:\n  description:\n    type: string\n  entrypoint:\n    example: entrypoint.sh\n    type: string\n  exec_type:\n    enum:\n    - executable\n    - ansible\n    example: executable\n    type: string\n  location_type:\n    enum:\n    - inline\n    - github\n    - url\n    example: inline\n    type: string\n  name:\n    example: my-script\n    type: string\n  script:\n    example: |-\n      #!/usr/bin/env bash\n      echo Hello, World!\n    type: string\nrequired:\n- name\n- script\n- location_type\n- exec_type\ntype: object\n"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2AddScript(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		addCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "script [SCRIPT]",
 			Short:   "List scripts",
 			Long:    cli.Markdown("List scripts owned by the active org. READ permission required on script."),
@@ -9500,49 +9543,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "script",
-			Short:   "Add script",
-			Long:    cli.Markdown("Add script to user scripts\n## Request Schema (application/json)\n\nproperties:\n  description:\n    type: string\n  entrypoint:\n    example: entrypoint.sh\n    type: string\n  exec_type:\n    enum:\n    - executable\n    - ansible\n    example: executable\n    type: string\n  location_type:\n    enum:\n    - inline\n    - github\n    - url\n    example: inline\n    type: string\n  name:\n    example: my-script\n    type: string\n  script:\n    example: |-\n      #!/usr/bin/env bash\n      echo Hello, World!\n    type: string\nrequired:\n- name\n- script\n- location_type\n- exec_type\ntype: object\n"),
-			Example: examples,
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2AddScript(params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		addCmd.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
 
 		cli.SetCustomFlags(cmd)
 
