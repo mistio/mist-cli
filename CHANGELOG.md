@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.3 (23 Mar 2022)
+
+ - Bugfix: Restore resource aliases
+ - Bugfix: Add missing fields
+ - Change: Improve help messages
+
 ## v0.7.2 (20 Dec 2021)
 
  - Change: Improve help messages
