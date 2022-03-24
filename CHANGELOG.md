@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.4 (24 Mar 2022)
+
+ - Bugfix: Fix machine actions
+ - Bugfix: Display all available examples in help
+ 
 ## v0.7.3 (23 Mar 2022)
 
  - Bugfix: Restore resource aliases
