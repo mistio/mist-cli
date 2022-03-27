@@ -5514,22 +5514,22 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " create-machine cloud: 6a760c7690dc4ac9913ce9b109aa900c, dry: false, image: Ubuntu, name: testmachine, size{cpu: 2, memory: 2048}\n"
+		examples += "  " + cli.Root.CommandPath() + " create-machine cloud: 6a760c7690dc4ac9913ce9b109aa900c, image: Ubuntu, name: testmachine, size{cpu: 2, memory: 2048}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create-machine cloud: GCE, dry: false, expiration{action: destroy, date: 2025-08-30T18:24:15Z}, image: Ubuntu, key: TestKey, location: us-east1-b, monitoring: true, name: testmachine, quantity: 2, schedules[]{datetime: 2023-09-22T18:19:28Z, schedule_type: one_off, script.script: test123}, scripts[].inline: @file, [].script: test123, size{cpu: 2, memory: 2048}\n"
+		examples += "  " + cli.Root.CommandPath() + " create-machine cloud: GCE, expiration{action: destroy, date: 2025-08-30T18:24:15Z}, image: Ubuntu, key: TestKey, location: us-east1-b, monitoring: true, name: testmachine, quantity: 2, schedules[]{datetime: 2023-09-22T18:19:28Z, schedule_type: one_off, script.script: test123}, scripts[].inline: @file, [].script: test123, size{cpu: 2, memory: 2048}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create-machine dry: false, image: Ubuntu, key: TestKey, monitoring: true, name: TestMachine, size{cpu: 1, memory: 1024}\n"
+		examples += "  " + cli.Root.CommandPath() + " create-machine image: Ubuntu, key: TestKey, monitoring: true, name: TestMachine, size{cpu: 1, memory: 1024}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create-machine dry: false, image: Ubuntu, name: awsmachine, provider: amazon, size: t3.micro\n"
+		examples += "  " + cli.Root.CommandPath() + " create-machine image: Ubuntu, name: awsmachine, provider: amazon, size: t3.micro\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create-machine dry: false, image: Ubuntu, name: azuremachine, provider: azure, size: Standard_D4s_v5\n"
+		examples += "  " + cli.Root.CommandPath() + " create-machine image: Ubuntu, name: azuremachine, provider: azure, size: Standard_D4s_v5\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create-machine dry: false, image: Ubuntu, name: gcemachine, provider: google, size: e2-medium\n"
+		examples += "  " + cli.Root.CommandPath() + " create-machine image: Ubuntu, name: gcemachine, provider: google, size: e2-medium\n"
 
 		cmd := &cobra.Command{
 			Use:     "create-machine",
 			Short:   "Create machine",
-			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key."),
+			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location.\nCREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n"),
 			Hidden:  true,
 			Example: examples,
 			Args:    cobra.MinimumNArgs(0),
@@ -6284,7 +6284,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "create-network",
 			Short:   "Create network",
-			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network."),
+			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n"),
 			Hidden:  true,
 			Example: examples,
 			Args:    cobra.MinimumNArgs(0),
@@ -7361,7 +7361,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "create-volume",
 			Short:   "Create volume",
-			Long:    cli.Markdown("Creates one or more volumes on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on volume."),
+			Long:    cli.Markdown("Creates one or more volumes on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location.\nCREATE_RESOURCES permission required on location. CREATE permission required on volume.\n"),
 			Hidden:  true,
 			Example: examples,
 			Args:    cobra.MinimumNArgs(0),
@@ -7556,7 +7556,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "create-zone",
 			Short:   "Create zone",
-			Long:    cli.Markdown("Creates one or more zones on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on zone."),
+			Long:    cli.Markdown("Creates one or more zones on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on zone.\n"),
 			Hidden:  true,
 			Example: examples,
 			Args:    cobra.MinimumNArgs(0),
@@ -8916,17 +8916,17 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " create machine cloud: 6a760c7690dc4ac9913ce9b109aa900c, dry: false, image: Ubuntu, name: testmachine, size{cpu: 2, memory: 2048}\n"
+		examples += "  " + cli.Root.CommandPath() + " create machine cloud: 6a760c7690dc4ac9913ce9b109aa900c, image: Ubuntu, name: testmachine, size{cpu: 2, memory: 2048}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create machine cloud: GCE, dry: false, expiration{action: destroy, date: 2025-08-30T18:24:15Z}, image: Ubuntu, key: TestKey, location: us-east1-b, monitoring: true, name: testmachine, quantity: 2, schedules[]{datetime: 2023-09-22T18:19:28Z, schedule_type: one_off, script.script: test123}, scripts[].inline: @file, [].script: test123, size{cpu: 2, memory: 2048}\n"
+		examples += "  " + cli.Root.CommandPath() + " create machine cloud: GCE, expiration{action: destroy, date: 2025-08-30T18:24:15Z}, image: Ubuntu, key: TestKey, location: us-east1-b, monitoring: true, name: testmachine, quantity: 2, schedules[]{datetime: 2023-09-22T18:19:28Z, schedule_type: one_off, script.script: test123}, scripts[].inline: @file, [].script: test123, size{cpu: 2, memory: 2048}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create machine dry: false, image: Ubuntu, key: TestKey, monitoring: true, name: TestMachine, size{cpu: 1, memory: 1024}\n"
+		examples += "  " + cli.Root.CommandPath() + " create machine image: Ubuntu, key: TestKey, monitoring: true, name: TestMachine, size{cpu: 1, memory: 1024}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create machine dry: false, image: Ubuntu, name: awsmachine, provider: amazon, size: t3.micro\n"
+		examples += "  " + cli.Root.CommandPath() + " create machine image: Ubuntu, name: awsmachine, provider: amazon, size: t3.micro\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create machine dry: false, image: Ubuntu, name: azuremachine, provider: azure, size: Standard_D4s_v5\n"
+		examples += "  " + cli.Root.CommandPath() + " create machine image: Ubuntu, name: azuremachine, provider: azure, size: Standard_D4s_v5\n"
 
-		examples += "  " + cli.Root.CommandPath() + " create machine dry: false, image: Ubuntu, name: gcemachine, provider: google, size: e2-medium\n"
+		examples += "  " + cli.Root.CommandPath() + " create machine image: Ubuntu, name: gcemachine, provider: google, size: e2-medium\n"
 
 		err := setMistContext()
 		if err != nil {
@@ -8950,7 +8950,7 @@ func mistApiV2Register(subcommand bool) {
 				"machines",
 			},
 			Short:   "Create machine",
-			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key."),
+			Long:    cli.Markdown("Creates one or more machines on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location.\nCREATE_RESOURCES permission required on location. CREATE permission required on machine. RUN permission required on script. READ permission required on key.\n"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
@@ -10427,7 +10427,7 @@ func mistApiV2Register(subcommand bool) {
 				"networks",
 			},
 			Short:   "Create network",
-			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network."),
+			Long:    cli.Markdown("Creates one or more networks on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
@@ -12144,7 +12144,7 @@ func mistApiV2Register(subcommand bool) {
 				"volumes",
 			},
 			Short:   "Create volume",
-			Long:    cli.Markdown("Creates one or more volumes on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location. CREATE_RESOURCES permission required on location. CREATE permission required on volume."),
+			Long:    cli.Markdown("Creates one or more volumes on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. READ permission required on location.\nCREATE_RESOURCES permission required on location. CREATE permission required on volume.\n"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
@@ -12441,7 +12441,7 @@ func mistApiV2Register(subcommand bool) {
 				"zones",
 			},
 			Short:   "Create zone",
-			Long:    cli.Markdown("Creates one or more zones on the specified cloud. If async is true, a jobId will be returned. READ permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on zone."),
+			Long:    cli.Markdown("Creates one or more zones on the specified cloud. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on zone.\n"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
