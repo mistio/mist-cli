@@ -132,6 +132,10 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -414,6 +418,10 @@ func MistApiV2ListClusters(params *viper.Viper) (*gentleman.Response, map[string
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 	paramCredentials := params.GetBool("credentials")
 	if paramCredentials != false {
@@ -724,6 +732,10 @@ func MistApiV2ListImages(params *viper.Viper) (*gentleman.Response, map[string]i
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -897,6 +909,10 @@ func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]int
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 	paramPrivate := params.GetBool("private")
 	if paramPrivate != false {
@@ -1194,6 +1210,10 @@ func MistApiV2ListLocations(params *viper.Viper) (*gentleman.Response, map[strin
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -1324,6 +1344,10 @@ func MistApiV2ListMachines(params *viper.Viper) (*gentleman.Response, map[string
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -2337,6 +2361,10 @@ func MistApiV2ListNetworks(params *viper.Viper) (*gentleman.Response, map[string
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -2610,6 +2638,10 @@ func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]in
 	paramOnly := params.GetString("only")
 	if paramOnly != "" {
 		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -2983,6 +3015,10 @@ func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -3684,6 +3720,10 @@ func MistApiV2ListSizes(params *viper.Viper) (*gentleman.Response, map[string]in
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -3811,6 +3851,10 @@ func MistApiV2ListUsers(params *viper.Viper) (*gentleman.Response, map[string]in
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -3885,6 +3929,10 @@ func MistApiV2ListVolumes(params *viper.Viper) (*gentleman.Response, map[string]
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -4165,6 +4213,10 @@ func MistApiV2ListZones(params *viper.Viper) (*gentleman.Response, map[string]in
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -4702,6 +4754,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -4903,6 +4956,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("credentials", false, "Return the cluster's credentials. Requires READ_CREDENTIALS permission on cluster. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -5105,6 +5159,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5220,6 +5275,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("private", false, "Return the private key. Requires READ_PRIVATE permission on key. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -5419,6 +5475,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5500,6 +5557,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6267,6 +6325,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6458,6 +6517,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6723,6 +6783,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7221,6 +7282,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7301,6 +7363,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime.")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7344,6 +7407,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7537,6 +7601,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7773,6 +7838,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -8075,6 +8141,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("credentials", false, "Return the cluster's credentials. Requires READ_CREDENTIALS permission on cluster. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -8373,6 +8440,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -8515,6 +8583,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("private", false, "Return the private key. Requires READ_PRIVATE permission on key. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -8811,6 +8880,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -8902,6 +8972,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -10391,6 +10462,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -10703,6 +10775,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -11139,6 +11212,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -11956,6 +12030,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -12019,6 +12094,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime.")
 
 		cli.SetCustomFlags(cmd)
 
@@ -12109,6 +12185,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -12406,6 +12483,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
