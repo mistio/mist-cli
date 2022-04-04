@@ -4647,7 +4647,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " create-cluster cloud: my-cloud, location: my-location, name: my-cluster, provider: google\n"
+		examples += "  " + cli.Root.CommandPath() + " create-cluster location: europe-west2-b, name: my-cluster, provider: google\n"
 
 		cmd := &cobra.Command{
 			Use:     "create-cluster",
@@ -7625,7 +7625,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " create cluster cloud: my-cloud, location: my-location, name: my-cluster, provider: google\n"
+		examples += "  " + cli.Root.CommandPath() + " create cluster location: europe-west2-b, name: my-cluster, provider: google\n"
 
 		err := setMistContext()
 		if err != nil {
