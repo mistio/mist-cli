@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.5 (13 Apr 2022)
+
+ - Bugfix: Fix adding initial context
+ - Bugfix: Fix missing API doc URL
+ 
 ## v0.7.4 (24 Mar 2022)
 
  - Bugfix: Fix machine actions
