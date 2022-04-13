@@ -5,7 +5,7 @@ stages:
 #################### BUILD STAGE ####################
 build_cli_binaries:
   stage: build
-  image: golang/1.16.0-buster
+  image: golang:1.18.1-bullseye
   script:
     - go build -o mist
   tags:
