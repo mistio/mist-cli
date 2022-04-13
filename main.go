@@ -122,6 +122,22 @@ Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
 Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
 `
 
+func customUsageFunc(c *cobra.Command) error {
+	err := setMistContext()
+	if err != nil {
+		return err
+	}
+	server, err := getServer()
+	if err != nil {
+		return err
+	}
+	apiDocs := server + c.UsageTemplate()
+	c.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+	c.SetUsageFunc(nil)
+	c.Usage()
+	return nil
+}
+
 func versionCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",

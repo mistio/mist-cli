@@ -7236,16 +7236,6 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
-
 		cmd := &cobra.Command{
 			Use: "cloud [CLOUD]",
 			Aliases: []string{
@@ -7298,8 +7288,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
@@ -7323,16 +7313,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		examples += "  " + cli.Root.CommandPath() + " add cloud credentials{email: email, privateKey: privateKey, projectId: projectId}, name: my-cloud, provider: google\n"
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "cloud",
@@ -7368,8 +7348,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		addCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -7385,16 +7365,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "cloud CLOUD",
@@ -7440,8 +7410,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds/{cloud}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds/{cloud}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		removeCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -7458,16 +7428,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		examples += "  " + cli.Root.CommandPath() + " edit cloud CLOUD name: my-renamed-cloud\n"
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "cloud CLOUD",
@@ -7517,8 +7477,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds/{cloud}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clouds/{cloud}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -7534,16 +7494,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "cluster [CLUSTER]",
@@ -7599,8 +7549,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clusters", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clusters", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -7626,16 +7576,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		examples += "  " + cli.Root.CommandPath() + " create cluster location: europe-west2-b, name: my-cluster, provider: google\n"
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "cluster",
@@ -7673,8 +7613,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clusters", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clusters", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		createCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -7690,16 +7630,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "cluster CLUSTER",
@@ -7747,8 +7677,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clusters/{cluster}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/clusters/{cluster}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		destroyCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -7763,16 +7693,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "datapoints QUERY",
@@ -7809,8 +7729,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/datapoints", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/datapoints", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("tags", "", "")
@@ -7832,16 +7752,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "image [IMAGE]",
@@ -7897,8 +7807,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/images", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/images", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -7921,16 +7831,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "job JOB-ID",
@@ -7961,8 +7861,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/jobs/{job_id}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/jobs/{job_id}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -7977,16 +7877,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "key [KEY]",
@@ -8040,8 +7930,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
@@ -8066,16 +7956,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		examples += "  " + cli.Root.CommandPath() + " add key name: my-key, private: @file\n"
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "key",
@@ -8109,8 +7989,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		addCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -8126,16 +8006,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "key KEY",
@@ -8179,8 +8049,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys/{key}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys/{key}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -8195,16 +8065,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "key KEY",
@@ -8248,8 +8108,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys/{key}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/keys/{key}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New key name")
@@ -8267,16 +8127,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "location [LOCATION]",
@@ -8335,8 +8185,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/locations", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/locations", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -8359,16 +8209,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine [MACHINE]",
@@ -8426,8 +8266,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -8462,16 +8302,6 @@ func mistApiV2Register(subcommand bool) {
 		examples += "  " + cli.Root.CommandPath() + " create machine image: Ubuntu, name: azuremachine, provider: azure, size: Standard_D4s_v5\n"
 
 		examples += "  " + cli.Root.CommandPath() + " create machine image: Ubuntu, name: gcemachine, provider: google, size: e2-medium\n"
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine",
@@ -8527,8 +8357,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		createCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -8546,16 +8376,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -8607,8 +8427,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -8624,16 +8444,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "key MACHINE",
@@ -8681,8 +8491,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/associate-key", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/associate-key", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		associateCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -8698,16 +8508,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE NAME",
@@ -8756,8 +8556,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/clone", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/clone", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		cloneCmd.AddCommand(cmd)
 
 		cmd.Flags().Bool("run-async", false, "")
@@ -8774,16 +8574,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -8831,8 +8621,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/destroy", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/destroy", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		destroyCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -8847,16 +8637,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "key MACHINE",
@@ -8904,8 +8684,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/disassociate-key", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/disassociate-key", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		disassociateCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -8921,16 +8701,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -8978,8 +8748,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/reboot", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/reboot", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		rebootCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -8994,16 +8764,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE NAME",
@@ -9052,8 +8812,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/rename", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/rename", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		renameCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9068,16 +8828,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE SIZE",
@@ -9139,8 +8889,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/resize", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/resize", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		resizeCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9155,16 +8905,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -9212,8 +8952,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/resume", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/resume", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		resumeCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9228,16 +8968,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -9285,8 +9015,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/start", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/start", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		startCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9301,16 +9031,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -9358,8 +9078,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/stop", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/stop", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		stopCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9374,16 +9094,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -9431,8 +9141,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/suspend", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/suspend", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		suspendCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9447,16 +9157,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "machine MACHINE",
@@ -9504,8 +9204,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/undefine", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/actions/undefine", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		undefineCmd.AddCommand(cmd)
 
 		cmd.Flags().Bool("delete-domain-image", false, "")
@@ -9522,16 +9222,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "snapshots MACHINE",
@@ -9579,8 +9269,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9595,16 +9285,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "snapshot MACHINE NAME",
@@ -9654,8 +9334,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		createCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9670,16 +9350,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "snapshot MACHINE SNAPSHOT",
@@ -9742,8 +9412,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots/{snapshot}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots/{snapshot}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		removeCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9758,16 +9428,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "to-snapshot MACHINE SNAPSHOT",
@@ -9833,8 +9493,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots/{snapshot}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/machines/{machine}/snapshots/{snapshot}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		revertCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -9849,16 +9509,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "network [NETWORK]",
@@ -9916,8 +9566,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -9940,16 +9590,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "network",
@@ -9987,8 +9627,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		createCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -10004,16 +9644,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "network NETWORK CLOUD",
@@ -10075,8 +9705,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks/{network}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks/{network}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -10091,16 +9721,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "network NETWORK",
@@ -10148,8 +9768,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks/{network}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks/{network}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New network name")
@@ -10166,16 +9786,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "rule [RULE]",
@@ -10230,8 +9840,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
@@ -10252,16 +9862,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "rule",
@@ -10296,8 +9896,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		addCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -10313,16 +9913,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "rule RULE",
@@ -10367,8 +9957,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -10383,16 +9973,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "rule RULE NAME",
@@ -10438,8 +10018,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Patch") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Patch") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		renameCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -10454,16 +10034,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "rule RULE",
@@ -10512,8 +10082,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -10529,16 +10099,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "rule RULE ACTION",
@@ -10584,8 +10144,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/rules/{rule}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		toggleCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -10600,16 +10160,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script [SCRIPT]",
@@ -10665,8 +10215,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
@@ -10688,16 +10238,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script",
@@ -10734,8 +10274,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		addCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -10751,16 +10291,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
@@ -10807,8 +10337,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -10823,16 +10353,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
@@ -10883,8 +10403,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		runCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -10900,16 +10420,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
@@ -10956,8 +10466,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New script name")
@@ -10975,16 +10485,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
@@ -11031,8 +10531,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}/file", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}/file", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		downloadCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -11047,16 +10547,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "script-url SCRIPT",
@@ -11107,8 +10597,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}/url", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/scripts/{script}/url", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		generateCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -11123,16 +10613,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "size [SIZE]",
@@ -11186,8 +10666,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/sizes", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/sizes", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -11210,16 +10690,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "user",
@@ -11250,8 +10720,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/users", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/users", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("search", "", "Only return results matching search filter")
@@ -11273,16 +10743,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "volume [VOLUME]",
@@ -11339,8 +10799,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -11363,16 +10823,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "volume",
@@ -11409,8 +10859,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		createCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -11426,16 +10876,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "volume VOLUME",
@@ -11482,8 +10922,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes/{volume}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes/{volume}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -11498,16 +10938,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "volume VOLUME",
@@ -11554,8 +10984,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes/{volume}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/volumes/{volume}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 
 		cmd.Flags().String("name", "", "New volume name")
@@ -11572,16 +11002,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "zone [ZONE]",
@@ -11636,8 +11056,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
 		cmd.Flags().String("cloud", "", "(Only for listings)")
@@ -11662,16 +11082,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		examples += "  " + cli.Root.CommandPath() + " create zone cloud: my-cloud, name: my-zone\n"
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "zone",
@@ -11706,8 +11116,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		createCmd.AddCommand(cmd)
 		cmd.Flags().StringP("filename", "f", "", "Filename")
 
@@ -11723,16 +11133,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "zone ZONE",
@@ -11777,8 +11177,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones/{zone}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones/{zone}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
@@ -11793,16 +11193,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		err := setMistContext()
-		if err != nil {
-			logger.Fatalf("Could not set mist context: %s", err.Error())
-		}
-
-		server, err := getServer()
-		if err != nil {
-			logger.Fatalf("Could not get mist server: %s", err.Error())
-		}
 
 		cmd := &cobra.Command{
 			Use: "zone ZONE",
@@ -11847,8 +11237,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		cmd.SetErr(os.Stderr)
-		apiDocs := server + "/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones/{zone}", "{", "-"), "}", "-")
-		cmd.SetUsageTemplate(strings.ReplaceAll(customUsageSubCommandTpl, "$API_DOCS", apiDocs))
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones/{zone}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
 		editCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
