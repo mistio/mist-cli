@@ -30,9 +30,9 @@ push_cli_binaries:
 
 
         main() {
-          if ! set_cli_version; then
-              log_error "Could not set CLI version"
-          fi
+          #if ! set_cli_version; then
+          #    log_error "Could not set CLI version"
+          #fi
           if ! build_binaries "cli/$VERSION/bin"; then
               log_error "Not all binaries could be built!"
           fi
