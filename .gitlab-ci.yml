@@ -47,8 +47,7 @@ push_cli_binaries:
           else
             export CLI_VERSION=0.0.0
           fi
-          envsubst < ./main.go > /tmp/main.go
-          mv /tmp/main.go ./main.go
+          sed -i 's/$CLI_VERSION/'"$CLI_VERSION"'/g' ./main.go
         }
 
 
