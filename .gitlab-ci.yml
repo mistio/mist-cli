@@ -47,8 +47,7 @@ push_cli_binaries:
           else
             export CLI_VERSION=0.0.0
           fi
-          envsubst < ./main.go > /tmp/main.go
-          mv /tmp/main.go ./main.go
+          sed -i 's/$CLI_VERSION/'"$CLI_VERSION"'/g' ./main.go
         }
 
 
@@ -90,8 +89,9 @@ push_cli_binaries:
 
         main
   only:
-    # only for references that match a version string (v1.2.3)
+    # only for references that match a version string (v1.2.3) or a prelease version string (v1.2.3-beta)
     - /^v\d+\.\d+\.\d+$/
+    - /^v\d+\.\d+\.\d+-.+$/
   except:
     # Except branches, meaning it'll only apply to git tags
     - branches
