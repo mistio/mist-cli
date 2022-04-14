@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.6 (14 Apr 2022)
+
+ - Bugfix: Fix help display issue
+
 ## v0.7.5 (13 Apr 2022)
 
  - Bugfix: Fix adding initial context
