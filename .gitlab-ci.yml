@@ -90,8 +90,9 @@ push_cli_binaries:
 
         main
   only:
-    # only for references that match a version string (v1.2.3)
+    # only for references that match a version string (v1.2.3) or a prelease version string (v1.2.3-beta)
     - /^v\d+\.\d+\.\d+$/
+    - /^v\d+\.\d+\.\d+-.+$/
   except:
     # Except branches, meaning it'll only apply to git tags
     - branches
