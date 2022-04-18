@@ -132,6 +132,10 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -414,6 +418,10 @@ func MistApiV2ListClusters(params *viper.Viper) (*gentleman.Response, map[string
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 	paramCredentials := params.GetBool("credentials")
 	if paramCredentials != false {
@@ -724,6 +732,10 @@ func MistApiV2ListImages(params *viper.Viper) (*gentleman.Response, map[string]i
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -897,6 +909,10 @@ func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]int
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 	paramPrivate := params.GetBool("private")
 	if paramPrivate != false {
@@ -1194,6 +1210,10 @@ func MistApiV2ListLocations(params *viper.Viper) (*gentleman.Response, map[strin
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -1324,6 +1344,10 @@ func MistApiV2ListMachines(params *viper.Viper) (*gentleman.Response, map[string
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -2337,6 +2361,10 @@ func MistApiV2ListNetworks(params *viper.Viper) (*gentleman.Response, map[string
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -2744,6 +2772,10 @@ func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]in
 	if paramOnly != "" {
 		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
 	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -3116,6 +3148,10 @@ func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -3497,6 +3533,277 @@ func MistApiV2GenerateScriptUrl(paramScript string, params *viper.Viper) (*gentl
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
+// MistApiV2ListSecrets List secrets
+func MistApiV2ListSecrets(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "list-secrets"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/secrets"
+
+	req := cli.Client.Get().URL(url)
+
+	paramSearch := params.GetString("search")
+	if paramSearch != "" {
+		req = req.AddQuery("search", fmt.Sprintf("%v", paramSearch))
+	}
+	paramSort := params.GetString("sort")
+	if paramSort != "" {
+		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
+	}
+	paramStart := params.GetString("start")
+	if paramStart != "" {
+		req = req.AddQuery("start", fmt.Sprintf("%v", paramStart))
+	}
+	paramLimit := params.GetInt64("limit")
+	if paramLimit != 0 {
+		req = req.AddQuery("limit", fmt.Sprintf("%v", paramLimit))
+	}
+	paramOnly := params.GetString("only")
+	if paramOnly != "" {
+		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+	paramValue := params.GetBool("value")
+	if paramValue != false {
+		req = req.AddQuery("value", fmt.Sprintf("%v", paramValue))
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{"id", "name", "tags"}, []string{"id", "name", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2CreateSecret Create secret
+func MistApiV2CreateSecret(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "create-secret"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/secrets"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2DeleteSecret Delete secret
+func MistApiV2DeleteSecret(paramSecret string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "delete-secret"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/secrets/{secret}"
+	url = strings.Replace(url, "{secret}", paramSecret, 1)
+
+	req := cli.Client.Delete().URL(url)
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2GetSecret Get secret
+func MistApiV2GetSecret(paramSecret string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "get-secret"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/secrets/{secret}"
+	url = strings.Replace(url, "{secret}", paramSecret, 1)
+
+	req := cli.Client.Get().URL(url)
+
+	paramValue := params.GetBool("value")
+	if paramValue != false {
+		req = req.AddQuery("value", fmt.Sprintf("%v", paramValue))
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2EditSecret Edit secret
+func MistApiV2EditSecret(paramSecret string, params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-secret"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/secrets/{secret}"
+	url = strings.Replace(url, "{secret}", paramSecret, 1)
+
+	req := cli.Client.Put().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2ListSizes List sizes
 func MistApiV2ListSizes(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-sizes"
@@ -3545,6 +3852,10 @@ func MistApiV2ListSizes(params *viper.Viper) (*gentleman.Response, map[string]in
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -3628,135 +3939,6 @@ func MistApiV2GetSize(paramSize string, params *viper.Viper) (*gentleman.Respons
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "locations", "external_id", "machines"}, []string{}, []string{}}, nil
 }
 
-// MistApiV2ListTags List tags
-func MistApiV2ListTags(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "list-tags"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/tags"
-
-	req := cli.Client.Get().URL(url)
-
-	paramVerbose := params.GetBool("verbose")
-	if paramVerbose != false {
-		req = req.AddQuery("verbose", fmt.Sprintf("%v", paramVerbose))
-	}
-	paramResource := params.GetString("resource")
-	if paramResource != "" {
-		req = req.AddQuery("resource", fmt.Sprintf("%v", paramResource))
-	}
-	paramSearch := params.GetString("search")
-	if paramSearch != "" {
-		req = req.AddQuery("search", fmt.Sprintf("%v", paramSearch))
-	}
-	paramSort := params.GetString("sort")
-	if paramSort != "" {
-		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
-	}
-	paramStart := params.GetString("start")
-	if paramStart != "" {
-		req = req.AddQuery("start", fmt.Sprintf("%v", paramStart))
-	}
-	paramLimit := params.GetInt64("limit")
-	if paramLimit != 0 {
-		req = req.AddQuery("limit", fmt.Sprintf("%v", paramLimit))
-	}
-	paramOnly := params.GetString("only")
-	if paramOnly != "" {
-		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
-	}
-	paramDeref := params.GetString("deref")
-	if paramDeref != "" {
-		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded map[string]interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after.(map[string]interface{})
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{"key", "value"}, []string{"key", "value"}, []string{}, []string{}}, nil
-}
-
-// MistApiV2TagResources Tag Resources
-func MistApiV2TagResources(params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
-	handlerPath := "tag-resources"
-	if mistApiV2Subcommand {
-		handlerPath = "Mist CLI " + handlerPath
-	}
-
-	err := setMistContext()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	server, err := getServer()
-	if err != nil {
-		return nil, nil, cli.CLIOutputOptions{}, err
-	}
-
-	url := server + "/api/v2/tags"
-
-	req := cli.Client.Post().URL(url)
-
-	if body != "" {
-		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
-	}
-
-	cli.HandleBefore(handlerPath, params, req)
-
-	resp, err := req.Do()
-	if err != nil {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
-	}
-
-	var decoded interface{}
-
-	if resp.StatusCode < 400 {
-		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
-			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
-		}
-	} else {
-		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
-	}
-
-	after := cli.HandleAfter(handlerPath, params, resp, decoded)
-	if after != nil {
-		decoded = after
-	}
-
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
-}
-
 // MistApiV2ListUsers List users
 func MistApiV2ListUsers(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-users"
@@ -3801,6 +3983,10 @@ func MistApiV2ListUsers(params *viper.Viper) (*gentleman.Response, map[string]in
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -3876,6 +4062,10 @@ func MistApiV2ListVolumes(params *viper.Viper) (*gentleman.Response, map[string]
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -4156,6 +4346,10 @@ func MistApiV2ListZones(params *viper.Viper) (*gentleman.Response, map[string]in
 	paramDeref := params.GetString("deref")
 	if paramDeref != "" {
 		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+	paramAt := params.GetString("at")
+	if paramAt != "" {
+		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
 
 	cli.HandleBefore(handlerPath, params, req)
@@ -4618,12 +4812,6 @@ func mistApiV2Register(subcommand bool) {
 	}
 	root.AddCommand(suspendCmd)
 
-	tagCmd := &cobra.Command{
-		Use:   "tag",
-		Short: "tag",
-	}
-	root.AddCommand(tagCmd)
-
 	toggleCmd := &cobra.Command{
 		Use:   "toggle",
 		Short: "toggle",
@@ -4699,6 +4887,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -4900,6 +5089,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("credentials", false, "Return the cluster's credentials. Requires READ_CREDENTIALS permission on cluster. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -5102,6 +5292,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5217,6 +5408,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("private", false, "Return the private key. Requires READ_PRIVATE permission on key. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -5416,6 +5608,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -5497,6 +5690,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6264,6 +6458,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6536,6 +6731,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -6801,6 +6997,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7077,6 +7274,200 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "list-secrets",
+			Short:   "List secrets",
+			Long:    cli.Markdown("List secrets owned by the active org. READ permission required on secret."),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListSecrets(params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields (Only for listings)")
+		cmd.Flags().Bool("value", false, "Return the secret's value. Requires READ_VALUE permission on secret. (Only for single resource)")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "create-secret",
+			Short:   "Create secret",
+			Long:    cli.Markdown("Creates a new secret and returns the secret's id. CREATE permission required on secret."),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2CreateSecret(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "delete-secret SECRET",
+			Short:   "Delete secret",
+			Long:    cli.Markdown("Delete target secret"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteSecret(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "get-secret SECRET",
+			Short:   "Get secret",
+			Long:    cli.Markdown("Read target secret"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2GetSecret(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().Bool("value", false, "Return the secret's value. Requires READ_VALUE permission on secret. (Only for single resource)")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "edit-secret SECRET",
+			Short:   "Edit secret",
+			Long:    cli.Markdown("Edit/update target secret"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditSecret(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "list-sizes",
 			Short:   "List sizes",
 			Long:    cli.Markdown("List sizes owned by the active org. READ permission required on size & cloud."),
@@ -7105,6 +7496,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7158,90 +7550,6 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-tags",
-			Short:   "List tags",
-			Long:    cli.Markdown("List tags on resources owned by the active org. READ permission required on each resource."),
-			Hidden:  true,
-			Example: examples,
-			Args:    cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2ListTags(params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-
-		cmd.Flags().Bool("verbose", false, "Toggle displaying resource types and ids associated with each key value pair")
-		cmd.Flags().String("resource", "", "Display tags on a single resource")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use:     "tag-resources",
-			Short:   "Tag Resources",
-			Long:    cli.Markdown("Batch operation for adding/removing tags from a list of resources."),
-			Hidden:  true,
-			Example: examples,
-			Args:    cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2TagResources(params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		root.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
 			Use:     "list-users",
 			Short:   "List users",
 			Long:    cli.Markdown("Return current user if requester is not admin. Return all users for admin."),
@@ -7269,6 +7577,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime.")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7312,6 +7621,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7505,6 +7815,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7731,6 +8042,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -7993,6 +8305,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("credentials", false, "Return the cluster's credentials. Requires READ_CREDENTIALS permission on cluster. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -8251,6 +8564,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -8373,6 +8687,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 		cmd.Flags().Bool("private", false, "Return the private key. Requires READ_PRIVATE permission on key. (Only for single resource)")
 
 		cli.SetCustomFlags(cmd)
@@ -8629,6 +8944,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -8710,6 +9026,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -9722,7 +10039,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use: "snapshot MACHINE NAME",
 			Aliases: []string{
-				"s",
 				"sn",
 				"sna",
 				"snap",
@@ -10010,6 +10326,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -10361,6 +10678,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -10737,6 +11055,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -10807,7 +11126,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
 			Aliases: []string{
-				"s",
 				"sc",
 				"scr",
 				"scri",
@@ -10936,7 +11254,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
 			Aliases: []string{
-				"s",
 				"sc",
 				"scr",
 				"scri",
@@ -11127,6 +11444,263 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use: "secret [SECRET]",
+			Aliases: []string{
+				"se",
+				"sec",
+				"secr",
+				"secre",
+				"secrets",
+			},
+			Short:   "List secrets",
+			Long:    cli.Markdown("List secrets owned by the active org. READ permission required on secret."),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSecrets(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				if len(args) == 1 {
+
+					_, decoded, outputOptions, err := MistApiV2GetSecret(args[0], params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+						logger.Fatalf("Formatting failed: %s", err.Error())
+					}
+				} else if len(args) == 0 {
+
+					_, decoded, outputOptions, err := MistApiV2ListSecrets(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+						logger.Fatalf("Formatting failed: %s", err.Error())
+					}
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/secrets", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		getCmd.AddCommand(cmd)
+
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields (Only for listings)")
+		cmd.Flags().Bool("value", false, "Return the secret's value. Requires READ_VALUE permission on secret. (Only for single resource)")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use: "secret",
+			Aliases: []string{
+				"se",
+				"sec",
+				"secr",
+				"secre",
+				"secrets",
+			},
+			Short:   "Create secret",
+			Long:    cli.Markdown("Creates a new secret and returns the secret's id. CREATE permission required on secret."),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2CreateSecret(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/secrets", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		createCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use: "secret SECRET",
+			Aliases: []string{
+				"se",
+				"sec",
+				"secr",
+				"secre",
+				"secrets",
+			},
+			Short:   "Delete secret",
+			Long:    cli.Markdown("Delete target secret"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSecrets(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteSecret(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/secrets/{secret}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		deleteCmd.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use: "secret SECRET",
+			Aliases: []string{
+				"se",
+				"sec",
+				"secr",
+				"secre",
+				"secrets",
+			},
+			Short:   "Edit secret",
+			Long:    cli.Markdown("Edit/update target secret"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSecrets(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditSecret(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Put") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/secrets/{secret}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		editCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use: "size [SIZE]",
 			Aliases: []string{
 				"si",
@@ -11189,115 +11763,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use: "tag",
-			Aliases: []string{
-				"t",
-				"ta",
-				"tags",
-			},
-			Short:   "List tags",
-			Long:    cli.Markdown("List tags on resources owned by the active org. READ permission required on each resource."),
-			Example: examples,
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-
-				_, decoded, outputOptions, err := MistApiV2ListTags(params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/tags", "{", "-"), "}", "-"))
-		cmd.SetUsageFunc(customUsageFunc)
-		getCmd.AddCommand(cmd)
-
-		cmd.Flags().Bool("verbose", false, "Toggle displaying resource types and ids associated with each key value pair")
-		cmd.Flags().String("resource", "", "Display tags on a single resource")
-		cmd.Flags().String("search", "", "Only return results matching search filter")
-		cmd.Flags().String("sort", "", "Order results by")
-		cmd.Flags().String("start", "", "Start results from index or id")
-		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
-		cmd.Flags().String("only", "", "Only return these fields")
-		cmd.Flags().String("deref", "", "Dereference foreign keys")
-
-		cli.SetCustomFlags(cmd)
-
-		if cmd.Flags().HasFlags() {
-			params.BindPFlags(cmd.Flags())
-		}
-
-	}()
-
-	func() {
-		params := viper.New()
-
-		var examples string
-
-		cmd := &cobra.Command{
-			Use: "resources",
-			Aliases: []string{
-				"r",
-				"re",
-				"res",
-				"reso",
-				"resou",
-				"resour",
-				"resourc",
-				"resource",
-			},
-			Short:   "Tag Resources",
-			Long:    cli.Markdown("Batch operation for adding/removing tags from a list of resources."),
-			Example: examples,
-			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			},
-			Args: cobra.MinimumNArgs(0),
-			Run: func(cmd *cobra.Command, args []string) {
-				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
-				if err != nil {
-					logger.Fatalf("Unable to get body: %s", err.Error())
-				}
-
-				_, decoded, outputOptions, err := MistApiV2TagResources(params, body)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
-					logger.Fatalf("Formatting failed: %s", err.Error())
-				}
-
-			},
-		}
-		cmd.SetErr(os.Stderr)
-		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/tags", "{", "-"), "}", "-"))
-		cmd.SetUsageFunc(customUsageFunc)
-		tagCmd.AddCommand(cmd)
-		cmd.Flags().StringP("filename", "f", "", "Filename")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -11351,6 +11817,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime.")
 
 		cli.SetCustomFlags(cmd)
 
@@ -11431,6 +11898,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -11688,6 +12156,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
