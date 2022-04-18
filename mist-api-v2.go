@@ -2674,6 +2674,107 @@ func MistApiV2ListSubnets(paramNetwork string, params *viper.Viper) (*gentleman.
 	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "network", "machines", "tags"}, []string{"id", "name", "cloud", "external_id", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
 }
 
+// MistApiV2CreateSubnet Create subnet
+func MistApiV2CreateSubnet(paramNetwork string, params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "create-subnet"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/networks/{network}/subnets"
+	url = strings.Replace(url, "{network}", paramNetwork, 1)
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2DeleteSubnet Delete subnet
+func MistApiV2DeleteSubnet(paramNetwork string, paramSubnet string, paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "delete-subnet"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/networks/{network}/subnets/{subnet}"
+	url = strings.Replace(url, "{network}", paramNetwork, 1)
+	url = strings.Replace(url, "{subnet}", paramSubnet, 1)
+
+	req := cli.Client.Delete().URL(url)
+
+	req = req.AddQuery("cloud", paramCloud)
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2GetSubnet Get subnet
 func MistApiV2GetSubnet(paramNetwork string, paramSubnet string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "get-subnet"
@@ -6667,6 +6768,81 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use:     "create-subnet NETWORK",
+			Short:   "Create subnet",
+			Long:    cli.Markdown("Creates one or more subnets on the specified network. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2CreateSubnet(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "delete-subnet NETWORK SUBNET CLOUD",
+			Short:   "Delete subnet",
+			Long:    cli.Markdown("Delete target subnet"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(3),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteSubnet(args[0], args[1], args[2], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use:     "get-subnet NETWORK SUBNET",
 			Short:   "Get subnet",
 			Long:    cli.Markdown("Get details about target subnet"),
@@ -10602,6 +10778,161 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use: "subnet NETWORK",
+			Aliases: []string{
+				"su",
+				"sub",
+				"subn",
+				"subne",
+				"subnets",
+			},
+			Short:   "Create subnet",
+			Long:    cli.Markdown("Creates one or more subnets on the specified network. If async is true, a jobId will be returned.\nREAD permission required on cloud. CREATE_RESOURCES permission required on cloud. CREATE permission required on network.\n"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListNetworks(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2CreateSubnet(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks/{network}/subnets", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		createCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use: "subnet NETWORK SUBNET CLOUD",
+			Aliases: []string{
+				"su",
+				"sub",
+				"subn",
+				"subne",
+				"subnets",
+			},
+			Short:   "Delete subnet",
+			Long:    cli.Markdown("Delete target subnet"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListNetworks(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+
+				if len(args) == 1 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSubnets(args[0], params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+
+				if len(args) == 2 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListClouds(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(3),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteSubnet(args[0], args[1], args[2], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/networks/{network}/subnets/{subnet}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		deleteCmd.AddCommand(cmd)
 
 		cli.SetCustomFlags(cmd)
 
