@@ -3023,6 +3023,281 @@ func MistApiV2ToggleRule(paramRule string, paramAction string, params *viper.Vip
 	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
 }
 
+// MistApiV2ListSchedules List schedules
+func MistApiV2ListSchedules(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "list-schedules"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/schedules"
+
+	req := cli.Client.Get().URL(url)
+
+	paramSearch := params.GetString("search")
+	if paramSearch != "" {
+		req = req.AddQuery("search", fmt.Sprintf("%v", paramSearch))
+	}
+	paramSort := params.GetString("sort")
+	if paramSort != "" {
+		req = req.AddQuery("sort", fmt.Sprintf("%v", paramSort))
+	}
+	paramStart := params.GetString("start")
+	if paramStart != "" {
+		req = req.AddQuery("start", fmt.Sprintf("%v", paramStart))
+	}
+	paramLimit := params.GetInt64("limit")
+	if paramLimit != 0 {
+		req = req.AddQuery("limit", fmt.Sprintf("%v", paramLimit))
+	}
+	paramOnly := params.GetString("only")
+	if paramOnly != "" {
+		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+	paramDeref := params.GetString("deref")
+	if paramDeref != "" {
+		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2AddSchedule Add schedule
+func MistApiV2AddSchedule(params *viper.Viper, body string) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "add-schedule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/schedules"
+
+	req := cli.Client.Post().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2DeleteSchedule Delete schedule
+func MistApiV2DeleteSchedule(paramSchedule string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "delete-schedule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/schedules/{schedule}"
+	url = strings.Replace(url, "{schedule}", paramSchedule, 1)
+
+	req := cli.Client.Delete().URL(url)
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
+// MistApiV2GetSchedule Get schedule
+func MistApiV2GetSchedule(paramSchedule string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "get-schedule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/schedules/{schedule}"
+	url = strings.Replace(url, "{schedule}", paramSchedule, 1)
+
+	req := cli.Client.Get().URL(url)
+
+	paramOnly := params.GetString("only")
+	if paramOnly != "" {
+		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+	paramDeref := params.GetString("deref")
+	if paramDeref != "" {
+		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded map[string]interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after.(map[string]interface{})
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}}, nil
+}
+
+// MistApiV2EditSchedule Edit schedule
+func MistApiV2EditSchedule(paramSchedule string, params *viper.Viper, body string) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+	handlerPath := "edit-schedule"
+	if mistApiV2Subcommand {
+		handlerPath = "Mist CLI " + handlerPath
+	}
+
+	err := setMistContext()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	server, err := getServer()
+	if err != nil {
+		return nil, nil, cli.CLIOutputOptions{}, err
+	}
+
+	url := server + "/api/v2/schedules/{schedule}"
+	url = strings.Replace(url, "{schedule}", paramSchedule, 1)
+
+	req := cli.Client.Patch().URL(url)
+
+	if body != "" {
+		req = req.AddHeader("Content-Type", "application/json").BodyString(body)
+	}
+
+	cli.HandleBefore(handlerPath, params, req)
+
+	resp, err := req.Do()
+	if err != nil {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Request failed")
+	}
+
+	var decoded interface{}
+
+	if resp.StatusCode < 400 {
+		if err := cli.UnmarshalResponse(resp, &decoded); err != nil {
+			return resp, nil, cli.CLIOutputOptions{}, errors.Wrap(err, "Unmarshalling response failed")
+		}
+	} else {
+		return resp, nil, cli.CLIOutputOptions{}, errors.Errorf("HTTP %d: %s", resp.StatusCode, resp.String())
+	}
+
+	after := cli.HandleAfter(handlerPath, params, resp, decoded)
+	if after != nil {
+		decoded = after
+	}
+
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+}
+
 // MistApiV2ListScripts List scripts
 func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-scripts"
@@ -6839,6 +7114,207 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "list-schedules",
+			Short:   "List schedules",
+			Long:    cli.Markdown("List schedules owned by the active org. READ permission required on schedules."),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2ListSchedules(params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		examples += "  " + cli.Root.CommandPath() + " add-schedule action: reboot, description: This is a reboot machine schedule that runs once, enabled: true, name: TestMachineRebootSchedule, params: None, run_immediately: false, schedule_entry: 2022-06-05 00:00:00, schedule_type: one_off, selectors{ids: d5775984772949de820fa8279c306b30, type: machines}, start_after: 2022-06-08 00:00:00\n"
+
+		cmd := &cobra.Command{
+			Use:     "add-schedule",
+			Short:   "Add schedule",
+			Long:    cli.Markdown("Add schedule to user schedules"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2AddSchedule(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "delete-schedule SCHEDULE",
+			Short:   "Delete schedule",
+			Long:    cli.Markdown("Delete target schedule"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteSchedule(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use:     "get-schedule SCHEDULE",
+			Short:   "Get schedule",
+			Long:    cli.Markdown("Get details about target schedule"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2GetSchedule(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE description: This is a deactivated schedule, enabled: false, name: DeactivatedSchedule\n"
+
+		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE description: This is a renamed schedule, name: RenamedSchedule\n"
+
+		cmd := &cobra.Command{
+			Use:     "edit-schedule SCHEDULE",
+			Short:   "Edit schedule",
+			Long:    cli.Markdown("Edit target schedule"),
+			Hidden:  true,
+			Example: examples,
+			Args:    cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditSchedule(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		root.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
 
 		cli.SetCustomFlags(cmd)
 
@@ -10867,9 +11343,275 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
+			Use: "schedule [SCHEDULE]",
+			Aliases: []string{
+				"sch",
+				"sche",
+				"sched",
+				"schedu",
+				"schedul",
+				"schedules",
+			},
+			Short:   "List schedules",
+			Long:    cli.Markdown("List schedules owned by the active org. READ permission required on schedules."),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSchedules(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				if len(args) == 1 {
+
+					_, decoded, outputOptions, err := MistApiV2GetSchedule(args[0], params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+						logger.Fatalf("Formatting failed: %s", err.Error())
+					}
+				} else if len(args) == 0 {
+
+					_, decoded, outputOptions, err := MistApiV2ListSchedules(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+						logger.Fatalf("Formatting failed: %s", err.Error())
+					}
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/schedules", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		getCmd.AddCommand(cmd)
+
+		cmd.Flags().String("search", "", "Only return results matching search filter (Only for listings)")
+		cmd.Flags().String("sort", "", "Order results by (Only for listings)")
+		cmd.Flags().String("start", "", "Start results from index or id (Only for listings)")
+		cmd.Flags().Int64("limit", 0, "Limit number of results, 1000 max (Only for listings)")
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		examples += "  " + cli.Root.CommandPath() + " add schedule action: reboot, description: This is a reboot machine schedule that runs once, enabled: true, name: TestMachineRebootSchedule, params: None, run_immediately: false, schedule_entry: 2022-06-05 00:00:00, schedule_type: one_off, selectors{ids: d5775984772949de820fa8279c306b30, type: machines}, start_after: 2022-06-08 00:00:00\n"
+
+		cmd := &cobra.Command{
+			Use: "schedule",
+			Aliases: []string{
+				"sch",
+				"sche",
+				"sched",
+				"schedu",
+				"schedul",
+				"schedules",
+			},
+			Short:   "Add schedule",
+			Long:    cli.Markdown("Add schedule to user schedules"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(0),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[0:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2AddSchedule(params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Post") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/schedules", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		addCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
+			Use: "schedule SCHEDULE",
+			Aliases: []string{
+				"sch",
+				"sche",
+				"sched",
+				"schedu",
+				"schedul",
+				"schedules",
+			},
+			Short:   "Delete schedule",
+			Long:    cli.Markdown("Delete target schedule"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSchedules(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+
+				_, decoded, outputOptions, err := MistApiV2DeleteSchedule(args[0], params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/schedules/{schedule}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		deleteCmd.AddCommand(cmd)
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE description: This is a deactivated schedule, enabled: false, name: DeactivatedSchedule\n"
+
+		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE description: This is a renamed schedule, name: RenamedSchedule\n"
+
+		cmd := &cobra.Command{
+			Use: "schedule SCHEDULE",
+			Aliases: []string{
+				"sch",
+				"sche",
+				"sched",
+				"schedu",
+				"schedul",
+				"schedules",
+			},
+			Short:   "Edit schedule",
+			Long:    cli.Markdown("Edit target schedule"),
+			Example: examples,
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+				if len(args) == 0 {
+					params := viper.New()
+					params.Set("only", "name")
+					var decoded interface{}
+					_, decoded, _, err := MistApiV2ListSchedules(params)
+					if err != nil {
+						logger.Fatalf("Error calling operation: %s", err.Error())
+					}
+					data, _ := jmespath.Search("data[].name", decoded)
+					j, _ := json.Marshal(data)
+					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+				}
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			},
+			Args: cobra.MinimumNArgs(1),
+			Run: func(cmd *cobra.Command, args []string) {
+				body, err := cli.GetBody("application/json", args[1:], params.GetString("filename"))
+				if err != nil {
+					logger.Fatalf("Unable to get body: %s", err.Error())
+				}
+
+				_, decoded, outputOptions, err := MistApiV2EditSchedule(args[0], params, body)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+
+				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					logger.Fatalf("Formatting failed: %s", err.Error())
+				}
+
+			},
+		}
+		cmd.SetErr(os.Stderr)
+		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Patch") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/schedules/{schedule}", "{", "-"), "}", "-"))
+		cmd.SetUsageFunc(customUsageFunc)
+		editCmd.AddCommand(cmd)
+		cmd.Flags().StringP("filename", "f", "", "Filename")
+
+		cli.SetCustomFlags(cmd)
+
+		if cmd.Flags().HasFlags() {
+			params.BindPFlags(cmd.Flags())
+		}
+
+	}()
+
+	func() {
+		params := viper.New()
+
+		var examples string
+
+		cmd := &cobra.Command{
 			Use: "script [SCRIPT]",
 			Aliases: []string{
-				"sc",
 				"scr",
 				"scri",
 				"scrip",
@@ -10948,8 +11690,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use: "script",
 			Aliases: []string{
-				"s",
-				"sc",
 				"scr",
 				"scri",
 				"scrip",
@@ -11001,7 +11741,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
 			Aliases: []string{
-				"sc",
 				"scr",
 				"scri",
 				"scrip",
@@ -11129,7 +11868,6 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use: "script SCRIPT",
 			Aliases: []string{
-				"sc",
 				"scr",
 				"scri",
 				"scrip",
