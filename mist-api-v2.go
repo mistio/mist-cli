@@ -5102,8 +5102,6 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " add-cloud credentials{email: email, privateKey: privateKey, projectId: projectId}, name: my-cloud, provider: google\n"
-
 		cmd := &cobra.Command{
 			Use:     "add-cloud",
 			Short:   "Add cloud",
@@ -5217,8 +5215,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		examples += "  " + cli.Root.CommandPath() + " edit-cloud CLOUD name: my-renamed-cloud\n"
 
 		cmd := &cobra.Command{
 			Use:     "edit-cloud CLOUD",
@@ -8417,8 +8413,6 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " add cloud credentials{email: email, privateKey: privateKey, projectId: projectId}, name: my-cloud, provider: google\n"
-
 		cmd := &cobra.Command{
 			Use: "cloud",
 			Aliases: []string{
@@ -8531,8 +8525,6 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
-
-		examples += "  " + cli.Root.CommandPath() + " edit cloud CLOUD name: my-renamed-cloud\n"
 
 		cmd := &cobra.Command{
 			Use: "cloud CLOUD",
