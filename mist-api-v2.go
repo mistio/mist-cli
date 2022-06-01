@@ -1401,6 +1401,10 @@ func MistApiV2ListMachines(params *viper.Viper) (*gentleman.Response, map[string
 	if paramAt != "" {
 		req = req.AddQuery("at", fmt.Sprintf("%v", paramAt))
 	}
+	paramExcludedtypes := params.GetString("excludedtypes")
+	if paramExcludedtypes != "" {
+		req = req.AddQuery("excludedTypes", fmt.Sprintf("%v", paramExcludedtypes))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -6066,6 +6070,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
+		cmd.Flags().String("excludedtypes", "", "Machine types to exclude, separated by commas (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
@@ -9676,6 +9681,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 		cmd.Flags().String("at", "", "Limit results by specific datetime. Return resources created before or at, or deleted after or at, given datetime. (Only for listings)")
+		cmd.Flags().String("excludedtypes", "", "Machine types to exclude, separated by commas (Only for listings)")
 
 		cli.SetCustomFlags(cmd)
 
