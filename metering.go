@@ -54,7 +54,7 @@ func formatMeteringData(metricsSet map[string]string, machineMetrics map[string]
 	for i, metric := range metricsList {
 		sums[i] = fmt.Sprintf("%f", metricSums[metric])
 	}
-	if err := cli.Formatter.Format(data, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...), append([]string{"TOTAL"}, sums...), append([]string{"TOTAL", ""}, sums...)}); err != nil {
+	if err := cli.Formatter.Format(data, &viper.Viper{}, cli.CLIOutputOptions{append([]string{"name"}, metricsList...), append([]string{"machine_id", "name"}, metricsList...), append([]string{"TOTAL"}, sums...), append([]string{"TOTAL", ""}, sums...), map[string]string{}}); err != nil {
 		logger.Fatalf("Formatting failed: %s", err.Error())
 	}
 }
