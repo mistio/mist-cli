@@ -159,7 +159,7 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "provider", "tags"}, []string{"id", "name", "provider", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "provider", "tags"}, []string{"id", "name", "provider", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddCloud Add cloud
@@ -209,7 +209,7 @@ func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, m
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RemoveCloud Remove cloud
@@ -256,7 +256,7 @@ func MistApiV2RemoveCloud(paramCloud string, params *viper.Viper) (*gentleman.Re
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetCloud Get cloud
@@ -316,7 +316,7 @@ func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Respo
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "provider", "tags"}, []string{"id", "name", "provider", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "provider", "tags"}, []string{"id", "name", "provider", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditCloud Edit cloud
@@ -367,7 +367,7 @@ func MistApiV2EditCloud(paramCloud string, params *viper.Viper, body string) (*g
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListClusters List clusters
@@ -450,7 +450,7 @@ func MistApiV2ListClusters(params *viper.Viper) (*gentleman.Response, map[string
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateCluster Create cluster
@@ -500,7 +500,7 @@ func MistApiV2CreateCluster(params *viper.Viper, body string) (*gentleman.Respon
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DestroyCluster Destroy cluster
@@ -547,7 +547,7 @@ func MistApiV2DestroyCluster(paramCluster string, params *viper.Viper) (*gentlem
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetCluster Get cluster
@@ -607,7 +607,7 @@ func MistApiV2GetCluster(paramCluster string, params *viper.Viper) (*gentleman.R
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ScaleNodepool Scale cluster nodepool
@@ -659,7 +659,7 @@ func MistApiV2ScaleNodepool(paramCluster string, paramNodepool string, params *v
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetDatapoints Get datapoints
@@ -732,7 +732,7 @@ func MistApiV2GetDatapoints(paramQuery string, params *viper.Viper) (*gentleman.
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListImages List images
@@ -811,7 +811,7 @@ func MistApiV2ListImages(params *viper.Viper) (*gentleman.Response, map[string]i
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"starred", "name", "cloud", "os_type", "tags"}, []string{"starred", "id", "external_id", "name", "cloud", "os_type", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"starred", "name", "cloud", "os_type", "tags"}, []string{"starred", "id", "external_id", "name", "cloud", "os_type", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetImage Get image
@@ -867,7 +867,7 @@ func MistApiV2GetImage(paramImage string, params *viper.Viper) (*gentleman.Respo
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"starred", "name", "cloud", "os_type", "tags"}, []string{"starred", "id", "external_id", "name", "cloud", "os_type", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"starred", "name", "cloud", "os_type", "tags"}, []string{"starred", "id", "external_id", "name", "cloud", "os_type", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetJob Get job
@@ -914,7 +914,7 @@ func MistApiV2GetJob(paramJobId string, params *viper.Viper) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListKeys List keys
@@ -993,7 +993,7 @@ func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]int
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddKey Add key
@@ -1043,7 +1043,7 @@ func MistApiV2AddKey(params *viper.Viper, body string) (*gentleman.Response, map
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteKey Delete key
@@ -1090,7 +1090,7 @@ func MistApiV2DeleteKey(paramKey string, params *viper.Viper) (*gentleman.Respon
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetKey Get key
@@ -1154,7 +1154,7 @@ func MistApiV2GetKey(paramKey string, params *viper.Viper) (*gentleman.Response,
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditKey Edit key
@@ -1210,7 +1210,7 @@ func MistApiV2EditKey(paramKey string, params *viper.Viper) (*gentleman.Response
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListLocations List locations
@@ -1289,7 +1289,7 @@ func MistApiV2ListLocations(params *viper.Viper) (*gentleman.Response, map[strin
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "external_id", "machines"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "external_id", "machines"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetLocation Get location
@@ -1345,7 +1345,7 @@ func MistApiV2GetLocation(paramLocation string, params *viper.Viper) (*gentleman
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "locations", "external_id", "machines"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "locations", "external_id", "machines"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListMachines List machines
@@ -1424,7 +1424,7 @@ func MistApiV2ListMachines(params *viper.Viper) (*gentleman.Response, map[string
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "state", "tags"}, []string{"id", "name", "state", "cloud", "external_id", "public_ips", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "state", "tags"}, []string{"id", "name", "state", "cloud", "external_id", "public_ips", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateMachine Create machine
@@ -1474,7 +1474,7 @@ func MistApiV2CreateMachine(params *viper.Viper, body string) (*gentleman.Respon
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetMachine Get machine
@@ -1530,7 +1530,7 @@ func MistApiV2GetMachine(paramMachine string, params *viper.Viper) (*gentleman.R
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "state", "tags"}, []string{"id", "name", "state", "cloud", "external_id", "public_ips", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "state", "tags"}, []string{"id", "name", "state", "cloud", "external_id", "public_ips", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditMachine Edit machine
@@ -1581,7 +1581,7 @@ func MistApiV2EditMachine(paramMachine string, params *viper.Viper, body string)
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AssociateKey Associate a key with a machine
@@ -1632,7 +1632,7 @@ func MistApiV2AssociateKey(paramMachine string, params *viper.Viper, body string
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CloneMachine Clone machine
@@ -1686,7 +1686,7 @@ func MistApiV2CloneMachine(paramMachine string, paramName string, params *viper.
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DestroyMachine Destroy machine
@@ -1733,7 +1733,7 @@ func MistApiV2DestroyMachine(paramMachine string, params *viper.Viper) (*gentlem
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DisassociateKey Disassociate a key from a machine
@@ -1784,7 +1784,7 @@ func MistApiV2DisassociateKey(paramMachine string, params *viper.Viper, body str
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RebootMachine Reboot machine
@@ -1831,7 +1831,7 @@ func MistApiV2RebootMachine(paramMachine string, params *viper.Viper) (*gentlema
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RenameMachine Rename machine
@@ -1880,7 +1880,7 @@ func MistApiV2RenameMachine(paramMachine string, paramName string, params *viper
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ResizeMachine Resize machine
@@ -1929,7 +1929,7 @@ func MistApiV2ResizeMachine(paramMachine string, paramSize string, params *viper
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ResumeMachine Resume machine
@@ -1976,7 +1976,7 @@ func MistApiV2ResumeMachine(paramMachine string, params *viper.Viper) (*gentlema
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2StartMachine Start machine
@@ -2023,7 +2023,7 @@ func MistApiV2StartMachine(paramMachine string, params *viper.Viper) (*gentleman
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2StopMachine Stop machine
@@ -2070,7 +2070,7 @@ func MistApiV2StopMachine(paramMachine string, params *viper.Viper) (*gentleman.
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2SuspendMachine Suspend machine
@@ -2117,7 +2117,7 @@ func MistApiV2SuspendMachine(paramMachine string, params *viper.Viper) (*gentlem
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2UndefineMachine Undefine machine
@@ -2169,7 +2169,7 @@ func MistApiV2UndefineMachine(paramMachine string, params *viper.Viper) (*gentle
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListSnapshots List machine snapshots
@@ -2216,7 +2216,7 @@ func MistApiV2ListSnapshots(paramMachine string, params *viper.Viper) (*gentlema
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateSnapshot Create snapshot
@@ -2265,7 +2265,7 @@ func MistApiV2CreateSnapshot(paramMachine string, paramName string, params *vipe
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RemoveSnapshot Remove snapshot
@@ -2313,7 +2313,7 @@ func MistApiV2RemoveSnapshot(paramMachine string, paramSnapshot string, params *
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RevertToSnapshot Revert to snapshot
@@ -2361,7 +2361,7 @@ func MistApiV2RevertToSnapshot(paramMachine string, paramSnapshot string, params
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListNetworks List networks
@@ -2440,7 +2440,7 @@ func MistApiV2ListNetworks(params *viper.Viper) (*gentleman.Response, map[string
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "external_id", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "external_id", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateNetwork Create network
@@ -2490,7 +2490,7 @@ func MistApiV2CreateNetwork(params *viper.Viper, body string) (*gentleman.Respon
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteNetwork Delete network
@@ -2539,7 +2539,7 @@ func MistApiV2DeleteNetwork(paramNetwork string, paramCloud string, params *vipe
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetNetwork Get network
@@ -2595,7 +2595,7 @@ func MistApiV2GetNetwork(paramNetwork string, params *viper.Viper) (*gentleman.R
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "location", "external_id", "subnets", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "location", "external_id", "subnets", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditNetwork Edit network
@@ -2647,7 +2647,7 @@ func MistApiV2EditNetwork(paramNetwork string, params *viper.Viper) (*gentleman.
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListRules List rules
@@ -2718,7 +2718,7 @@ func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]in
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddRule Add rule
@@ -2768,7 +2768,7 @@ func MistApiV2AddRule(params *viper.Viper, body string) (*gentleman.Response, ma
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteRule Delete rule
@@ -2815,7 +2815,7 @@ func MistApiV2DeleteRule(paramRule string, params *viper.Viper) (*gentleman.Resp
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetRule Get rule
@@ -2871,7 +2871,7 @@ func MistApiV2GetRule(paramRule string, params *viper.Viper) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RenameRule Rename rule
@@ -2920,7 +2920,7 @@ func MistApiV2RenameRule(paramRule string, paramName string, params *viper.Viper
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditRule Update rule
@@ -2971,7 +2971,7 @@ func MistApiV2EditRule(paramRule string, params *viper.Viper, body string) (*gen
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ToggleRule Toggle rule
@@ -3020,7 +3020,7 @@ func MistApiV2ToggleRule(paramRule string, paramAction string, params *viper.Vip
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListSchedules List schedules
@@ -3091,7 +3091,7 @@ func MistApiV2ListSchedules(params *viper.Viper) (*gentleman.Response, map[strin
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddSchedule Add schedule
@@ -3141,7 +3141,7 @@ func MistApiV2AddSchedule(params *viper.Viper, body string) (*gentleman.Response
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteSchedule Delete schedule
@@ -3188,7 +3188,7 @@ func MistApiV2DeleteSchedule(paramSchedule string, params *viper.Viper) (*gentle
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetSchedule Get schedule
@@ -3244,7 +3244,7 @@ func MistApiV2GetSchedule(paramSchedule string, params *viper.Viper) (*gentleman
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditSchedule Edit schedule
@@ -3295,7 +3295,7 @@ func MistApiV2EditSchedule(paramSchedule string, params *viper.Viper, body strin
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListScripts List scripts
@@ -3370,7 +3370,7 @@ func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddScript Add script
@@ -3420,7 +3420,7 @@ func MistApiV2AddScript(params *viper.Viper, body string) (*gentleman.Response, 
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteScript Delete script
@@ -3467,7 +3467,7 @@ func MistApiV2DeleteScript(paramScript string, params *viper.Viper) (*gentleman.
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetScript Get script
@@ -3523,7 +3523,7 @@ func MistApiV2GetScript(paramScript string, params *viper.Viper) (*gentleman.Res
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RunScript Run script
@@ -3574,7 +3574,7 @@ func MistApiV2RunScript(paramScript string, params *viper.Viper, body string) (*
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditScript Edit script
@@ -3630,7 +3630,7 @@ func MistApiV2EditScript(paramScript string, params *viper.Viper) (*gentleman.Re
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DownloadScript Download script
@@ -3677,7 +3677,7 @@ func MistApiV2DownloadScript(paramScript string, params *viper.Viper) (*gentlema
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GenerateScriptUrl Generate script url
@@ -3724,7 +3724,7 @@ func MistApiV2GenerateScriptUrl(paramScript string, params *viper.Viper) (*gentl
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListSecrets List secrets
@@ -3795,7 +3795,7 @@ func MistApiV2ListSecrets(params *viper.Viper) (*gentleman.Response, map[string]
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"id", "name", "tags"}, []string{"id", "name", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"id", "name", "tags"}, []string{"id", "name", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateSecret Create secret
@@ -3845,7 +3845,7 @@ func MistApiV2CreateSecret(params *viper.Viper, body string) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteSecret Delete secret
@@ -3892,7 +3892,7 @@ func MistApiV2DeleteSecret(paramSecret string, params *viper.Viper) (*gentleman.
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetSecret Get secret
@@ -3944,7 +3944,7 @@ func MistApiV2GetSecret(paramSecret string, params *viper.Viper) (*gentleman.Res
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditSecret Edit secret
@@ -3995,7 +3995,7 @@ func MistApiV2EditSecret(paramSecret string, params *viper.Viper, body string) (
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListSizes List sizes
@@ -4074,7 +4074,7 @@ func MistApiV2ListSizes(params *viper.Viper) (*gentleman.Response, map[string]in
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "external_id", "machines"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "external_id", "machines"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetSize Get size
@@ -4130,7 +4130,7 @@ func MistApiV2GetSize(paramSize string, params *viper.Viper) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "locations", "external_id", "machines"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud"}, []string{"id", "name", "cloud", "locations", "external_id", "machines"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListTags List tags
@@ -4209,7 +4209,7 @@ func MistApiV2ListTags(params *viper.Viper) (*gentleman.Response, map[string]int
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"key", "value"}, []string{"key", "value"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"key", "value"}, []string{"key", "value"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2TagResources Tag Resources
@@ -4259,7 +4259,7 @@ func MistApiV2TagResources(params *viper.Viper, body string) (*gentleman.Respons
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListUsers List users
@@ -4334,7 +4334,7 @@ func MistApiV2ListUsers(params *viper.Viper) (*gentleman.Response, map[string]in
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"email"}, []string{"email", "id", "last_login", "registration_date"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"email"}, []string{"email", "id", "last_login", "registration_date"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListVolumes List volumes
@@ -4413,7 +4413,7 @@ func MistApiV2ListVolumes(params *viper.Viper) (*gentleman.Response, map[string]
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "size", "cloud", "location", "attached_to", "tags"}, []string{"id", "name", "size", "cloud", "location", "external_id", "attached_to", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "size", "cloud", "location", "attached_to", "tags"}, []string{"id", "name", "size", "cloud", "location", "external_id", "attached_to", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateVolume Create volume
@@ -4463,7 +4463,7 @@ func MistApiV2CreateVolume(params *viper.Viper, body string) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteVolume Delete volume
@@ -4510,7 +4510,7 @@ func MistApiV2DeleteVolume(paramVolume string, params *viper.Viper) (*gentleman.
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetVolume Get volume
@@ -4566,7 +4566,7 @@ func MistApiV2GetVolume(paramVolume string, params *viper.Viper) (*gentleman.Res
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "size", "cloud", "location", "attached_to", "tags"}, []string{"id", "name", "size", "cloud", "location", "external_id", "attached_to", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "size", "cloud", "location", "attached_to", "tags"}, []string{"id", "name", "size", "cloud", "location", "external_id", "attached_to", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditVolume Edit volume
@@ -4618,7 +4618,7 @@ func MistApiV2EditVolume(paramVolume string, params *viper.Viper) (*gentleman.Re
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2ListZones List zones
@@ -4697,7 +4697,7 @@ func MistApiV2ListZones(params *viper.Viper) (*gentleman.Response, map[string]in
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "external_id", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "external_id", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2CreateZone Create zone
@@ -4747,7 +4747,7 @@ func MistApiV2CreateZone(params *viper.Viper, body string) (*gentleman.Response,
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2DeleteZone Delete zone
@@ -4794,7 +4794,7 @@ func MistApiV2DeleteZone(paramZone string, params *viper.Viper) (*gentleman.Resp
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2GetZone Get zone
@@ -4850,7 +4850,7 @@ func MistApiV2GetZone(paramZone string, params *viper.Viper) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "location", "external_id", "subnets", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "machines", "tags"}, []string{"id", "name", "cloud", "location", "external_id", "subnets", "machines", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditZone Edit zone
@@ -4897,7 +4897,7 @@ func MistApiV2EditZone(paramZone string, params *viper.Viper) (*gentleman.Respon
 		decoded = after
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 func MistApiV2JobFinishedWaiter(paramJobId string, params *viper.Viper) error {
@@ -5208,7 +5208,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5257,7 +5257,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5293,7 +5293,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5328,7 +5328,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5373,7 +5373,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5409,7 +5409,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5460,7 +5460,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5496,7 +5496,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5531,7 +5531,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5574,7 +5574,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5610,7 +5610,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5652,7 +5652,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5696,7 +5696,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5734,7 +5734,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5769,7 +5769,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5819,7 +5819,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5855,7 +5855,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5890,7 +5890,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5930,7 +5930,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -5968,7 +5968,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6012,7 +6012,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6050,7 +6050,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6110,7 +6110,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6166,7 +6166,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6208,7 +6208,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6248,7 +6248,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6284,7 +6284,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6321,7 +6321,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6360,7 +6360,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6396,7 +6396,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6431,7 +6431,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6466,7 +6466,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6501,7 +6501,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6536,7 +6536,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6571,7 +6571,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6606,7 +6606,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6641,7 +6641,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6678,7 +6678,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6713,7 +6713,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6748,7 +6748,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6783,7 +6783,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6818,7 +6818,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6866,7 +6866,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6902,7 +6902,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6937,7 +6937,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -6975,7 +6975,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7012,7 +7012,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7058,7 +7058,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7094,7 +7094,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7129,7 +7129,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7167,7 +7167,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7206,7 +7206,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7242,7 +7242,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7277,7 +7277,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7325,7 +7325,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7361,7 +7361,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7396,7 +7396,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7442,7 +7442,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7478,7 +7478,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7525,7 +7525,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7561,7 +7561,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7596,7 +7596,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7638,7 +7638,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7674,7 +7674,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7712,7 +7712,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7747,7 +7747,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7782,7 +7782,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7828,7 +7828,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7864,7 +7864,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7899,7 +7899,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7940,7 +7940,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -7976,7 +7976,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8020,7 +8020,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8058,7 +8058,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8106,7 +8106,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8142,7 +8142,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8185,7 +8185,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8233,7 +8233,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8269,7 +8269,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8304,7 +8304,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8342,7 +8342,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8379,7 +8379,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8429,7 +8429,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8465,7 +8465,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8500,7 +8500,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8538,7 +8538,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8594,7 +8594,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -8603,7 +8603,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -8665,7 +8665,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8727,7 +8727,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8794,7 +8794,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8856,7 +8856,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -8865,7 +8865,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -8931,7 +8931,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -8995,7 +8995,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9064,7 +9064,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9117,7 +9117,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9185,7 +9185,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -9194,7 +9194,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -9250,7 +9250,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9309,7 +9309,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -9318,7 +9318,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -9379,7 +9379,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9439,7 +9439,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9498,7 +9498,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9565,7 +9565,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -9574,7 +9574,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -9647,7 +9647,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -9656,7 +9656,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -9731,7 +9731,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9819,7 +9819,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9883,7 +9883,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -9948,7 +9948,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10013,7 +10013,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10076,7 +10076,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10140,7 +10140,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10204,7 +10204,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10281,7 +10281,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10344,7 +10344,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10407,7 +10407,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10470,7 +10470,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10533,7 +10533,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10596,7 +10596,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10661,7 +10661,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10725,7 +10725,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10803,7 +10803,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10884,7 +10884,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -10947,7 +10947,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -10956,7 +10956,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -11019,7 +11019,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11097,7 +11097,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11160,7 +11160,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11222,7 +11222,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -11231,7 +11231,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -11289,7 +11289,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11350,7 +11350,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11411,7 +11411,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11475,7 +11475,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11537,7 +11537,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11599,7 +11599,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -11608,7 +11608,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -11670,7 +11670,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11733,7 +11733,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11803,7 +11803,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11864,7 +11864,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -11873,7 +11873,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -11932,7 +11932,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -11993,7 +11993,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12059,7 +12059,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12120,7 +12120,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12185,7 +12185,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12251,7 +12251,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12312,7 +12312,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -12321,7 +12321,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -12380,7 +12380,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12442,7 +12442,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12507,7 +12507,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12567,7 +12567,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -12576,7 +12576,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -12631,7 +12631,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12694,7 +12694,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12741,7 +12741,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12811,7 +12811,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -12820,7 +12820,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -12882,7 +12882,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -12945,7 +12945,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -13007,7 +13007,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -13069,7 +13069,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				} else if len(args) == 0 {
@@ -13078,7 +13078,7 @@ func mistApiV2Register(subcommand bool) {
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
-					if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+					if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 						logger.Fatalf("Formatting failed: %s", err.Error())
 					}
 				}
@@ -13140,7 +13140,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -13201,7 +13201,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
@@ -13261,7 +13261,7 @@ func mistApiV2Register(subcommand bool) {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
 
-				if err := cli.Formatter.Format(decoded, outputOptions); err != nil {
+				if err := cli.Formatter.Format(decoded, params, outputOptions); err != nil {
 					logger.Fatalf("Formatting failed: %s", err.Error())
 				}
 
