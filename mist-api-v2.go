@@ -607,7 +607,7 @@ func MistApiV2GetCluster(paramCluster string, params *viper.Viper) (*gentleman.R
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "cloud", "total_nodes", "tags"}, []string{"id", "name", "cloud", "total_nodes", "total_cpus", "total_ram", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{"credentials": "bool"}}, nil
 }
 
 // MistApiV2ScaleNodepool Scale cluster nodepool
@@ -1154,7 +1154,7 @@ func MistApiV2GetKey(paramKey string, params *viper.Viper) (*gentleman.Response,
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "default", "tags"}, []string{"id", "name", "default", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{"private": "bool"}}, nil
 }
 
 // MistApiV2EditKey Edit key
@@ -3944,7 +3944,7 @@ func MistApiV2GetSecret(paramSecret string, params *viper.Viper) (*gentleman.Res
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{}, []string{}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"id", "name", "tags"}, []string{"id", "name", "tags", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{"value": "bool"}}, nil
 }
 
 // MistApiV2EditSecret Edit secret
