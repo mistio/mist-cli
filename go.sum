@@ -287,8 +287,8 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yukithm/json2csv v0.1.2 h1:b2aIY9+TOY5Wss9lCku4wjqnQrENv5Ix1G0ZHN1FE2Q=
 github.com/yukithm/json2csv v0.1.2/go.mod h1:Ul6ZenFV94YeUm08AqppOd+/hB9JsmiU4KXPs9ZvgwQ=
-gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220609124901-6c7a9430feeb h1:Fo0YggTUdUAjtag1x14egbAmnmqzcTPtO/eHA/tRiUg=
-gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220609124901-6c7a9430feeb/go.mod h1:T8C+Wd/K2IJPRknROcuANuFh197ISovFX1PLkpI+Axo=
+gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220614120433-24df03ca6073 h1:reCQg2JNEPokqcA7TiIZ2xk5Tl+w+v/8o9ek9WNSAAc=
+gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220614120433-24df03ca6073/go.mod h1:T8C+Wd/K2IJPRknROcuANuFh197ISovFX1PLkpI+Axo=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.0/go.mod h1:h9puh54ZTgAKtEbut2oe9P4L/oqKCVB6xsXlzd7alYQ=

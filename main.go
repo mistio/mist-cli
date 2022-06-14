@@ -123,7 +123,7 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 `
 
 func customUsageFunc(c *cobra.Command) error {
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func versionCmd() *cobra.Command {
 			type versionResp struct {
 				Version version `json:"version"`
 			}
-			err := setMistContext()
+			err := setContext()
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -220,7 +220,7 @@ func sshCmd() *cobra.Command {
 			// Send pings to peer with this period. Must be less than pongWait.
 			pingPeriod := (pongWait * 9) / 10
 
-			err := setMistContext()
+			err := setContext()
 			if err != nil {
 				fmt.Printf("Cannot set context %s\n", err)
 				return
