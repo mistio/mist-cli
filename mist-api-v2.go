@@ -31,38 +31,38 @@ func mistApiV2Servers() []map[string]string {
 	}
 }
 
-func setMistContext() error {
-	mistContext := viper.GetString("context")
-	mistContextDefault := cli.Creds.GetString("default.context")
-	if mistContext == "" {
-		if mistContextDefault == "" {
-			mistContexts := cli.Creds.GetStringMap("contexts")
-			if len(mistContexts) == 0 {
+func setContext() error {
+	context := viper.GetString("context")
+	contextDefault := cli.Creds.GetString("default.context")
+	if context == "" {
+		if contextDefault == "" {
+			contexts := cli.Creds.GetStringMap("contexts")
+			if len(contexts) == 0 {
 				return errors.Errorf("No contexts configured. Use `%s config add-context` to add one.", cli.Root.CommandPath())
 			}
-			for k, _ := range mistContexts {
-				mistContext = k
+			for k, _ := range contexts {
+				context = k
 				break
 			}
 		} else {
-			mistContext = mistContextDefault
+			context = contextDefault
 		}
 	}
-	if cli.ExistsMistContext(mistContext) {
-		viper.Set("context", mistContext)
-		if mistContextDefault == "" {
-			cli.UpdateDefaultMistContext(mistContext)
+	if cli.ExistsContext(context) {
+		viper.Set("context", context)
+		if contextDefault == "" {
+			cli.UpdateDefaultContext(context)
 		}
 		return nil
 	}
-	return errors.Errorf("Context %s not configured. Use `%s config add-context` to add it.", mistContext, cli.Root.CommandPath())
+	return errors.Errorf("Context %s not configured. Use `%s config add-context` to add it.", context, cli.Root.CommandPath())
 }
 
 func getServer() (string, error) {
 	server := viper.GetString("server")
 	if server == "" {
 		var ok bool
-		server, ok = cli.GetMistContext()["server"]
+		server, ok = cli.GetContext()["server"]
 		if !ok {
 			server = cli.Creds.GetString("default.server")
 			if server == "" {
@@ -79,12 +79,12 @@ func getServer() (string, error) {
 }
 
 func getToken() (string, error) {
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return "", err
 	}
-	mistContext := cli.Creds.GetString("default.context")
-	return cli.Creds.GetString("contexts." + mistContext + ".api_key"), nil
+	context := cli.Creds.GetString("default.context")
+	return cli.Creds.GetString("contexts." + context + ".api_key"), nil
 }
 
 // MistApiV2ListClouds List clouds
@@ -94,7 +94,7 @@ func MistApiV2ListClouds(params *viper.Viper) (*gentleman.Response, map[string]i
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -169,7 +169,7 @@ func MistApiV2AddCloud(params *viper.Viper, body string) (*gentleman.Response, m
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -219,7 +219,7 @@ func MistApiV2RemoveCloud(paramCloud string, params *viper.Viper) (*gentleman.Re
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -266,7 +266,7 @@ func MistApiV2GetCloud(paramCloud string, params *viper.Viper) (*gentleman.Respo
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -326,7 +326,7 @@ func MistApiV2EditCloud(paramCloud string, params *viper.Viper, body string) (*g
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -377,7 +377,7 @@ func MistApiV2ListClusters(params *viper.Viper) (*gentleman.Response, map[string
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -460,7 +460,7 @@ func MistApiV2CreateCluster(params *viper.Viper, body string) (*gentleman.Respon
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -510,7 +510,7 @@ func MistApiV2DestroyCluster(paramCluster string, params *viper.Viper) (*gentlem
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -557,7 +557,7 @@ func MistApiV2GetCluster(paramCluster string, params *viper.Viper) (*gentleman.R
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -617,7 +617,7 @@ func MistApiV2ScaleNodepool(paramCluster string, paramNodepool string, params *v
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -669,7 +669,7 @@ func MistApiV2GetDatapoints(paramQuery string, params *viper.Viper) (*gentleman.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -742,7 +742,7 @@ func MistApiV2ListImages(params *viper.Viper) (*gentleman.Response, map[string]i
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -821,7 +821,7 @@ func MistApiV2GetImage(paramImage string, params *viper.Viper) (*gentleman.Respo
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -877,7 +877,7 @@ func MistApiV2GetJob(paramJobId string, params *viper.Viper) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -924,7 +924,7 @@ func MistApiV2ListKeys(params *viper.Viper) (*gentleman.Response, map[string]int
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1003,7 +1003,7 @@ func MistApiV2AddKey(params *viper.Viper, body string) (*gentleman.Response, map
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1053,7 +1053,7 @@ func MistApiV2DeleteKey(paramKey string, params *viper.Viper) (*gentleman.Respon
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1100,7 +1100,7 @@ func MistApiV2GetKey(paramKey string, params *viper.Viper) (*gentleman.Response,
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1164,7 +1164,7 @@ func MistApiV2EditKey(paramKey string, params *viper.Viper) (*gentleman.Response
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1220,7 +1220,7 @@ func MistApiV2ListLocations(params *viper.Viper) (*gentleman.Response, map[strin
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1299,7 +1299,7 @@ func MistApiV2GetLocation(paramLocation string, params *viper.Viper) (*gentleman
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1355,7 +1355,7 @@ func MistApiV2ListMachines(params *viper.Viper) (*gentleman.Response, map[string
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1434,7 +1434,7 @@ func MistApiV2CreateMachine(params *viper.Viper, body string) (*gentleman.Respon
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1484,7 +1484,7 @@ func MistApiV2GetMachine(paramMachine string, params *viper.Viper) (*gentleman.R
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1540,7 +1540,7 @@ func MistApiV2EditMachine(paramMachine string, params *viper.Viper, body string)
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1591,7 +1591,7 @@ func MistApiV2AssociateKey(paramMachine string, params *viper.Viper, body string
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1642,7 +1642,7 @@ func MistApiV2CloneMachine(paramMachine string, paramName string, params *viper.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1696,7 +1696,7 @@ func MistApiV2DestroyMachine(paramMachine string, params *viper.Viper) (*gentlem
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1743,7 +1743,7 @@ func MistApiV2DisassociateKey(paramMachine string, params *viper.Viper, body str
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1794,7 +1794,7 @@ func MistApiV2RebootMachine(paramMachine string, params *viper.Viper) (*gentlema
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1841,7 +1841,7 @@ func MistApiV2RenameMachine(paramMachine string, paramName string, params *viper
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1890,7 +1890,7 @@ func MistApiV2ResizeMachine(paramMachine string, paramSize string, params *viper
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1939,7 +1939,7 @@ func MistApiV2ResumeMachine(paramMachine string, params *viper.Viper) (*gentlema
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -1986,7 +1986,7 @@ func MistApiV2StartMachine(paramMachine string, params *viper.Viper) (*gentleman
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2033,7 +2033,7 @@ func MistApiV2StopMachine(paramMachine string, params *viper.Viper) (*gentleman.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2080,7 +2080,7 @@ func MistApiV2SuspendMachine(paramMachine string, params *viper.Viper) (*gentlem
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2127,7 +2127,7 @@ func MistApiV2UndefineMachine(paramMachine string, params *viper.Viper) (*gentle
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2179,7 +2179,7 @@ func MistApiV2ListSnapshots(paramMachine string, params *viper.Viper) (*gentlema
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2226,7 +2226,7 @@ func MistApiV2CreateSnapshot(paramMachine string, paramName string, params *vipe
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2275,7 +2275,7 @@ func MistApiV2RemoveSnapshot(paramMachine string, paramSnapshot string, params *
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2323,7 +2323,7 @@ func MistApiV2RevertToSnapshot(paramMachine string, paramSnapshot string, params
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2371,7 +2371,7 @@ func MistApiV2ListNetworks(params *viper.Viper) (*gentleman.Response, map[string
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2450,7 +2450,7 @@ func MistApiV2CreateNetwork(params *viper.Viper, body string) (*gentleman.Respon
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2500,7 +2500,7 @@ func MistApiV2DeleteNetwork(paramNetwork string, paramCloud string, params *vipe
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2549,7 +2549,7 @@ func MistApiV2GetNetwork(paramNetwork string, params *viper.Viper) (*gentleman.R
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2605,7 +2605,7 @@ func MistApiV2EditNetwork(paramNetwork string, params *viper.Viper) (*gentleman.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2657,7 +2657,7 @@ func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]in
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2728,7 +2728,7 @@ func MistApiV2AddRule(params *viper.Viper, body string) (*gentleman.Response, ma
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2778,7 +2778,7 @@ func MistApiV2DeleteRule(paramRule string, params *viper.Viper) (*gentleman.Resp
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2825,7 +2825,7 @@ func MistApiV2GetRule(paramRule string, params *viper.Viper) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2881,7 +2881,7 @@ func MistApiV2RenameRule(paramRule string, paramName string, params *viper.Viper
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2930,7 +2930,7 @@ func MistApiV2EditRule(paramRule string, params *viper.Viper, body string) (*gen
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -2981,7 +2981,7 @@ func MistApiV2ToggleRule(paramRule string, paramAction string, params *viper.Vip
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3030,7 +3030,7 @@ func MistApiV2ListSchedules(params *viper.Viper) (*gentleman.Response, map[strin
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3101,7 +3101,7 @@ func MistApiV2AddSchedule(params *viper.Viper, body string) (*gentleman.Response
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3151,7 +3151,7 @@ func MistApiV2DeleteSchedule(paramSchedule string, params *viper.Viper) (*gentle
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3198,7 +3198,7 @@ func MistApiV2GetSchedule(paramSchedule string, params *viper.Viper) (*gentleman
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3254,7 +3254,7 @@ func MistApiV2EditSchedule(paramSchedule string, params *viper.Viper, body strin
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3305,7 +3305,7 @@ func MistApiV2ListScripts(params *viper.Viper) (*gentleman.Response, map[string]
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3380,7 +3380,7 @@ func MistApiV2AddScript(params *viper.Viper, body string) (*gentleman.Response, 
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3430,7 +3430,7 @@ func MistApiV2DeleteScript(paramScript string, params *viper.Viper) (*gentleman.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3477,7 +3477,7 @@ func MistApiV2GetScript(paramScript string, params *viper.Viper) (*gentleman.Res
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3533,7 +3533,7 @@ func MistApiV2RunScript(paramScript string, params *viper.Viper, body string) (*
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3584,7 +3584,7 @@ func MistApiV2EditScript(paramScript string, params *viper.Viper) (*gentleman.Re
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3640,7 +3640,7 @@ func MistApiV2DownloadScript(paramScript string, params *viper.Viper) (*gentlema
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3687,7 +3687,7 @@ func MistApiV2GenerateScriptUrl(paramScript string, params *viper.Viper) (*gentl
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3734,7 +3734,7 @@ func MistApiV2ListSecrets(params *viper.Viper) (*gentleman.Response, map[string]
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3805,7 +3805,7 @@ func MistApiV2CreateSecret(params *viper.Viper, body string) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3855,7 +3855,7 @@ func MistApiV2DeleteSecret(paramSecret string, params *viper.Viper) (*gentleman.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3902,7 +3902,7 @@ func MistApiV2GetSecret(paramSecret string, params *viper.Viper) (*gentleman.Res
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -3954,7 +3954,7 @@ func MistApiV2EditSecret(paramSecret string, params *viper.Viper, body string) (
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4005,7 +4005,7 @@ func MistApiV2ListSizes(params *viper.Viper) (*gentleman.Response, map[string]in
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4084,7 +4084,7 @@ func MistApiV2GetSize(paramSize string, params *viper.Viper) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4140,7 +4140,7 @@ func MistApiV2ListTags(params *viper.Viper) (*gentleman.Response, map[string]int
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4219,7 +4219,7 @@ func MistApiV2TagResources(params *viper.Viper, body string) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4269,7 +4269,7 @@ func MistApiV2ListUsers(params *viper.Viper) (*gentleman.Response, map[string]in
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4344,7 +4344,7 @@ func MistApiV2ListVolumes(params *viper.Viper) (*gentleman.Response, map[string]
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4423,7 +4423,7 @@ func MistApiV2CreateVolume(params *viper.Viper, body string) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4473,7 +4473,7 @@ func MistApiV2DeleteVolume(paramVolume string, params *viper.Viper) (*gentleman.
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4520,7 +4520,7 @@ func MistApiV2GetVolume(paramVolume string, params *viper.Viper) (*gentleman.Res
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4576,7 +4576,7 @@ func MistApiV2EditVolume(paramVolume string, params *viper.Viper) (*gentleman.Re
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4628,7 +4628,7 @@ func MistApiV2ListZones(params *viper.Viper) (*gentleman.Response, map[string]in
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4707,7 +4707,7 @@ func MistApiV2CreateZone(params *viper.Viper, body string) (*gentleman.Response,
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4757,7 +4757,7 @@ func MistApiV2DeleteZone(paramZone string, params *viper.Viper) (*gentleman.Resp
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4804,7 +4804,7 @@ func MistApiV2GetZone(paramZone string, params *viper.Viper) (*gentleman.Respons
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
@@ -4860,7 +4860,7 @@ func MistApiV2EditZone(paramZone string, params *viper.Viper) (*gentleman.Respon
 		handlerPath = "Mist CLI " + handlerPath
 	}
 
-	err := setMistContext()
+	err := setContext()
 	if err != nil {
 		return nil, nil, cli.CLIOutputOptions{}, err
 	}
