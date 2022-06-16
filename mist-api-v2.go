@@ -4154,13 +4154,9 @@ func MistApiV2ListTags(params *viper.Viper) (*gentleman.Response, map[string]int
 
 	req := cli.Client.Get().URL(url)
 
-	paramVerbose := params.GetBool("verbose")
-	if paramVerbose != false {
-		req = req.AddQuery("verbose", fmt.Sprintf("%v", paramVerbose))
-	}
-	paramResource := params.GetString("resource")
-	if paramResource != "" {
-		req = req.AddQuery("resource", fmt.Sprintf("%v", paramResource))
+	paramTypes := params.GetString("types")
+	if paramTypes != "" {
+		req = req.AddQuery("types", fmt.Sprintf("%v", paramTypes))
 	}
 	paramSearch := params.GetString("search")
 	if paramSearch != "" {
@@ -4209,7 +4205,7 @@ func MistApiV2ListTags(params *viper.Viper) (*gentleman.Response, map[string]int
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"key", "value"}, []string{"key", "value"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"tag", "buckets", "clouds", "clusters", "images", "keys", "machines", "networks", "records", "schedules", "scripts", "secrets", "stacks", "subnets", "templates", "tunnels", "volumes", "zones", "resource_count"}, []string{"tag", "buckets", "clouds", "clusters", "images", "keys", "machines", "networks", "records", "schedules", "scripts", "secrets", "stacks", "subnets", "templates", "tunnels", "volumes", "zones", "resource_count"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2TagResources Tag Resources
@@ -8066,8 +8062,7 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
-		cmd.Flags().Bool("verbose", false, "Toggle displaying resource types and ids associated with each key value pair")
-		cmd.Flags().String("resource", "", "Display tags on a single resource")
+		cmd.Flags().String("types", "", "Choose resource types to by displayed")
 		cmd.Flags().String("search", "", "Only return results matching search filter")
 		cmd.Flags().String("sort", "", "Order results by")
 		cmd.Flags().String("start", "", "Start results from index or id")
@@ -12642,8 +12637,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
-		cmd.Flags().Bool("verbose", false, "Toggle displaying resource types and ids associated with each key value pair")
-		cmd.Flags().String("resource", "", "Display tags on a single resource")
+		cmd.Flags().String("types", "", "Choose resource types to by displayed")
 		cmd.Flags().String("search", "", "Only return results matching search filter")
 		cmd.Flags().String("sort", "", "Order results by")
 		cmd.Flags().String("start", "", "Start results from index or id")
