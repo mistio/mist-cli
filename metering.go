@@ -13,37 +13,56 @@ import (
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 )
 
-func formatMeteringData(metricsSet map[string]string, machineMetrics map[string]map[string]string, machineNames map[string]string) {
+type resultItem struct {
+	Metric map[string]string `json:"metric"`
+	Value  []interface{}     `json:"value"`
+}
+
+type promqlResponse struct {
+	Data struct {
+		DataPromql struct {
+			Result []resultItem `json:"result"`
+		} `json:"data"`
+	} `json:"data"`
+	Metadata map[string]interface{}
+}
+
+func formatMeteringData(metricsSet map[string]string, resourceMetrics map[string]map[string]string, resourceNames map[string]string) {
 	metricsList := []string{}
 	for metric := range metricsSet {
 		metricsList = append(metricsList, metric)
 	}
 	sort.Strings(metricsList)
-	machines := make([]string, 0, len(machineMetrics))
-	for machine := range machineMetrics {
-		machines = append(machines, machine)
+	resources := make([]string, 0, len(resourceMetrics))
+	for resource := range resourceMetrics {
+		resources = append(resources, resource)
 	}
-	sort.Strings(machines)
+	sort.Strings(resources)
 	data := make(map[string][]interface{})
-	for _, machine := range machines {
-		machineData := make(map[string]string)
+	for _, resource := range resources {
+		resourceData := make(map[string]string)
 		for _, metric := range metricsList {
-			if _, ok := machineData["machine_id"]; !ok {
-				machineData["machine_id"] = machine
-				machineData["name"] = machineNames[machine]
+			if _, ok := resourceData["machine_id"]; !ok {
+				resourceData["machine_id"] = resource
+				resourceData["name"] = resourceNames[resource]
 			}
-			machineData[metric] = machineMetrics[machine][metric]
+			resourceData[metric] = resourceMetrics[resource][metric]
 		}
 		if _, ok := data["data"]; !ok {
 			data["data"] = make([]interface{}, 0)
 		}
-		data["data"] = append(data["data"], machineData)
+		data["data"] = append(data["data"], resourceData)
 	}
 	metricSums := make(map[string]float64)
-	for _, machineData := range data["data"] {
+	for _, resourceData := range data["data"] {
 		for _, metric := range metricsList {
-			value, err := strconv.ParseFloat(machineData.((map[string]string))[metric], 64)
+			valueString, ok := resourceData.((map[string]string))[metric]
+			if !ok || valueString == "" {
+				continue
+			}
+			value, err := strconv.ParseFloat(valueString, 64)
 			if err != nil {
+				fmt.Printf("metric: %s, value: %s\n", metric, valueString)
 				fmt.Println(err)
 			} else {
 				metricSums[metric] += value
@@ -70,6 +89,52 @@ func parseTime(s string) (time.Time, error) {
 	return time.Time{}, errors.Errorf("cannot parse %q to a valid timestamp", s)
 }
 
+func getResourceNamesIDMap(search string) map[string]string {
+	resourceNames := make(map[string]string)
+	paramsListResources := viper.New()
+	paramsListResources.Set("search", search)
+	_, decoded, _, err := MistApiV2ListMachines(paramsListResources)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
+	}
+	for _, item := range decoded["data"].([]interface{}) {
+		resourceNames[item.(map[string]interface{})["id"].(string)] = item.(map[string]interface{})["name"].(string)
+	}
+	_, decoded, _, err = MistApiV2ListVolumes(paramsListResources)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
+	}
+	for _, item := range decoded["data"].([]interface{}) {
+		resourceNames[item.(map[string]interface{})["id"].(string)] = item.(map[string]interface{})["name"].(string)
+	}
+	return resourceNames
+}
+
+func mapResourceNamesWithMetrics(response promqlResponse, search string) (map[string]string, map[string]map[string]string, map[string]string) {
+	metricsNameSet := make(map[string]string)
+	resourceIDToMetricMap := make(map[string]map[string]string)
+	resourceIDToNameMap := getResourceNamesIDMap(search)
+
+	for _, item := range response.Data.DataPromql.Result {
+		resourceID, ok := item.Metric["machine_id"]
+		if !ok {
+			resourceID, ok = item.Metric["volume_id"]
+			if !ok {
+				continue
+			}
+		}
+		if resourceIDToMetricMap[resourceID] == nil {
+			resourceIDToMetricMap[resourceID] = make(map[string]string)
+		}
+		if item.Value != nil {
+			resourceIDToMetricMap[resourceID][item.Metric["__name__"]] = item.Value[1].(string)
+		}
+		metricsNameSet[item.Metric["__name__"]] = item.Metric["value_type"]
+	}
+
+	return metricsNameSet, resourceIDToMetricMap, resourceIDToNameMap
+}
+
 func getMeteringData(dtStart, dtEnd, search, queryTemplate string) (map[string]string, map[string]map[string]string, map[string]string) {
 	paramsGetDatapoints := viper.New()
 	paramsGetDatapoints.Set("time", dtEnd)
@@ -83,20 +148,6 @@ func getMeteringData(dtStart, dtEnd, search, queryTemplate string) (map[string]s
 		logger.Fatalf("Error calling operation: %s", err.Error())
 	}
 
-	type resultItem struct {
-		Metric map[string]string `json:"metric"`
-		Value  []interface{}     `json:"value"`
-	}
-
-	type promqlResponse struct {
-		Data struct {
-			DataPromql struct {
-				Result []resultItem `json:"result"`
-			} `json:"data"`
-		} `json:"data"`
-		Metadata map[string]interface{}
-	}
-
 	rawResponse, err := json.Marshal(decoded)
 	if err != nil {
 		fmt.Println("error:", err)
@@ -108,46 +159,22 @@ func getMeteringData(dtStart, dtEnd, search, queryTemplate string) (map[string]s
 		fmt.Println("error:", err)
 	}
 
-	metricsSet := make(map[string]string)
-	machineMetrics := make(map[string]map[string]string)
-	machineNames := make(map[string]string)
-
-	paramsListMachines := viper.New()
-	paramsListMachines.Set("search", search)
-	_, decoded, _, err = MistApiV2ListMachines(paramsListMachines)
-	if err != nil {
-		logger.Fatalf("Error calling operation: %s", err.Error())
-	}
-	for _, item := range decoded["data"].([]interface{}) {
-		machineNames[item.(map[string]interface{})["id"].(string)] = item.(map[string]interface{})["name"].(string)
-	}
-
-	for _, item := range response.Data.DataPromql.Result {
-		if machineMetrics[item.Metric["machine_id"]] == nil {
-			machineMetrics[item.Metric["machine_id"]] = make(map[string]string)
-		}
-		if item.Value != nil {
-			machineMetrics[item.Metric["machine_id"]][item.Metric["__name__"]] = item.Value[1].(string)
-		}
-		metricsSet[item.Metric["__name__"]] = item.Metric["value_type"]
-	}
-
-	return metricsSet, machineMetrics, machineNames
+	return mapResourceNamesWithMetrics(response, search)
 }
 
-func calculateDiffs(machineMetricsStart map[string]map[string]string, machineMetricsEnd map[string]map[string]string, metricsSet map[string]string) map[string]map[string]string {
-	for machineId, metrics := range machineMetricsEnd {
+func calculateDiffs(resourceMetricsStart map[string]map[string]string, resourceMetricsEnd map[string]map[string]string, metricsSet map[string]string) map[string]map[string]string {
+	for resourceID, metrics := range resourceMetricsEnd {
 		for metric, valueEnd := range metrics {
 			if metricsSet[metric] != "counter" {
 				continue
 			}
-			if _, ok := machineMetricsStart[machineId]; !ok {
+			if _, ok := resourceMetricsStart[resourceID]; !ok {
 				continue
 			}
-			if _, ok := machineMetricsStart[machineId][metric]; !ok {
+			if _, ok := resourceMetricsStart[resourceID][metric]; !ok {
 				continue
 			}
-			valueStart := machineMetricsStart[machineId][metric]
+			valueStart := resourceMetricsStart[resourceID][metric]
 			valueStartFloat, err := strconv.ParseFloat(valueStart, 64)
 			if err != nil {
 				fmt.Println(err)
@@ -158,8 +185,8 @@ func calculateDiffs(machineMetricsStart map[string]map[string]string, machineMet
 				fmt.Println(err)
 				continue
 			}
-			machineMetricsEnd[machineId][metric] = fmt.Sprintf("%f", valueEndFloat-valueStartFloat)
+			resourceMetricsEnd[resourceID][metric] = fmt.Sprintf("%f", valueEndFloat-valueStartFloat)
 		}
 	}
-	return machineMetricsEnd
+	return resourceMetricsEnd
 }
