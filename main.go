@@ -306,12 +306,13 @@ func sshCmd() *cobra.Command {
 	return cmd
 }
 
-func meterCmd() *cobra.Command {
+func getResourceMeterCmd(resource string, aliasesMap map[string][]string) *cobra.Command {
 	params := viper.New()
 	cmd := &cobra.Command{
-		Use:   "meter",
-		Short: "Get metering data",
-		Args:  cobra.ExactValidArgs(0),
+		Use:     resource,
+		Aliases: aliasesMap[resource],
+		Short:   fmt.Sprintf("Get metering data for %s resource", resource),
+		Args:    cobra.ExactValidArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			dtStart := params.GetString("start")
 			if dtStart == "" {
@@ -321,9 +322,9 @@ func meterCmd() *cobra.Command {
 			if dtEnd == "" {
 				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
 			}
-			_, machineMetricsStart, _ := getMeteringData(dtStart, dtEnd, params.GetString("search"), "first_over_time({metering=\"true\"}[%ds])")
-			metricsSet, machineMetricsEnd, machineNames := getMeteringData(dtStart, dtEnd, params.GetString("search"), "last_over_time({metering=\"true\"}[%ds])")
-			machineMetricsGauges := calculateDiffs(machineMetricsStart, machineMetricsEnd, metricsSet)
+			_, resourceMetricsStart, _ := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("first_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
+			metricsSet, resourceMetricsEnd, machineNames := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("last_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
+			machineMetricsGauges := calculateDiffs(resourceMetricsStart, resourceMetricsEnd, metricsSet)
 			formatMeteringData(metricsSet, machineMetricsGauges, machineNames)
 		},
 	}
@@ -336,6 +337,22 @@ func meterCmd() *cobra.Command {
 	if cmd.Flags().HasFlags() {
 		params.BindPFlags(cmd.Flags())
 	}
+	return cmd
+}
+
+func meterCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "meter",
+		Short: "Get metering data",
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	resources := []string{"machine, volume"}
+	for _, resource := range resources {
+		cmd.AddCommand(getResourceMeterCmd(resource))
+	}
+	cmd.SetErr(os.Stderr)
 	return cmd
 }
 
