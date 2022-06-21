@@ -16,6 +16,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	trie "github.com/v-pap/trie"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
@@ -340,6 +341,23 @@ func getResourceMeterCmd(resource string, aliasesMap map[string][]string) *cobra
 	return cmd
 }
 
+func calculateAliases(command, suffix string) []string {
+	if len(command) == 0 {
+		return []string{}
+	}
+	prefix := strings.TrimSuffix(command, suffix)
+	subString := ""
+	aliases := []string{}
+	for i := len(prefix); i < len(command)-1; i++ {
+		subString += string(command[i])
+		aliases = append(aliases, prefix+subString)
+	}
+	if len(aliases) > 0 && string(command[len(command)-1]) != "s" {
+		aliases = append(aliases, command+"s")
+	}
+	return aliases
+}
+
 func meterCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "meter",
@@ -348,9 +366,21 @@ func meterCmd() *cobra.Command {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
 	}
-	resources := []string{"machine, volume"}
+	resources := []string{"machine", "volume"}
+	resourcesTrie := trie.New()
+	aliasesMap := make(map[string][]string)
 	for _, resource := range resources {
-		cmd.AddCommand(getResourceMeterCmd(resource))
+		resourcesTrie.Insert(resource)
+	}
+	for _, resource := range resources {
+		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
+		if !ok {
+			continue
+		}
+		aliasesMap[resource] = calculateAliases(resource, suffix)
+	}
+	for _, resource := range resources {
+		cmd.AddCommand(getResourceMeterCmd(resource, aliasesMap))
 	}
 	cmd.SetErr(os.Stderr)
 	return cmd

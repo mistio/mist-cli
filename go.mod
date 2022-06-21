@@ -11,6 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
+	github.com/v-pap/trie v0.0.0-20220304164748-f2da6e8bb111
 	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220614120433-24df03ca6073
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
