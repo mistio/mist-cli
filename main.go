@@ -307,7 +307,27 @@ func sshCmd() *cobra.Command {
 	return cmd
 }
 
-func getResourceMeterCmd(resource string, aliasesMap map[string][]string) *cobra.Command {
+func getResourceMeterCmdRun(params *viper.Viper, resource string, detailedName bool) {
+	dtStart := params.GetString("start")
+	if dtStart == "" {
+		dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60)
+	}
+	dtEnd := params.GetString("end")
+	if dtEnd == "" {
+		dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
+	}
+	_, resourceMetricsStart, _ := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("first_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
+	metricsSet, resourceMetricsEnd, resourceNames := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("last_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
+	if detailedName {
+		for resourceID, name := range resourceNames {
+			resourceNames[resourceID] = resource + "/" + name
+		}
+	}
+	machineMetricsGauges := calculateDiffs(resourceMetricsStart, resourceMetricsEnd, metricsSet)
+	formatMeteringData(metricsSet, machineMetricsGauges, resourceNames)
+}
+
+func getResourceMeterCmd(resource string, aliasesMap map[string][]string, detailedName bool) *cobra.Command {
 	params := viper.New()
 	cmd := &cobra.Command{
 		Use:     resource,
@@ -315,18 +335,35 @@ func getResourceMeterCmd(resource string, aliasesMap map[string][]string) *cobra
 		Short:   fmt.Sprintf("Get metering data for %s resource", resource),
 		Args:    cobra.ExactValidArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			dtStart := params.GetString("start")
-			if dtStart == "" {
-				dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60)
+			getResourceMeterCmdRun(params, resource, false)
+		},
+	}
+	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
+	cmd.Flags().String("end", "", "end <rfc3339 | unix_timestamp>")
+	cmd.Flags().String("search", "", "Only return results matching search filter")
+
+	cli.SetCustomFlags(cmd)
+
+	if cmd.Flags().HasFlags() {
+		params.BindPFlags(cmd.Flags())
+	}
+	return cmd
+}
+
+func getAllResourcesMeterCmd(resources []string, aliasesMap map[string][]string) *cobra.Command {
+	params := viper.New()
+	cmd := &cobra.Command{
+		Use:     "all",
+		Aliases: aliasesMap["all"],
+		Short:   "Get metering data for all resources",
+		Args:    cobra.ExactValidArgs(0),
+		Run: func(cmd *cobra.Command, args []string) {
+			for i, resource := range resources {
+				getResourceMeterCmdRun(params, resource, true)
+				if i != len(resources)-1 {
+					fmt.Println("")
+				}
 			}
-			dtEnd := params.GetString("end")
-			if dtEnd == "" {
-				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
-			}
-			_, resourceMetricsStart, _ := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("first_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
-			metricsSet, resourceMetricsEnd, machineNames := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("last_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
-			machineMetricsGauges := calculateDiffs(resourceMetricsStart, resourceMetricsEnd, metricsSet)
-			formatMeteringData(metricsSet, machineMetricsGauges, machineNames)
 		},
 	}
 	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
@@ -369,10 +406,10 @@ func meterCmd() *cobra.Command {
 	resources := []string{"machine", "volume"}
 	resourcesTrie := trie.New()
 	aliasesMap := make(map[string][]string)
-	for _, resource := range resources {
+	for _, resource := range append(resources, []string{"all"}...) {
 		resourcesTrie.Insert(resource)
 	}
-	for _, resource := range resources {
+	for _, resource := range append(resources, []string{"all"}...) {
 		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
 		if !ok {
 			continue
@@ -380,8 +417,9 @@ func meterCmd() *cobra.Command {
 		aliasesMap[resource] = calculateAliases(resource, suffix)
 	}
 	for _, resource := range resources {
-		cmd.AddCommand(getResourceMeterCmd(resource, aliasesMap))
+		cmd.AddCommand(getResourceMeterCmd(resource, aliasesMap, false))
 	}
+	cmd.AddCommand(getAllResourcesMeterCmd(resources, aliasesMap))
 	cmd.SetErr(os.Stderr)
 	return cmd
 }
