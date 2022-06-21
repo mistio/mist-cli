@@ -16,6 +16,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	trie "github.com/v-pap/trie"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/apikey"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	terminal "golang.org/x/term"
@@ -306,25 +307,35 @@ func sshCmd() *cobra.Command {
 	return cmd
 }
 
-func meterCmd() *cobra.Command {
+func getResourceMeterCmdRun(params *viper.Viper, resource string, detailedName bool) {
+	dtStart := params.GetString("start")
+	if dtStart == "" {
+		dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60)
+	}
+	dtEnd := params.GetString("end")
+	if dtEnd == "" {
+		dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
+	}
+	_, resourceMetricsStart, _ := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("first_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
+	metricsSet, resourceMetricsEnd, resourceNames := getMeteringData(dtStart, dtEnd, params.GetString("search"), fmt.Sprintf("last_over_time({metering=\"true\",%s_id=~\".+\"}", resource)+"[%ds])")
+	if detailedName {
+		for resourceID, name := range resourceNames {
+			resourceNames[resourceID] = resource + "/" + name
+		}
+	}
+	machineMetricsGauges := calculateDiffs(resourceMetricsStart, resourceMetricsEnd, metricsSet)
+	formatMeteringData(metricsSet, machineMetricsGauges, resourceNames)
+}
+
+func getResourceMeterCmd(resource string, aliasesMap map[string][]string, detailedName bool) *cobra.Command {
 	params := viper.New()
 	cmd := &cobra.Command{
-		Use:   "meter",
-		Short: "Get metering data",
-		Args:  cobra.ExactValidArgs(0),
+		Use:     resource,
+		Aliases: aliasesMap[resource],
+		Short:   fmt.Sprintf("Get metering data for %s resource", resource),
+		Args:    cobra.ExactValidArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			dtStart := params.GetString("start")
-			if dtStart == "" {
-				dtStart = fmt.Sprintf("%d", (time.Now()).Unix()-60*60)
-			}
-			dtEnd := params.GetString("end")
-			if dtEnd == "" {
-				dtEnd = fmt.Sprintf("%d", (time.Now()).Unix())
-			}
-			_, machineMetricsStart, _ := getMeteringData(dtStart, dtEnd, params.GetString("search"), "first_over_time({metering=\"true\"}[%ds])")
-			metricsSet, machineMetricsEnd, machineNames := getMeteringData(dtStart, dtEnd, params.GetString("search"), "last_over_time({metering=\"true\"}[%ds])")
-			machineMetricsGauges := calculateDiffs(machineMetricsStart, machineMetricsEnd, metricsSet)
-			formatMeteringData(metricsSet, machineMetricsGauges, machineNames)
+			getResourceMeterCmdRun(params, resource, false)
 		},
 	}
 	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
@@ -336,6 +347,80 @@ func meterCmd() *cobra.Command {
 	if cmd.Flags().HasFlags() {
 		params.BindPFlags(cmd.Flags())
 	}
+	return cmd
+}
+
+func getAllResourcesMeterCmd(resources []string, aliasesMap map[string][]string) *cobra.Command {
+	params := viper.New()
+	cmd := &cobra.Command{
+		Use:     "all",
+		Aliases: aliasesMap["all"],
+		Short:   "Get metering data for all resources",
+		Args:    cobra.ExactValidArgs(0),
+		Run: func(cmd *cobra.Command, args []string) {
+			for i, resource := range resources {
+				getResourceMeterCmdRun(params, resource, true)
+				if i != len(resources)-1 {
+					fmt.Println("")
+				}
+			}
+		},
+	}
+	cmd.Flags().String("start", "", "start <rfc3339 | unix_timestamp>")
+	cmd.Flags().String("end", "", "end <rfc3339 | unix_timestamp>")
+	cmd.Flags().String("search", "", "Only return results matching search filter")
+
+	cli.SetCustomFlags(cmd)
+
+	if cmd.Flags().HasFlags() {
+		params.BindPFlags(cmd.Flags())
+	}
+	return cmd
+}
+
+func calculateAliases(command, suffix string) []string {
+	if len(command) == 0 {
+		return []string{}
+	}
+	prefix := strings.TrimSuffix(command, suffix)
+	subString := ""
+	aliases := []string{}
+	for i := len(prefix); i < len(command)-1; i++ {
+		subString += string(command[i])
+		aliases = append(aliases, prefix+subString)
+	}
+	if len(aliases) > 0 && string(command[len(command)-1]) != "s" {
+		aliases = append(aliases, command+"s")
+	}
+	return aliases
+}
+
+func meterCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "meter",
+		Short: "Get metering data",
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+	}
+	resources := []string{"machine", "volume"}
+	resourcesTrie := trie.New()
+	aliasesMap := make(map[string][]string)
+	for _, resource := range append(resources, []string{"all"}...) {
+		resourcesTrie.Insert(resource)
+	}
+	for _, resource := range append(resources, []string{"all"}...) {
+		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
+		if !ok {
+			continue
+		}
+		aliasesMap[resource] = calculateAliases(resource, suffix)
+	}
+	for _, resource := range resources {
+		cmd.AddCommand(getResourceMeterCmd(resource, aliasesMap, false))
+	}
+	cmd.AddCommand(getAllResourcesMeterCmd(resources, aliasesMap))
+	cmd.SetErr(os.Stderr)
 	return cmd
 }
 
