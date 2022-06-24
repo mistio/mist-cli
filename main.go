@@ -462,5 +462,9 @@ func main() {
 	// Add metering command
 	cli.Root.AddCommand(meterCmd())
 
+	cli.Root.AddCommand(tagCmd())
+
+	cli.Root.AddCommand(untagCmd())
+
 	cli.Root.Execute()
 }
