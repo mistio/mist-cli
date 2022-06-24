@@ -7424,9 +7424,9 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE description: This is a deactivated schedule, enabled: false, name: DeactivatedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: false, expires: 2022-06-28 00:00:00, name: DeactivatedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE description: This is a renamed schedule, name: RenamedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: true, expires: 2022-06-28 00:00:00, name: RenamedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
 		cmd := &cobra.Command{
 			Use:     "edit-schedule SCHEDULE",
@@ -11765,9 +11765,9 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE description: This is a deactivated schedule, enabled: false, name: DeactivatedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: false, expires: 2022-06-28 00:00:00, name: DeactivatedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE description: This is a renamed schedule, name: RenamedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: true, expires: 2022-06-28 00:00:00, name: RenamedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
 		cmd := &cobra.Command{
 			Use: "schedule SCHEDULE",
