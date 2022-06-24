@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	trie "github.com/v-pap/trie"
 	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	"gopkg.in/h2non/gentleman.v2"
 )
@@ -75,14 +76,12 @@ type tagResourceBody struct {
 }
 
 func tagValidArgsFunction(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	resourceType := strings.Fields(cmd.Use)[0]
 	if len(args) == 0 {
-		return taggableResources, cobra.ShellCompDirectiveNoFileComp
-	}
-	if len(args) == 1 {
 		params := viper.New()
 		params.Set("only", "name")
 		var decoded interface{}
-		_, decoded, _, err := resourceListControllersMap[args[0]](params)
+		_, decoded, _, err := resourceListControllersMap[resourceType](params)
 		if err != nil {
 			logger.Fatalf("Error calling operation: %s", err.Error())
 		}
@@ -95,9 +94,9 @@ func tagValidArgsFunction(cmd *cobra.Command, args []string, toComplete string) 
 }
 
 func tagRun(cmd *cobra.Command, args []string, params *viper.Viper, tagOperation string) {
-	resourceType := args[0]
-	resourceName := args[1]
-	stringTags := args[2]
+	resourceType := strings.Fields(cmd.Use)[0]
+	resourceName := args[0]
+	stringTags := args[1]
 	_, decodedResource, _, err := resourceGetControllersMap[resourceType](resourceName, params)
 	rawResourceID, _ := jmespath.Search("data.id", decodedResource)
 	resourceID, ok := rawResourceID.(string)
@@ -133,32 +132,76 @@ func tagRun(cmd *cobra.Command, args []string, params *viper.Viper, tagOperation
 }
 
 func tagCmd() *cobra.Command {
-	params := viper.New()
 	cmd := &cobra.Command{
-		Use:               "tag RESOURCE_TYPE RESOURCE TAGS",
-		Short:             "Tag resource",
-		Args:              cobra.MinimumNArgs(3),
-		ValidArgsFunction: tagValidArgsFunction,
-		Run: func(cmd *cobra.Command, args []string) {
-			tagRun(cmd, args, params, "add")
-		},
+		Use:   "tag",
+		Short: "Tag resource",
 	}
 	cmd.SetErr(os.Stderr)
+	resourcesTrie := trie.New()
+	aliasesMap := make(map[string][]string)
+	for _, resource := range taggableResources {
+		resourcesTrie.Insert(resource)
+	}
+	for _, resource := range taggableResources {
+		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
+		if !ok {
+			continue
+		}
+		aliasesMap[resource] = calculateAliases(resource, suffix)
+	}
+	for _, resource := range taggableResources {
+		params := viper.New()
+		cmdResource := &cobra.Command{
+			Use:     resource + " RESOURCE TAGS",
+			Short:   "Tag " + resource,
+			Aliases: aliasesMap[resource],
+			Args:    cobra.MinimumNArgs(2),
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return tagValidArgsFunction(cmd, args, toComplete)
+			},
+			Run: func(cmd *cobra.Command, args []string) {
+				tagRun(cmd, args, params, "add")
+			},
+		}
+		cmd.AddCommand(cmdResource)
+	}
 	return cmd
 }
 
 func untagCmd() *cobra.Command {
-	params := viper.New()
 	cmd := &cobra.Command{
-		Use:               "untag RESOURCE_TYPE RESOURCE TAGS",
-		Short:             "Untag resource",
-		Args:              cobra.MinimumNArgs(3),
-		ValidArgsFunction: tagValidArgsFunction,
-		Run: func(cmd *cobra.Command, args []string) {
-			tagRun(cmd, args, params, "remove")
-		},
+		Use:   "untag",
+		Short: "Untag resource",
 	}
 	cmd.SetErr(os.Stderr)
+	resourcesTrie := trie.New()
+	aliasesMap := make(map[string][]string)
+	for _, resource := range taggableResources {
+		resourcesTrie.Insert(resource)
+	}
+	for _, resource := range taggableResources {
+		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
+		if !ok {
+			continue
+		}
+		aliasesMap[resource] = calculateAliases(resource, suffix)
+	}
+	for _, resource := range taggableResources {
+		params := viper.New()
+		cmdResource := &cobra.Command{
+			Use:     resource + " RESOURCE TAGS",
+			Short:   "Untag " + resource,
+			Aliases: aliasesMap[resource],
+			Args:    cobra.MinimumNArgs(2),
+			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return tagValidArgsFunction(cmd, args, toComplete)
+			},
+			Run: func(cmd *cobra.Command, args []string) {
+				tagRun(cmd, args, params, "remove")
+			},
+		}
+		cmd.AddCommand(cmdResource)
+	}
 	return cmd
 }
 
