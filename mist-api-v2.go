@@ -7040,7 +7040,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " add-rule actions[].action_type: stop, conditions[]{data_type: logs, query{aggregation: sum, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 2, stop: 1}}, description: @file, name: NewStopMachineIntervalRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 0, period: minutes}, when{every: 2, period: hours, schedule_type: interval, start_after: 2022-10-22T18:19:28Z}\n"
+		examples += "  " + cli.Root.CommandPath() + " add-rule actions[].action_type: stop, conditions[]{data_type: logs, query{aggregation: count, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 2, stop: 1}}, description: @file, name: NewStopMachineIntervalRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 8, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
 
 		cmd := &cobra.Command{
 			Use:     "add-rule",
@@ -7190,7 +7190,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " edit-rule RULE actions[].action_type: reboot, conditions[]{data_type: logs, query{aggregation: sum, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 0, stop: 2}}, description: @file, name: EditedRebootMachineOneOffRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 0, period: minutes}, when{every: 5, period: hours, schedule_type: interval}\n"
+		examples += "  " + cli.Root.CommandPath() + " edit-rule RULE actions[].action_type: reboot, conditions[]{data_type: logs, query{aggregation: count, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 0, stop: 2}}, description: @file, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 6, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
 
 		cmd := &cobra.Command{
 			Use:     "edit-rule RULE",
@@ -11267,7 +11267,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " add rule actions[].action_type: stop, conditions[]{data_type: logs, query{aggregation: sum, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 2, stop: 1}}, description: @file, name: NewStopMachineIntervalRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 0, period: minutes}, when{every: 2, period: hours, schedule_type: interval, start_after: 2022-10-22T18:19:28Z}\n"
+		examples += "  " + cli.Root.CommandPath() + " add rule actions[].action_type: stop, conditions[]{data_type: logs, query{aggregation: count, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 2, stop: 1}}, description: @file, name: NewStopMachineIntervalRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 8, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
 
 		cmd := &cobra.Command{
 			Use: "rule",
@@ -11441,7 +11441,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " edit rule RULE actions[].action_type: reboot, conditions[]{data_type: logs, query{aggregation: sum, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 0, stop: 2}}, description: @file, name: EditedRebootMachineOneOffRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 0, period: minutes}, when{every: 5, period: hours, schedule_type: interval}\n"
+		examples += "  " + cli.Root.CommandPath() + " edit rule RULE actions[].action_type: reboot, conditions[]{data_type: logs, query{aggregation: count, operator: eq, target:~ 10, threshold: 9.5}, window{period: hours, start: 0, stop: 2}}, description: @file, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 6, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
 
 		cmd := &cobra.Command{
 			Use: "rule RULE",
