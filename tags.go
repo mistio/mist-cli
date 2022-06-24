@@ -132,24 +132,29 @@ func tagRun(cmd *cobra.Command, args []string, params *viper.Viper, tagOperation
 
 }
 
+func calculateAliasesMap(terms []string) map[string][]string {
+	termsTrie := trie.New()
+	aliasesMap := make(map[string][]string)
+	for _, term := range terms {
+		termsTrie.Insert(term)
+	}
+	for _, term := range terms {
+		suffix, ok := termsTrie.FindLongestUniqueSuffix(term)
+		if !ok {
+			continue
+		}
+		aliasesMap[term] = calculateAliases(term, suffix)
+	}
+	return aliasesMap
+}
+
 func tagCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tag",
 		Short: "Tag resource",
 	}
 	cmd.SetErr(os.Stderr)
-	resourcesTrie := trie.New()
-	aliasesMap := make(map[string][]string)
-	for _, resource := range taggableResources {
-		resourcesTrie.Insert(resource)
-	}
-	for _, resource := range taggableResources {
-		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
-		if !ok {
-			continue
-		}
-		aliasesMap[resource] = calculateAliases(resource, suffix)
-	}
+	aliasesMap := calculateAliasesMap(taggableResources)
 	for _, resource := range taggableResources {
 		params := viper.New()
 		cmdResource := &cobra.Command{
@@ -175,18 +180,7 @@ func untagCmd() *cobra.Command {
 		Short: "Untag resource",
 	}
 	cmd.SetErr(os.Stderr)
-	resourcesTrie := trie.New()
-	aliasesMap := make(map[string][]string)
-	for _, resource := range taggableResources {
-		resourcesTrie.Insert(resource)
-	}
-	for _, resource := range taggableResources {
-		suffix, ok := resourcesTrie.FindLongestUniqueSuffix(resource)
-		if !ok {
-			continue
-		}
-		aliasesMap[resource] = calculateAliases(resource, suffix)
-	}
+	aliasesMap := calculateAliasesMap(taggableResources)
 	for _, resource := range taggableResources {
 		params := viper.New()
 		cmdResource := &cobra.Command{
