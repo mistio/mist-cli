@@ -25,7 +25,8 @@ var taggableResources []string = []string{
 	"script",
 	"secret",
 	"volume",
-	"zone"}
+	"zone",
+}
 
 var resourceListControllersMap map[string]func(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) = map[string]func(params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error){
 	"cloud":    MistApiV2ListClouds,
@@ -77,31 +78,32 @@ type tagResourceBody struct {
 
 func tagValidArgsFunction(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	resourceType := strings.Fields(cmd.Use)[0]
-	if len(args) == 0 {
-		params := viper.New()
-		params.Set("only", "name")
-		var decoded interface{}
-		_, decoded, _, err := resourceListControllersMap[resourceType](params)
-		if err != nil {
-			logger.Fatalf("Error calling operation: %s", err.Error())
-		}
-		data, _ := jmespath.Search("data[].name", decoded)
-		j, _ := json.Marshal(data)
-		str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-		return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+	params := viper.New()
+	params.Set("only", "name")
+	var decoded interface{}
+	_, decoded, _, err := resourceListControllersMap[resourceType](params)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
 	}
-	return nil, cobra.ShellCompDirectiveNoFileComp
+	data, _ := jmespath.Search("data[].name", decoded)
+	j, _ := json.Marshal(data)
+	str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+	return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
 }
 
 func tagRun(cmd *cobra.Command, args []string, params *viper.Viper, tagOperation string) {
 	resourceType := strings.Fields(cmd.Use)[0]
-	resourceName := args[0]
-	stringTags := args[1]
-	_, decodedResource, _, err := resourceGetControllersMap[resourceType](resourceName, params)
-	rawResourceID, _ := jmespath.Search("data.id", decodedResource)
-	resourceID, ok := rawResourceID.(string)
-	if !ok {
-		logger.Fatalf("Error parsing resource: %s", err.Error())
+	resourceNames := args[:len(args)-1]
+	stringTags := args[len(args)-1]
+	resources := []Resource{}
+	for _, resourceName := range resourceNames {
+		_, decodedResource, _, err := resourceGetControllersMap[resourceType](resourceName, params)
+		rawResourceID, _ := jmespath.Search("data.id", decodedResource)
+		resourceID, ok := rawResourceID.(string)
+		if !ok {
+			logger.Fatalf("Error parsing resource: %s", err.Error())
+		}
+		resources = append(resources, Resource{ResourceType: resourceType + "s", ResourceID: resourceID})
 	}
 	tags := []KeyValuePair{}
 	for _, stringTag := range strings.Split(stringTags, ",") {
@@ -113,7 +115,6 @@ func tagRun(cmd *cobra.Command, args []string, params *viper.Viper, tagOperation
 		}
 		tags = append(tags, kv)
 	}
-	resources := []Resource{{ResourceType: resourceType + "s", ResourceID: resourceID}}
 	operations := []Operation{{Operation: tagOperation, Tags: tags, Resources: resources}}
 	body := tagResourceBody{Operations: operations}
 	rawBody, err := json.Marshal(body)
@@ -152,7 +153,7 @@ func tagCmd() *cobra.Command {
 	for _, resource := range taggableResources {
 		params := viper.New()
 		cmdResource := &cobra.Command{
-			Use:     resource + " RESOURCE TAGS",
+			Use:     resource + " RESOURCE... TAGS",
 			Short:   "Tag " + resource,
 			Aliases: aliasesMap[resource],
 			Args:    cobra.MinimumNArgs(2),
@@ -189,7 +190,7 @@ func untagCmd() *cobra.Command {
 	for _, resource := range taggableResources {
 		params := viper.New()
 		cmdResource := &cobra.Command{
-			Use:     resource + " RESOURCE TAGS",
+			Use:     resource + " RESOURCE... TAGS",
 			Short:   "Untag " + resource,
 			Aliases: aliasesMap[resource],
 			Args:    cobra.MinimumNArgs(2),
