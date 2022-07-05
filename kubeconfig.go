@@ -128,7 +128,7 @@ func setClusterCmd() *cobra.Command {
 			}
 			newClusterInfo, err := parseClusterResponse(decoded)
 			if err != nil {
-				logger.Fatal("Failed to parse cluster: %s", err.Error())
+				logger.Fatalf("Failed to parse cluster: %s", err.Error())
 			}
 			modifyKubeconfig := modifyKubeconfigPrompt()
 			home := homedir.HomeDir()
@@ -141,7 +141,7 @@ func setClusterCmd() *cobra.Command {
 			}
 			err = updateKubeconfig(kubeconfig, newClusterInfo)
 			if err != nil {
-				logger.Fatal("Failed to update kubeconfig: %s", err.Error())
+				logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
 			}
 			if modifyKubeconfig {
 				clientcmd.WriteToFile(*kubeconfig, filepath.Join(home, ".kube", "config"))
