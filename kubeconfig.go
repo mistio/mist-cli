@@ -67,13 +67,25 @@ func parseClusterResponse(decoded interface{}) (clusterInfo, error) {
 	return newClusterInfo, nil
 }
 
+func prepareAdress(host string, port string) string {
+	httpPrefix := "https://"
+	if port == "80" {
+		httpPrefix = "http://"
+	}
+	address := host + ":" + port
+	if !strings.HasPrefix(address, httpPrefix) {
+		address = httpPrefix + address
+	}
+	return address
+}
+
 func updateKubeconfig(kubeconfig *api.Config, newClusterInfo clusterInfo) error {
 	block, _ := pem.Decode([]byte(newClusterInfo.caCert))
 	if block == nil || block.Type != "CERTIFICATE" {
 		logger.Fatal("Failed to decode PEM block containing certificate")
 	}
 	pem.EncodeToMemory(block)
-	newCluster := api.Cluster{Server: newClusterInfo.host + ":" + newClusterInfo.port, CertificateAuthorityData: pem.EncodeToMemory(block)}
+	newCluster := api.Cluster{Server: prepareAdress(newClusterInfo.host, newClusterInfo.port), CertificateAuthorityData: pem.EncodeToMemory(block)}
 	newContext := api.Context{AuthInfo: newClusterInfo.name, Cluster: newClusterInfo.name}
 	ex, err := os.Executable()
 	if err != nil {
