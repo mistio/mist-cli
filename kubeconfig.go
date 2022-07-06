@@ -20,15 +20,12 @@ import (
 )
 
 func modifyKubeconfigPrompt() bool {
-	prompt := promptui.Select{
-		Label: "Choose action",
-		Items: []string{"Add cluster to the local kubeconfig", "Just print the cluster's kubeconfig"},
+	prompt := promptui.Prompt{
+		Label:     "Modify local kubeconfig",
+		IsConfirm: true,
 	}
-	_, result, err := prompt.Run()
-	if err != nil {
-		logger.Fatalf("Prompt failed %v\n", err)
-	}
-	return result == prompt.Items.([]string)[0]
+	_, err := prompt.Run()
+	return err == nil
 }
 
 type clusterInfo struct {
@@ -110,27 +107,70 @@ func updateKubeconfig(kubeconfig *api.Config, newClusterInfo clusterInfo) error 
 	return nil
 }
 
-func setClusterCmd() *cobra.Command {
+func kubeconfigAutocomplete(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) == 0 {
+		params := viper.New()
+		params.Set("only", "name")
+		var decoded interface{}
+		_, decoded, _, err := MistApiV2ListClusters(params)
+		if err != nil {
+			logger.Fatalf("Error calling operation: %s", err.Error())
+		}
+		data, _ := jmespath.Search("data[].name", decoded)
+		j, _ := json.Marshal(data)
+		str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+		return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+	}
+	return nil, cobra.ShellCompDirectiveNoFileComp
+}
+
+func kubeconfigGetCmd() *cobra.Command {
+	params := viper.New()
 	cmd := &cobra.Command{
-		Use:   "set-cluster",
-		Short: "Sets a cluster entry in the local kubeconfig or prints the cluster's kubeconfig",
-		Args:  cobra.MinimumNArgs(1),
-		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			if len(args) == 0 {
-				params := viper.New()
-				params.Set("only", "name")
-				var decoded interface{}
-				_, decoded, _, err := MistApiV2ListClusters(params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-				data, _ := jmespath.Search("data[].name", decoded)
-				j, _ := json.Marshal(data)
-				str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-				return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+		Use:               "update",
+		Short:             "Adds a cluster entry in the local kubeconfig",
+		Args:              cobra.MinimumNArgs(1),
+		ValidArgsFunction: kubeconfigAutocomplete,
+		Run: func(cmd *cobra.Command, args []string) {
+			paramsGetCluster := viper.New()
+			paramsGetCluster.Set("credentials", true)
+			_, decoded, _, err := MistApiV2GetCluster(args[0], paramsGetCluster)
+			if err != nil {
+				logger.Fatalf("Error calling operation: %s", err.Error())
 			}
-			return nil, cobra.ShellCompDirectiveNoFileComp
+			newClusterInfo, err := parseClusterResponse(decoded)
+			if err != nil {
+				logger.Fatalf("Failed to parse cluster: %s", err.Error())
+			}
+			modifyKubeconfig := params.GetBool("yes")
+			if !modifyKubeconfig && !modifyKubeconfigPrompt() {
+				fmt.Println("Aborting...")
+				return
+			}
+			home := homedir.HomeDir()
+			if home == "" {
+				logger.Fatal("Could not find home directory")
+			}
+			kubeconfig := clientcmd.GetConfigFromFileOrDie(filepath.Join(home, ".kube", "config"))
+			err = updateKubeconfig(kubeconfig, newClusterInfo)
+			if err != nil {
+				logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
+			}
+			clientcmd.WriteToFile(*kubeconfig, filepath.Join(home, ".kube", "config"))
+			fmt.Printf("Cluster \"%s\" added to the local kubeconfig\n", newClusterInfo.name)
 		},
+	}
+	cmd.Flags().Bool("yes", false, "Override yes/no prompt")
+	params.BindPFlags(cmd.Flags())
+	return cmd
+}
+
+func kubeconfigShowCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "show",
+		Short:             "Prints the cluster's kubeconfig",
+		Args:              cobra.MinimumNArgs(1),
+		ValidArgsFunction: kubeconfigAutocomplete,
 		Run: func(cmd *cobra.Command, args []string) {
 			params := viper.New()
 			params.Set("credentials", true)
@@ -142,22 +182,10 @@ func setClusterCmd() *cobra.Command {
 			if err != nil {
 				logger.Fatalf("Failed to parse cluster: %s", err.Error())
 			}
-			modifyKubeconfig := modifyKubeconfigPrompt()
-			home := homedir.HomeDir()
 			kubeconfig := &api.Config{}
-			if modifyKubeconfig && home != "" {
-				kubeconfig = clientcmd.GetConfigFromFileOrDie(filepath.Join(home, ".kube", "config"))
-			} else if modifyKubeconfig && home == "" {
-				fmt.Println("Could not find home directory, printing the kubeconfig instead...")
-				modifyKubeconfig = false
-			}
 			err = updateKubeconfig(kubeconfig, newClusterInfo)
 			if err != nil {
 				logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
-			}
-			if modifyKubeconfig {
-				clientcmd.WriteToFile(*kubeconfig, filepath.Join(home, ".kube", "config"))
-				return
 			}
 			// Convert the kubeconfig struct to json first
 			// and then to yaml in order to overcome
@@ -181,27 +209,12 @@ func setClusterCmd() *cobra.Command {
 	return cmd
 }
 
-func getClusterCredsCmd() *cobra.Command {
+func kubeconfigCreds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get-cluster-creds",
-		Short: "Gets kubectl compatible cluster creds",
-		Args:  cobra.MinimumNArgs(1),
-		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			if len(args) == 0 {
-				params := viper.New()
-				params.Set("only", "name")
-				var decoded interface{}
-				_, decoded, _, err := MistApiV2ListClusters(params)
-				if err != nil {
-					logger.Fatalf("Error calling operation: %s", err.Error())
-				}
-				data, _ := jmespath.Search("data[].name", decoded)
-				j, _ := json.Marshal(data)
-				str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-				return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-			}
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		},
+		Use:    "get-cluster-creds",
+		Short:  "Gets kubectl compatible cluster creds",
+		Args:   cobra.MinimumNArgs(1),
+		Hidden: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			params := viper.New()
 			params.Set("credentials", true)
@@ -229,8 +242,9 @@ func kubeconfigCmd() *cobra.Command {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
 	}
-	cmd.AddCommand(setClusterCmd())
-	cmd.AddCommand(getClusterCredsCmd())
+	cmd.AddCommand(kubeconfigGetCmd())
+	cmd.AddCommand(kubeconfigShowCmd())
+	cmd.AddCommand(kubeconfigCreds())
 	cmd.SetErr(os.Stderr)
 	return cmd
 }
