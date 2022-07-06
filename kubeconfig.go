@@ -108,20 +108,17 @@ func updateKubeconfig(kubeconfig *api.Config, newClusterInfo clusterInfo) error 
 }
 
 func kubeconfigAutocomplete(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	if len(args) == 0 {
-		params := viper.New()
-		params.Set("only", "name")
-		var decoded interface{}
-		_, decoded, _, err := MistApiV2ListClusters(params)
-		if err != nil {
-			logger.Fatalf("Error calling operation: %s", err.Error())
-		}
-		data, _ := jmespath.Search("data[].name", decoded)
-		j, _ := json.Marshal(data)
-		str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-		return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
+	params := viper.New()
+	params.Set("only", "name")
+	var decoded interface{}
+	_, decoded, _, err := MistApiV2ListClusters(params)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
 	}
-	return nil, cobra.ShellCompDirectiveNoFileComp
+	data, _ := jmespath.Search("data[].name", decoded)
+	j, _ := json.Marshal(data)
+	str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
+	return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
 }
 
 func kubeconfigGetCmd() *cobra.Command {
@@ -132,16 +129,6 @@ func kubeconfigGetCmd() *cobra.Command {
 		Args:              cobra.MinimumNArgs(1),
 		ValidArgsFunction: kubeconfigAutocomplete,
 		Run: func(cmd *cobra.Command, args []string) {
-			paramsGetCluster := viper.New()
-			paramsGetCluster.Set("credentials", true)
-			_, decoded, _, err := MistApiV2GetCluster(args[0], paramsGetCluster)
-			if err != nil {
-				logger.Fatalf("Error calling operation: %s", err.Error())
-			}
-			newClusterInfo, err := parseClusterResponse(decoded)
-			if err != nil {
-				logger.Fatalf("Failed to parse cluster: %s", err.Error())
-			}
 			modifyKubeconfig := params.GetBool("yes")
 			if !modifyKubeconfig && !modifyKubeconfigPrompt() {
 				fmt.Println("Aborting...")
@@ -152,12 +139,26 @@ func kubeconfigGetCmd() *cobra.Command {
 				logger.Fatal("Could not find home directory")
 			}
 			kubeconfig := clientcmd.GetConfigFromFileOrDie(filepath.Join(home, ".kube", "config"))
-			err = updateKubeconfig(kubeconfig, newClusterInfo)
-			if err != nil {
-				logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
+			addedClusters := ""
+			for _, cluster := range args {
+				paramsGetCluster := viper.New()
+				paramsGetCluster.Set("credentials", true)
+				_, decoded, _, err := MistApiV2GetCluster(cluster, paramsGetCluster)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+				newClusterInfo, err := parseClusterResponse(decoded)
+				if err != nil {
+					logger.Fatalf("Failed to parse cluster: %s", err.Error())
+				}
+				err = updateKubeconfig(kubeconfig, newClusterInfo)
+				if err != nil {
+					logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
+				}
+				addedClusters = addedClusters + "\"" + newClusterInfo.name + "\","
 			}
 			clientcmd.WriteToFile(*kubeconfig, filepath.Join(home, ".kube", "config"))
-			fmt.Printf("Cluster \"%s\" added to the local kubeconfig\n", newClusterInfo.name)
+			fmt.Printf("Clusters %s added to the local kubeconfig\n", strings.TrimSuffix(addedClusters, ","))
 		},
 	}
 	cmd.Flags().Bool("yes", false, "Override yes/no prompt")
@@ -172,20 +173,22 @@ func kubeconfigShowCmd() *cobra.Command {
 		Args:              cobra.MinimumNArgs(1),
 		ValidArgsFunction: kubeconfigAutocomplete,
 		Run: func(cmd *cobra.Command, args []string) {
-			params := viper.New()
-			params.Set("credentials", true)
-			_, decoded, _, err := MistApiV2GetCluster(args[0], params)
-			if err != nil {
-				logger.Fatalf("Error calling operation: %s", err.Error())
-			}
-			newClusterInfo, err := parseClusterResponse(decoded)
-			if err != nil {
-				logger.Fatalf("Failed to parse cluster: %s", err.Error())
-			}
 			kubeconfig := &api.Config{}
-			err = updateKubeconfig(kubeconfig, newClusterInfo)
-			if err != nil {
-				logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
+			for _, cluster := range args {
+				params := viper.New()
+				params.Set("credentials", true)
+				_, decoded, _, err := MistApiV2GetCluster(cluster, params)
+				if err != nil {
+					logger.Fatalf("Error calling operation: %s", err.Error())
+				}
+				newClusterInfo, err := parseClusterResponse(decoded)
+				if err != nil {
+					logger.Fatalf("Failed to parse cluster: %s", err.Error())
+				}
+				err = updateKubeconfig(kubeconfig, newClusterInfo)
+				if err != nil {
+					logger.Fatalf("Failed to update kubeconfig: %s", err.Error())
+				}
 			}
 			// Convert the kubeconfig struct to json first
 			// and then to yaml in order to overcome
