@@ -90,7 +90,7 @@ func updateKubeconfig(kubeconfig *api.Config, newClusterInfo clusterInfo) error 
 	}
 	mistCLIPath := path.Dir(ex) + "/" + os.Args[0]
 	newAuthinfo := api.AuthInfo{Exec: &api.ExecConfig{Command: mistCLIPath, InteractiveMode: "Never", ProvideClusterInfo: true, Args: []string{
-		"kubeconfig", "get-cluster-creds", newClusterInfo.name}, APIVersion: "client.authentication.k8s.io/v1"}}
+		"kubeconfig", "get-cluster-creds", newClusterInfo.name, "--context=" + viper.GetString("context")}, APIVersion: "client.authentication.k8s.io/v1"}}
 	if kubeconfig.Clusters == nil {
 		kubeconfig.Clusters = make(map[string]*api.Cluster)
 	}
