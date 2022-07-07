@@ -89,8 +89,8 @@ func updateKubeconfig(kubeconfig *api.Config, newClusterInfo clusterInfo) error 
 		logger.Fatal(err)
 	}
 	mistCLIPath := path.Dir(ex) + "/" + os.Args[0]
-	newAuthinfo := api.AuthInfo{Exec: &api.ExecConfig{Command: mistCLIPath, Args: []string{
-		"kubeconfig", "get-cluster-creds", newClusterInfo.name}, APIVersion: "client.authentication.k8s.io/v1alpha1"}}
+	newAuthinfo := api.AuthInfo{Exec: &api.ExecConfig{Command: mistCLIPath, InteractiveMode: "Never", ProvideClusterInfo: true, Args: []string{
+		"kubeconfig", "get-cluster-creds", newClusterInfo.name}, APIVersion: "client.authentication.k8s.io/v1"}}
 	if kubeconfig.Clusters == nil {
 		kubeconfig.Clusters = make(map[string]*api.Cluster)
 	}
@@ -230,8 +230,13 @@ func kubeconfigCreds() *cobra.Command {
 			if err != nil || !ok {
 				logger.Fatalf("Error parsing cluster credentials: %s", err.Error())
 			}
-			template := `{"kind": "ExecCredential", "apiVersion": "client.authentication.k8s.io/v1alpha1", "spec": {}, "status": {"token": "%s"}}`
-			fmt.Printf(template+"\n", token)
+			tokenExpiryInterface, err := jmespath.Search("data.credentials.token_expiry", decoded)
+			tokenExpiry, ok := tokenExpiryInterface.(string)
+			if err != nil || !ok {
+				logger.Fatalf("Error parsing cluster credentials: %s", err.Error())
+			}
+			template := `{"kind": "ExecCredential", "apiVersion": "client.authentication.k8s.io/v1", "spec": {}, "status": {"expirationTimestamp": "%s", "token": "%s"}}`
+			fmt.Printf(template+"\n", tokenExpiry, token)
 		},
 	}
 	return cmd
