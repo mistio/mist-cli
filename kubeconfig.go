@@ -48,7 +48,7 @@ func (c cluster) getCredsFromCache() *clusterCreds {
 	tokenKey := "contexts." + viper.GetString("context") + "." + string(c) + ".token"
 	expiresKey := "contexts." + viper.GetString("context") + "." + string(c) + ".expires"
 	cachedExpiry := cli.ClusterCache.GetTime(expiresKey)
-	if cachedExpiry.IsZero() || cachedExpiry.Before(time.Now().UTC()) {
+	if cachedExpiry.IsZero() || cachedExpiry.Before(time.Now().Add(time.Minute).UTC()) {
 		return nil
 	}
 	return &clusterCreds{token: cli.ClusterCache.GetString(tokenKey), expiry: cachedExpiry.Format(time.RFC3339)}
@@ -292,7 +292,7 @@ func kubeconfigCreds() *cobra.Command {
 func kubeconfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
-		Short: "Modify kubeconfig",
+		Short: "Configure kubectl access to cluster",
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
