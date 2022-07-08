@@ -11,7 +11,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/v-pap/trie v0.0.0-20220304164748-f2da6e8bb111
-	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220614120433-24df03ca6073
+	gitlab.ops.mist.io/mistio/openapi-cli-generator v0.0.0-20220708125651-795a9083b395
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	gopkg.in/h2non/gentleman.v2 v2.0.5
 	gopkg.in/yaml.v2 v2.4.0
