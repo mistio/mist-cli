@@ -292,7 +292,7 @@ func kubeconfigCreds() *cobra.Command {
 func kubeconfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
-		Short: "Modify kubeconfig",
+		Short: "Configure kubectl access to cluster",
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
