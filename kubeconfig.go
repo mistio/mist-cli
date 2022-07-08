@@ -178,7 +178,7 @@ func kubeconfigGetCmd() *cobra.Command {
 	params := viper.New()
 	cmd := &cobra.Command{
 		Use:               "update",
-		Short:             "Adds a cluster entry in the local kubeconfig",
+		Short:             "Add or update context for cluster(s) in the local kubeconfig",
 		Args:              cobra.MinimumNArgs(1),
 		ValidArgsFunction: kubeconfigAutocomplete,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -222,7 +222,7 @@ func kubeconfigGetCmd() *cobra.Command {
 func kubeconfigShowCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "show",
-		Short:             "Prints the cluster's kubeconfig",
+		Short:             "Display kubeconfig for cluster(s)",
 		Args:              cobra.MinimumNArgs(1),
 		ValidArgsFunction: kubeconfigAutocomplete,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -268,7 +268,7 @@ func kubeconfigShowCmd() *cobra.Command {
 func kubeconfigCreds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "get-cluster-creds",
-		Short:  "Gets kubectl compatible cluster creds",
+		Short:  "Get kubectl compatible cluster creds",
 		Args:   cobra.MinimumNArgs(1),
 		Hidden: true,
 		Run: func(cmd *cobra.Command, args []string) {
