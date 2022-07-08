@@ -466,5 +466,7 @@ func main() {
 
 	cli.Root.AddCommand(untagCmd())
 
+	cli.Root.AddCommand(kubeconfigCmd())
+
 	cli.Root.Execute()
 }
