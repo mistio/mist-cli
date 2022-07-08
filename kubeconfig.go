@@ -8,11 +8,13 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/jmespath/go-jmespath"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gitlab.ops.mist.io/mistio/openapi-cli-generator/cli"
 	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -33,6 +35,57 @@ type clusterInfo struct {
 	host   string
 	port   string
 	caCert string
+}
+
+type clusterCreds struct {
+	token  string
+	expiry string
+}
+
+type cluster string
+
+func (c cluster) getCredsFromCache() *clusterCreds {
+	tokenKey := "contexts." + viper.GetString("context") + "." + string(c) + ".token"
+	expiresKey := "contexts." + viper.GetString("context") + "." + string(c) + ".expires"
+	cachedExpiry := cli.ClusterCache.GetTime(expiresKey)
+	if cachedExpiry.IsZero() || cachedExpiry.Before(time.Now().UTC()) {
+		return nil
+	}
+	return &clusterCreds{token: cli.ClusterCache.GetString(tokenKey), expiry: cachedExpiry.Format(time.RFC3339)}
+}
+
+func (c cluster) setCredsToCache(creds *clusterCreds) error {
+	tokenKey := "contexts." + viper.GetString("context") + "." + string(c) + ".token"
+	expiresKey := "contexts." + viper.GetString("context") + "." + string(c) + ".expires"
+	cli.ClusterCache.Set(tokenKey, creds.token)
+	cli.ClusterCache.Set(expiresKey, creds.expiry)
+	err := cli.ClusterCache.WriteConfig()
+	return err
+}
+
+func (c cluster) getCredsFromMist() *clusterCreds {
+	params := viper.New()
+	params.Set("credentials", true)
+	_, decoded, _, err := MistApiV2GetCluster(string(c), params)
+	if err != nil {
+		logger.Fatalf("Error calling operation: %s", err.Error())
+	}
+	tokenInterface, err := jmespath.Search("data.credentials.token", decoded)
+	token, ok := tokenInterface.(string)
+	if err != nil || !ok {
+		logger.Fatalf("Error parsing cluster credentials: %s", err.Error())
+	}
+	tokenExpiryInterface, err := jmespath.Search("data.credentials.token_expiry", decoded)
+	tokenExpiry, ok := tokenExpiryInterface.(string)
+	if err != nil || !ok {
+		logger.Fatalf("Error parsing cluster credentials: %s", err.Error())
+	}
+	creds := &clusterCreds{token: token, expiry: tokenExpiry}
+	err = c.setCredsToCache(creds)
+	if err != nil {
+		logger.Printf("Could not save cluster credentials to cache: %s", err.Error())
+	}
+	return creds
 }
 
 func parseClusterResponse(decoded interface{}) (clusterInfo, error) {
@@ -219,24 +272,18 @@ func kubeconfigCreds() *cobra.Command {
 		Args:   cobra.MinimumNArgs(1),
 		Hidden: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			params := viper.New()
-			params.Set("credentials", true)
-			_, decoded, _, err := MistApiV2GetCluster(args[0], params)
+			err := setContext()
 			if err != nil {
-				logger.Fatalf("Error calling operation: %s", err.Error())
+				fmt.Printf("Could not set context %s\n", err)
+				return
 			}
-			tokenInterface, err := jmespath.Search("data.credentials.token", decoded)
-			token, ok := tokenInterface.(string)
-			if err != nil || !ok {
-				logger.Fatalf("Error parsing cluster credentials: %s", err.Error())
-			}
-			tokenExpiryInterface, err := jmespath.Search("data.credentials.token_expiry", decoded)
-			tokenExpiry, ok := tokenExpiryInterface.(string)
-			if err != nil || !ok {
-				logger.Fatalf("Error parsing cluster credentials: %s", err.Error())
+			c := cluster(args[0])
+			creds := c.getCredsFromCache()
+			if creds == nil {
+				creds = c.getCredsFromMist()
 			}
 			template := `{"kind": "ExecCredential", "apiVersion": "client.authentication.k8s.io/v1", "spec": {}, "status": {"expirationTimestamp": "%s", "token": "%s"}}`
-			fmt.Printf(template+"\n", tokenExpiry, token)
+			fmt.Printf(template+"\n", creds.expiry, creds.token)
 		},
 	}
 	return cmd
