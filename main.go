@@ -244,6 +244,10 @@ func sshCmd() *cobra.Command {
 					return http.ErrUseLastResponse
 				}}
 			req, err := http.NewRequest("POST", path, nil)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 			token, err := getToken()
 			if err != nil {
 				fmt.Println(err)
