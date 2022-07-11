@@ -198,6 +198,7 @@ func sshCmd() *cobra.Command {
 			if len(args) == 0 {
 				params := viper.New()
 				params.Set("only", "name")
+				params.Set("search", "key_associations:true")
 				var decoded interface{}
 				_, decoded, _, err := MistApiV2ListMachines(params)
 				if err != nil {
