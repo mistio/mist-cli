@@ -306,6 +306,116 @@ func sshCmd() *cobra.Command {
 	return cmd
 }
 
+func streamingCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "stream [job_id]",
+		Short: "Stream logs of a running script",
+		Args:  cobra.ExactValidArgs(1),
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+			if len(args) == 0 {
+
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			job_id := args[0]
+			// Time allowed to write a message to the peer.
+			writeWait := 200 * time.Second
+
+			// Time allowed to read the next pong message from the peer.
+			pongWait := 100 * time.Second
+
+			// Send pings to peer with this period. Must be less than pongWait.
+			pingPeriod := (pongWait * 9) / 100
+
+			server, err := getServer()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			if !strings.HasSuffix(server, "/") {
+				server = server + "/"
+			}
+			if !strings.HasPrefix(server, "http") {
+				server = "http://" + server
+			}
+			path := server + "api/v2/jobs/" + job_id
+			client := &http.Client{
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+				}}
+			req, err := http.NewRequest("GET", path, nil)
+			token, err := getToken()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			req.Header.Add("Authorization", token)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			var r map[string]any
+			decoder := json.NewDecoder(resp.Body)
+			err = decoder.Decode(&r)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			location, ok := r["data"].(map[string]any)["stream_uri"].(string)
+			if !ok {
+				log.Println(err)
+				return
+			}
+			log.Println(location)
+			defer resp.Body.Close()
+
+			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
+			if resp != nil && resp.StatusCode == 302 {
+				u, _ := resp.Location()
+				c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
+			}
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			defer c.Close()
+			if err != nil {
+				log.Println(err)
+			}
+
+			current := console.Current()
+			if err := current.SetRaw(); err != nil {
+				panic(err)
+			}
+			terminal.NewTerminal(current, "")
+			defer current.Reset()
+			done := make(chan bool)
+
+			var writeMutex sync.Mutex
+
+			err = updateTerminalSize(c, &writeMutex, writeWait)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			go readFromRemoteStdout(c, &done, pongWait)
+			go handleTerminalResize(c, &done, &writeMutex, writeWait)
+			go sendPingMessages(c, &done, writeWait, pingPeriod)
+			<-done
+		},
+	}
+	cmd.SetErr(os.Stderr)
+	return cmd
+}
+
 func getResourceMeterCmdRun(params *viper.Viper, resource string, detailedName bool) {
 	dtStart := params.GetString("start")
 	if dtStart == "" {
@@ -429,6 +539,7 @@ func main() {
 		EnvPrefix: "MIST",
 		Version:   "",
 	})
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Initialize the API key authentication.
 	apikey.Init("Authorization", apikey.LocationHeader)
@@ -458,6 +569,7 @@ func main() {
 	// Add ssh command
 	cli.Root.AddCommand(sshCmd())
 
+	cli.Root.AddCommand(streamingCmd())
 	// Add metering command
 	cli.Root.AddCommand(meterCmd())
 
