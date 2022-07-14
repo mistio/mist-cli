@@ -427,23 +427,18 @@ func streamingCmd() *cobra.Command {
 		Short: "Stream logs of a running script",
 		Args:  cobra.ExactValidArgs(1),
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-			if len(args) == 0 {
-
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			}
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			job_id := args[0]
 			// Time allowed to write a message to the peer.
-			writeWait := 200 * time.Second
+			writeWait := 10 * 3600 * time.Second
 
 			// Time allowed to read the next pong message from the peer.
-			pongWait := 100 * time.Second
+			pongWait := 10 * time.Second
 
 			// Send pings to peer with this period. Must be less than pongWait.
-			pingPeriod := (pongWait * 9) / 100
+			pingPeriod := (pongWait * 9) / 10
 
 			server, err := getServer()
 			if err != nil {
@@ -477,33 +472,32 @@ func streamingCmd() *cobra.Command {
 				log.Println(err)
 				return
 			}
-			var r map[string]any
+			var r any
 			decoder := json.NewDecoder(resp.Body)
 			err = decoder.Decode(&r)
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			location, ok := r["data"].(map[string]any)["stream_uri"].(string)
+			location, ok := r.(map[string]any)["data"].(map[string]any)["stream_uri"].(string)
 			if !ok {
+				log.Println(errors.New("stream_uri not found"))
+				return
+			}
+			defer resp.Body.Close()
+			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
+			if err != nil {
 				log.Println(err)
 				return
 			}
-			log.Println(location)
-			defer resp.Body.Close()
-
-			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
 			if resp != nil && resp.StatusCode == 302 {
 				u, _ := resp.Location()
 				c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
 			}
-			if err != nil {
-				log.Println(err)
-				return
-			}
 			defer c.Close()
 			if err != nil {
 				log.Println(err)
+				return
 			}
 
 			current := console.Current()
@@ -518,9 +512,19 @@ func streamingCmd() *cobra.Command {
 
 			err = updateTerminalSize(c, &writeMutex, writeWait)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return
 			}
+			go func() {
+				cmd.InOrStdin()
+				_, _, err := bufio.NewReader(cmd.InOrStdin()).ReadRune()
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				done <- true
+				os.Exit(0)
+			}()
 			go readFromRemoteStdout(c, &done, pongWait)
 			go handleTerminalResize(c, &done, &writeMutex, writeWait)
 			go sendPingMessages(c, &done, writeWait, pingPeriod)
