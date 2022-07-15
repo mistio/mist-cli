@@ -198,6 +198,7 @@ func sshCmd() *cobra.Command {
 			if len(args) == 0 {
 				params := viper.New()
 				params.Set("only", "name")
+				params.Set("search", "key_associations:true AND state:running")
 				var decoded interface{}
 				_, decoded, _, err := MistApiV2ListMachines(params)
 				if err != nil {
@@ -223,13 +224,11 @@ func sshCmd() *cobra.Command {
 
 			err := setContext()
 			if err != nil {
-				fmt.Printf("Cannot set context %s\n", err)
-				return
+				logger.Fatalf("Could not set context %s", err)
 			}
 			server, err := getServer()
 			if err != nil {
-				fmt.Println(err)
-				return
+				logger.Fatal(err)
 			}
 			if !strings.HasSuffix(server, "/") {
 				server = server + "/"
@@ -243,45 +242,46 @@ func sshCmd() *cobra.Command {
 					return http.ErrUseLastResponse
 				}}
 			req, err := http.NewRequest("POST", path, nil)
+			if err != nil {
+				logger.Fatal(err)
+			}
 			token, err := getToken()
 			if err != nil {
-				fmt.Println(err)
-				return
+				logger.Fatal(err)
 			}
 			req.Header.Add("Authorization", token)
 			if err != nil {
-				fmt.Println(err)
-				return
+				logger.Fatal(err)
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				fmt.Println(err)
-				return
+				logger.Fatal(err)
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode/100 != 3 {
+				logger.Fatalf("Could not SSH into machine: %s", resp.Status)
+			}
 			_, err = ioutil.ReadAll(resp.Body)
 			if err != nil {
-				fmt.Println(err)
-				return
+				logger.Fatal(err)
 			}
 			location := resp.Header.Get("location")
 			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
+			if err != nil {
+				logger.Fatal(err)
+			}
+			// Handle the case of redirections
 			if resp != nil && resp.StatusCode == 302 {
 				u, _ := resp.Location()
 				c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
-			}
-			if err != nil {
-				fmt.Println(err)
-				return
+				if err != nil || resp.StatusCode/100 != 2 {
+					logger.Fatal(err)
+				}
 			}
 			defer c.Close()
-			if err != nil {
-				fmt.Println(err)
-			}
-
 			current := console.Current()
 			if err := current.SetRaw(); err != nil {
-				panic(err)
+				logger.Fatal(err)
 			}
 			terminal.NewTerminal(current, "")
 			defer current.Reset()
@@ -291,8 +291,7 @@ func sshCmd() *cobra.Command {
 
 			err = updateTerminalSize(c, &writeMutex, writeWait)
 			if err != nil {
-				fmt.Println(err)
-				return
+				logger.Fatal(err)
 			}
 
 			go handleTerminalResize(c, &done, &writeMutex, writeWait)

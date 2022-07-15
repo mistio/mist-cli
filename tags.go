@@ -56,6 +56,31 @@ var resourceGetControllersMap map[string]func(param string, params *viper.Viper)
 	"zone":     MistApiV2GetZone,
 }
 
+var tagSubCommandTpl = `Usage:{{if .Runnable}}
+  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  {{.CommandPath}} [command]{{end}}
+
+  RESOURCE... are resource names seperated by white space.
+  TAGS are key-value comma seperated values. (e.g. key1=value1,key2){{if .HasExample}}
+
+Examples:
+{{.Example}}{{end}}{{if .HasAvailableSubCommands}}
+
+Available Commands:{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
+  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
+
+Flags:
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+Global Flags:
+{{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}
+
+Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
+  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
+
+Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+`
+
 type KeyValuePair struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -169,6 +194,7 @@ func tagCmd() *cobra.Command {
 				tagRun(cmd, args, params, "add")
 			},
 		}
+		cmdResource.SetUsageTemplate(tagSubCommandTpl)
 		cmd.AddCommand(cmdResource)
 	}
 	return cmd
@@ -195,6 +221,7 @@ func untagCmd() *cobra.Command {
 				tagRun(cmd, args, params, "remove")
 			},
 		}
+		cmdResource.SetUsageTemplate(tagSubCommandTpl)
 		cmd.AddCommand(cmdResource)
 	}
 	return cmd
