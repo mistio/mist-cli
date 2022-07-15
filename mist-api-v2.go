@@ -4893,20 +4893,6 @@ func MistApiV2JobFinishedWaiter(paramJobId string, params *viper.Viper) error {
 		var actual interface{}
 		var match bool
 
-		actual, err = cli.GetMatchValue(resp.Context, "response.body#data.finished_at", params.AllSettings(), decoded)
-		if err != nil {
-			return errors.Wrap(err, "Could not get matcher value")
-		}
-
-		match, err = cli.Match("notEqual", []byte("0"), actual)
-		if err != nil {
-			return errors.Wrap(err, "Watcher match failure")
-		} else if match {
-
-			break
-
-		}
-
 		actual, err = cli.GetMatchValue(resp.Context, "response.body#data.error", params.AllSettings(), decoded)
 		if err != nil {
 			return errors.Wrap(err, "Could not get matcher value")
@@ -4921,11 +4907,29 @@ func MistApiV2JobFinishedWaiter(paramJobId string, params *viper.Viper) error {
 			if err != nil {
 				return errors.Wrap(err, "Watcher match failure")
 			}
-			errorMessage := "false"
+			marshalled, err := json.Marshal(actual)
+			if err != nil {
+				return errors.Wrap(err, "Watcher match failure")
+			}
+			errorMessage := string(marshalled)
 			if len(errorMessage) > width {
 				errorMessage = errorMessage[len(errorMessage)-width:]
 			}
-			return errors.Errorf("Failed:\n%s", errorMessage)
+			return errors.Errorf("%s", errorMessage)
+
+		}
+
+		actual, err = cli.GetMatchValue(resp.Context, "response.body#data.finished_at", params.AllSettings(), decoded)
+		if err != nil {
+			return errors.Wrap(err, "Could not get matcher value")
+		}
+
+		match, err = cli.Match("notEqual", []byte("0"), actual)
+		if err != nil {
+			return errors.Wrap(err, "Watcher match failure")
+		} else if match {
+
+			break
 
 		}
 
@@ -6067,7 +6071,7 @@ func mistApiV2Register(subcommand bool) {
 					arg0 := fmt.Sprintf("%v", actual)
 
 					if err := MistApiV2JobFinishedWaiter(arg0, wparams); err != nil {
-						logger.Fatalf("Waiter error: %s", err.Error())
+						logger.Fatalf("Create machine failed: %s", err.Error())
 					}
 
 					fmt.Println("Create machine completed successfully")
@@ -8471,6 +8475,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListClouds(params)
@@ -8733,6 +8738,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListClusters(params)
@@ -9062,6 +9068,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListImages(params)
@@ -9186,6 +9193,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListKeys(params)
@@ -9442,6 +9450,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListLocations(params)
@@ -9524,6 +9533,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListMachines(params)
@@ -10824,6 +10834,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListNetworks(params)
@@ -11099,6 +11110,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListRules(params)
@@ -11476,6 +11488,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListSchedules(params)
@@ -11741,6 +11754,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListScripts(params)
@@ -12189,6 +12203,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListSecrets(params)
@@ -12444,6 +12459,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListSizes(params)
@@ -12632,6 +12648,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListVolumes(params)
@@ -12890,6 +12907,7 @@ func mistApiV2Register(subcommand bool) {
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				if len(args) == 0 {
 					params := viper.New()
+					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
 					_, decoded, _, err := MistApiV2ListZones(params)
