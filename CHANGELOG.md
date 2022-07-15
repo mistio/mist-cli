@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.9.0 (15 Jul 2022)
+
+ - Feature: Introduce `kubeconfig` command for configuring kubectl access to cluster
+ - Change: Improve readability of booleans in table view
+ - Change: Improve readability of nested data on commands that override table view
+ - Change: Revamp waiters error handling
+ - Change: Revamp ssh command error handling
+ - Change: Improve help messages for tag/untag commands
+ - Bugfix: Display only ssh-able machines on ssh's autocomplete
+ - Bugfix: Fix missing entries on autocomplete
+
+## v0.8.0 (24 Jun 2022)
+
+ - Feature: Add tag/untag support for resources
+ - Feature: Fetch the raw credentials for clusters, keys and secrets with a CLI argument
+ - Feature: Add delete-context & rename-context
+ - Feature: Add secrets support (Mist v5)
+ - Feature: Add `at` parameter for fetching resources
+ - Feature: Add metering for volumes
+ - Change: Set newly created context as the default
+ - Bugfix: Fix meter command
+
 ## v0.7.5 (13 Apr 2022)
 
  - Bugfix: Fix adding initial context
