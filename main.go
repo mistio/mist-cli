@@ -435,10 +435,10 @@ func streamingCmd() *cobra.Command {
 			writeWait := 10 * 3600 * time.Second
 
 			// Time allowed to read the next pong message from the peer.
-			pongWait := 10 * time.Second
+			pongWait := 10 * 3600 * time.Second
 
 			// Send pings to peer with this period. Must be less than pongWait.
-			pingPeriod := (pongWait * 9) / 10
+			pingPeriod := (10 * time.Second * 9) / 10
 
 			server, err := getServer()
 			if err != nil {
@@ -526,7 +526,6 @@ func streamingCmd() *cobra.Command {
 				os.Exit(0)
 			}()
 			go readFromRemoteStdout(c, &done, pongWait)
-			go handleTerminalResize(c, &done, &writeMutex, writeWait)
 			go sendPingMessages(c, &done, writeWait, pingPeriod)
 			<-done
 		},
