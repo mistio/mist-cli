@@ -4870,6 +4870,15 @@ func MistApiV2ListRecords(paramZone string, paramCloud string, params *viper.Vip
 
 	req = req.AddQuery("cloud", paramCloud)
 
+	paramOnly := params.GetString("only")
+	if paramOnly != "" {
+		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+	paramDeref := params.GetString("deref")
+	if paramDeref != "" {
+		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
+
 	cli.HandleBefore(handlerPath, params, req)
 
 	resp, err := req.Do()
@@ -5020,6 +5029,15 @@ func MistApiV2GetRecord(paramZone string, paramRecord string, paramCloud string,
 	req := cli.Client.Get().URL(url)
 
 	req = req.AddQuery("cloud", paramCloud)
+
+	paramOnly := params.GetString("only")
+	if paramOnly != "" {
+		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
+	}
+	paramDeref := params.GetString("deref")
+	if paramDeref != "" {
+		req = req.AddQuery("deref", fmt.Sprintf("%v", paramDeref))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -8684,6 +8702,9 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
+
 		cli.SetCustomFlags(cmd)
 
 		if cmd.Flags().HasFlags() {
@@ -8795,6 +8816,9 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
+
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
@@ -13549,6 +13573,9 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Get") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones/{zone}/records", "{", "-"), "}", "-"))
 		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
+
+		cmd.Flags().String("only", "", "Only return these fields")
+		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
 		cli.SetCustomFlags(cmd)
 
