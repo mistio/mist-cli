@@ -8718,7 +8718,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " create-record ZONE cloud: my-cloud, name: my-record, zone: my-zone\n"
+		examples += "  " + cli.Root.CommandPath() + " create-record ZONE name: my-record\n"
 
 		cmd := &cobra.Command{
 			Use:     "create-record ZONE",
@@ -13590,7 +13590,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " create record ZONE cloud: my-cloud, name: my-record, zone: my-zone\n"
+		examples += "  " + cli.Root.CommandPath() + " create record ZONE name: my-record\n"
 
 		cmd := &cobra.Command{
 			Use: "record ZONE",
