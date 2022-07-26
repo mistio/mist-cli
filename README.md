@@ -28,6 +28,7 @@ You are now ready to manage your clouds from the command line!
 
 
 ## Syntax
+
 Use the following syntax to run `mist` CLI commands from your terminal window:
 ```
 mist [command] [TYPE] [NAME] [flags]
@@ -205,3 +206,23 @@ root@3a088b51795b:~#
 You can use `CTRL + D` or type `logout` to the remote terminal to exit.
 
 Please note, that the public key needs to be in the user's `~/.ssh/authorized_keys` file in the target machine. This is done automatically when you create a machine through Mist.
+
+### Kubeconfig
+
+With the `mist kubeconfig` command you can get auto-renewing kubeconfig credentials for kubectl.
+
+```
+~ $ mist get cluster
+NAME    	CLOUD                           	TOTAL NODES	TAGS 
+dijkstra	64e0e46aac45456eab6825e0f9757007	8          	    	
+turing  	64e0e46aac45456eab6825e0f9757007	6          	    	
+
+~ $ mist kubeconfig update turing --yes
+Clusters "turing" added to the local kubeconfig
+
+~ $ kubectl cluster-info
+Kubernetes control plane is running at https://23.115.105.54:443
+GLBCDefaultBackend is running at https://23.115.105.54:443/api/v1/namespaces/kube-system/services/default-http-backend:http/proxy
+KubeDNS is running at https://23.115.105.54:443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Metrics-server is running at https://23.115.105.54:443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy
+```
