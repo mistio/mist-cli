@@ -322,7 +322,7 @@ func streamingCmd() *cobra.Command {
 			writeWait := 10 * 3600 * time.Second
 
 			// Time allowed to read the next pong message from the peer.
-			pongWait := 10 * 3600 * time.Second
+			pongWait := 20 * time.Second
 
 			// Send pings to peer with this period. Must be less than pongWait.
 			pingPeriod := (10 * time.Second * 9) / 10
