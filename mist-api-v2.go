@@ -4847,7 +4847,7 @@ func MistApiV2EditZone(paramZone string, params *viper.Viper) (*gentleman.Respon
 }
 
 // MistApiV2ListRecords List records
-func MistApiV2ListRecords(paramZone string, paramCloud string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+func MistApiV2ListRecords(paramZone string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "list-records"
 	if mistApiV2Subcommand {
 		handlerPath = "Mist CLI " + handlerPath
@@ -4868,8 +4868,10 @@ func MistApiV2ListRecords(paramZone string, paramCloud string, params *viper.Vip
 
 	req := cli.Client.Get().URL(url)
 
-	req = req.AddQuery("cloud", paramCloud)
-
+	paramCloud := params.GetString("cloud")
+	if paramCloud != "" {
+		req = req.AddQuery("cloud", fmt.Sprintf("%v", paramCloud))
+	}
 	paramOnly := params.GetString("only")
 	if paramOnly != "" {
 		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
@@ -5006,7 +5008,7 @@ func MistApiV2DeleteRecord(paramZone string, paramRecord string, paramCloud stri
 }
 
 // MistApiV2GetRecord Get record
-func MistApiV2GetRecord(paramZone string, paramRecord string, paramCloud string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
+func MistApiV2GetRecord(paramZone string, paramRecord string, params *viper.Viper) (*gentleman.Response, map[string]interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "get-record"
 	if mistApiV2Subcommand {
 		handlerPath = "Mist CLI " + handlerPath
@@ -5028,8 +5030,10 @@ func MistApiV2GetRecord(paramZone string, paramRecord string, paramCloud string,
 
 	req := cli.Client.Get().URL(url)
 
-	req = req.AddQuery("cloud", paramCloud)
-
+	paramCloud := params.GetString("cloud")
+	if paramCloud != "" {
+		req = req.AddQuery("cloud", fmt.Sprintf("%v", paramCloud))
+	}
 	paramOnly := params.GetString("only")
 	if paramOnly != "" {
 		req = req.AddQuery("only", fmt.Sprintf("%v", paramOnly))
@@ -8681,15 +8685,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "list-records ZONE CLOUD",
+			Use:     "list-records ZONE",
 			Short:   "List records",
 			Long:    cli.Markdown("Lists all DNS records for a particular zone. READ permission required on zone and record."),
 			Hidden:  true,
 			Example: examples,
-			Args:    cobra.MinimumNArgs(2),
+			Args:    cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, outputOptions, err := MistApiV2ListRecords(args[0], args[1], params)
+				_, decoded, outputOptions, err := MistApiV2ListRecords(args[0], params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -8702,6 +8706,7 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
+		cmd.Flags().String("cloud", "", "")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -8796,15 +8801,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "get-record ZONE RECORD CLOUD",
+			Use:     "get-record ZONE RECORD",
 			Short:   "Get record",
 			Long:    cli.Markdown("Get details about target record"),
 			Hidden:  true,
 			Example: examples,
-			Args:    cobra.MinimumNArgs(3),
+			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, outputOptions, err := MistApiV2GetRecord(args[0], args[1], args[2], params)
+				_, decoded, outputOptions, err := MistApiV2GetRecord(args[0], args[1], params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -8817,6 +8822,7 @@ func mistApiV2Register(subcommand bool) {
 		}
 		root.AddCommand(cmd)
 
+		cmd.Flags().String("cloud", "", "")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -13516,7 +13522,7 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use: "records ZONE CLOUD [CLOUD]",
+			Use: "records ZONE [RECORD]",
 			Aliases: []string{
 				"re",
 				"rec",
@@ -13533,7 +13539,7 @@ func mistApiV2Register(subcommand bool) {
 					params.Set("search", toComplete)
 					params.Set("only", "name")
 					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListRecords(args[0], args[1], params)
+					_, decoded, _, err := MistApiV2ListRecords(args[0], params)
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
@@ -13545,11 +13551,11 @@ func mistApiV2Register(subcommand bool) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
 
-			Args: cobra.MinimumNArgs(2),
+			Args: cobra.MinimumNArgs(1),
 			Run: func(cmd *cobra.Command, args []string) {
 				if len(args) == 1 {
 
-					_, decoded, outputOptions, err := MistApiV2GetRecord(args[0], args[1], args[2], params)
+					_, decoded, outputOptions, err := MistApiV2GetRecord(args[0], args[1], params)
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
@@ -13558,7 +13564,7 @@ func mistApiV2Register(subcommand bool) {
 					}
 				} else if len(args) == 0 {
 
-					_, decoded, outputOptions, err := MistApiV2ListRecords(args[0], args[1], params)
+					_, decoded, outputOptions, err := MistApiV2ListRecords(args[0], params)
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
@@ -13574,6 +13580,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetUsageFunc(customUsageFunc)
 		getCmd.AddCommand(cmd)
 
+		cmd.Flags().String("cloud", "", "")
 		cmd.Flags().String("only", "", "Only return these fields")
 		cmd.Flags().String("deref", "", "Dereference foreign keys")
 
@@ -13691,7 +13698,7 @@ func mistApiV2Register(subcommand bool) {
 					params := viper.New()
 					params.Set("only", "name")
 					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListRecords(args[0], args[1], params)
+					_, decoded, _, err := MistApiV2ListRecords(args[0], params)
 					if err != nil {
 						logger.Fatalf("Error calling operation: %s", err.Error())
 					}
