@@ -4958,7 +4958,7 @@ func MistApiV2CreateRecord(paramZone string, params *viper.Viper, body string) (
 }
 
 // MistApiV2DeleteRecord Delete record
-func MistApiV2DeleteRecord(paramZone string, paramRecord string, paramCloud string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
+func MistApiV2DeleteRecord(paramZone string, paramRecord string, params *viper.Viper) (*gentleman.Response, interface{}, cli.CLIOutputOptions, error) {
 	handlerPath := "delete-record"
 	if mistApiV2Subcommand {
 		handlerPath = "Mist CLI " + handlerPath
@@ -4980,7 +4980,10 @@ func MistApiV2DeleteRecord(paramZone string, paramRecord string, paramCloud stri
 
 	req := cli.Client.Delete().URL(url)
 
-	req = req.AddQuery("cloud", paramCloud)
+	paramCloud := params.GetString("cloud")
+	if paramCloud != "" {
+		req = req.AddQuery("cloud", fmt.Sprintf("%v", paramCloud))
+	}
 
 	cli.HandleBefore(handlerPath, params, req)
 
@@ -8766,15 +8769,15 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use:     "delete-record ZONE RECORD CLOUD",
+			Use:     "delete-record ZONE RECORD",
 			Short:   "Delete record",
 			Long:    cli.Markdown("Deletes a specific DNS record under a zone. REMOVE permission required on zone."),
 			Hidden:  true,
 			Example: examples,
-			Args:    cobra.MinimumNArgs(3),
+			Args:    cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, outputOptions, err := MistApiV2DeleteRecord(args[0], args[1], args[2], params)
+				_, decoded, outputOptions, err := MistApiV2DeleteRecord(args[0], args[1], params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -8786,6 +8789,8 @@ func mistApiV2Register(subcommand bool) {
 			},
 		}
 		root.AddCommand(cmd)
+
+		cmd.Flags().String("cloud", "", "")
 
 		cli.SetCustomFlags(cmd)
 
@@ -13667,7 +13672,7 @@ func mistApiV2Register(subcommand bool) {
 		var examples string
 
 		cmd := &cobra.Command{
-			Use: "record ZONE RECORD CLOUD",
+			Use: "record ZONE RECORD",
 			Aliases: []string{
 				"re",
 				"rec",
@@ -13707,26 +13712,12 @@ func mistApiV2Register(subcommand bool) {
 					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
 					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
 				}
-
-				if len(args) == 2 {
-					params := viper.New()
-					params.Set("only", "name")
-					var decoded interface{}
-					_, decoded, _, err := MistApiV2ListClouds(params)
-					if err != nil {
-						logger.Fatalf("Error calling operation: %s", err.Error())
-					}
-					data, _ := jmespath.Search("data[].name", decoded)
-					j, _ := json.Marshal(data)
-					str := strings.Replace(strings.Replace(strings.Replace(string(j[:]), "[", "", -1), "]", "", -1), " ", "\\ ", -1)
-					return strings.Split(str, ","), cobra.ShellCompDirectiveNoFileComp
-				}
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			},
-			Args: cobra.MinimumNArgs(3),
+			Args: cobra.MinimumNArgs(2),
 			Run: func(cmd *cobra.Command, args []string) {
 
-				_, decoded, outputOptions, err := MistApiV2DeleteRecord(args[0], args[1], args[2], params)
+				_, decoded, outputOptions, err := MistApiV2DeleteRecord(args[0], args[1], params)
 				if err != nil {
 					logger.Fatalf("Error calling operation: %s", err.Error())
 				}
@@ -13741,6 +13732,8 @@ func mistApiV2Register(subcommand bool) {
 		cmd.SetUsageTemplate("/api/v2#" + strings.ToLower("Delete") + "-" + strings.ReplaceAll(strings.ReplaceAll("/api/v2/zones/{zone}/records/{record}", "{", "-"), "}", "-"))
 		cmd.SetUsageFunc(customUsageFunc)
 		deleteCmd.AddCommand(cmd)
+
+		cmd.Flags().String("cloud", "", "")
 
 		cli.SetCustomFlags(cmd)
 
