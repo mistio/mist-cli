@@ -370,10 +370,17 @@ func streamingCmd() *cobra.Command {
 				logger.Println(err)
 				return
 			}
-			location, ok := r.(map[string]any)["data"].(map[string]any)["stream_uri"].(string)
-			if !ok {
-				logger.Println(errors.New("stream_uri not found"))
-				return
+			data, data_exists := r.(map[string]any)["data"]
+			var location string
+			if data_exists {
+				_, ok := data.(map[string]any)["stream_uri"].(string)
+				if !ok {
+					logger.Fatal(errors.New("stream_uri not found in api response for given JOB_ID"))
+					return
+				}
+				location = data.(map[string]any)["stream_uri"].(string)
+			} else {
+				logger.Fatal(errors.New("api response for given JOB_ID does not contain any data"))
 			}
 			defer resp.Body.Close()
 			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
