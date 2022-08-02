@@ -310,7 +310,7 @@ func sshCmd() *cobra.Command {
 
 func streamingCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "stream [job_id]",
+		Use:   "stream JOB_ID",
 		Short: "Stream logs of a running script",
 		Args:  cobra.ExactValidArgs(1),
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
