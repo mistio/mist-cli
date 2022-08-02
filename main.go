@@ -329,7 +329,7 @@ func streamingCmd() *cobra.Command {
 
 			server, err := getServer()
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			if !strings.HasSuffix(server, "/") {
@@ -345,40 +345,40 @@ func streamingCmd() *cobra.Command {
 				}}
 			req, err := http.NewRequest("GET", path, nil)
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			token, err := getToken()
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			req.Header.Add("Authorization", token)
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			var r any
 			decoder := json.NewDecoder(resp.Body)
 			err = decoder.Decode(&r)
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			location, ok := r.(map[string]any)["data"].(map[string]any)["stream_uri"].(string)
 			if !ok {
-				log.Println(errors.New("stream_uri not found"))
+				logger.Println(errors.New("stream_uri not found"))
 				return
 			}
 			defer resp.Body.Close()
 			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			if resp != nil && resp.StatusCode == 302 {
@@ -387,7 +387,7 @@ func streamingCmd() *cobra.Command {
 			}
 			defer c.Close()
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 
@@ -403,14 +403,14 @@ func streamingCmd() *cobra.Command {
 
 			err = updateTerminalSize(c, &writeMutex, writeWait)
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
 				return
 			}
 			go func() {
 				cmd.InOrStdin()
 				_, _, err := bufio.NewReader(cmd.InOrStdin()).ReadRune()
 				if err != nil {
-					log.Println(err)
+					logger.Println(err)
 					return
 				}
 				done <- true
