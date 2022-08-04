@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -306,6 +308,130 @@ func sshCmd() *cobra.Command {
 	return cmd
 }
 
+func streamingCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "stream JOB_ID",
+		Short: "Stream logs of a running script",
+		Args:  cobra.ExactValidArgs(1),
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			job_id := args[0]
+			// Time allowed to write a message to the peer.
+			writeWait := 10 * 3600 * time.Second
+
+			// Time allowed to read the next pong message from the peer.
+			pongWait := 20 * time.Second
+
+			// Send pings to peer with this period. Must be less than pongWait.
+			pingPeriod := (10 * time.Second * 9) / 10
+
+			server, err := getServer()
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			if !strings.HasSuffix(server, "/") {
+				server = server + "/"
+			}
+			if !strings.HasPrefix(server, "http") {
+				server = "http://" + server
+			}
+			path := server + "api/v2/jobs/" + job_id
+			client := &http.Client{
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+				}}
+			req, err := http.NewRequest("GET", path, nil)
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			token, err := getToken()
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			req.Header.Add("Authorization", token)
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			resp, err := client.Do(req)
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			var r any
+			decoder := json.NewDecoder(resp.Body)
+			err = decoder.Decode(&r)
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			data, data_exists := r.(map[string]any)["data"]
+			var location string
+			if data_exists {
+				_, ok := data.(map[string]any)["stream_uri"].(string)
+				if !ok {
+					logger.Fatal(errors.New("stream_uri not found in api response for given JOB_ID"))
+					return
+				}
+				location = data.(map[string]any)["stream_uri"].(string)
+			} else {
+				logger.Fatal(errors.New("api response for given JOB_ID does not contain any data"))
+			}
+			defer resp.Body.Close()
+			c, resp, err := websocket.DefaultDialer.Dial(location, http.Header{"Authorization": []string{token}})
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			if resp != nil && resp.StatusCode == 302 {
+				u, _ := resp.Location()
+				c, resp, err = websocket.DefaultDialer.Dial(u.String(), http.Header{"Authorization": []string{token}})
+			}
+			defer c.Close()
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+
+			current := console.Current()
+			if err := current.SetRaw(); err != nil {
+				panic(err)
+			}
+			terminal.NewTerminal(current, "")
+			defer current.Reset()
+			done := make(chan bool)
+
+			var writeMutex sync.Mutex
+
+			err = updateTerminalSize(c, &writeMutex, writeWait)
+			if err != nil {
+				logger.Println(err)
+				return
+			}
+			go func() {
+				cmd.InOrStdin()
+				_, _, err := bufio.NewReader(cmd.InOrStdin()).ReadRune()
+				if err != nil {
+					logger.Println(err)
+					return
+				}
+				done <- true
+				os.Exit(0)
+			}()
+			go readFromRemoteStdout(c, &done, pongWait)
+			go sendPingMessages(c, &done, writeWait, pingPeriod)
+			<-done
+		},
+	}
+	cmd.SetErr(os.Stderr)
+	return cmd
+}
+
 func getResourceMeterCmdRun(params *viper.Viper, resource string, detailedName bool) {
 	dtStart := params.GetString("start")
 	if dtStart == "" {
@@ -429,6 +555,7 @@ func main() {
 		EnvPrefix: "MIST",
 		Version:   "",
 	})
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Initialize the API key authentication.
 	apikey.Init("Authorization", apikey.LocationHeader)
@@ -458,6 +585,7 @@ func main() {
 	// Add ssh command
 	cli.Root.AddCommand(sshCmd())
 
+	cli.Root.AddCommand(streamingCmd())
 	// Add metering command
 	cli.Root.AddCommand(meterCmd())
 
