@@ -3010,7 +3010,7 @@ func MistApiV2ListRules(params *viper.Viper) (*gentleman.Response, map[string]in
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "actions", "tags"}, []string{"id", "name", "conditions", "selectors", "actions", "tags"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddRule Add rule
@@ -3163,7 +3163,7 @@ func MistApiV2GetRule(paramRule string, params *viper.Viper) (*gentleman.Respons
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "queries", "actions", "tags"}, []string{"id", "name", "resource_type", "selectors", "queries", "actions", "window", "frequency", "tags"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "actions", "tags"}, []string{"id", "name", "conditions", "selectors", "actions", "tags"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2RenameRule Rename rule
@@ -3383,7 +3383,7 @@ func MistApiV2ListSchedules(params *viper.Viper) (*gentleman.Response, map[strin
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "actions", "selectors", "when", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2AddSchedule Add schedule
@@ -3536,7 +3536,7 @@ func MistApiV2GetSchedule(paramSchedule string, params *viper.Viper) (*gentleman
 		decoded = after.(map[string]interface{})
 	}
 
-	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "action", "script_id", "params", "selectors", "schedule_type", "schedule_entry", "start_after", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
+	return resp, decoded, cli.CLIOutputOptions{[]string{"name", "tags"}, []string{"id", "name", "description", "tags", "enabled", "actions", "selectors", "when", "run_immediately", "owned_by", "created_by"}, []string{}, []string{}, map[string]string{}}, nil
 }
 
 // MistApiV2EditSchedule Edit schedule
@@ -7709,6 +7709,8 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
+		examples += "  " + cli.Root.CommandPath() + " add-rule actions[].action_type: stop, conditions[]{data_type: logs, query{aggregation: count, operator: ge, target: type:request and action:reboot_machine, threshold: 10}, window{period: hours, start: 2, stop: 1}}, description: @file, name: NewStopMachineIntervalRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 8, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
+
 		cmd := &cobra.Command{
 			Use:     "add-rule",
 			Short:   "Add rule",
@@ -7857,6 +7859,8 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
+		examples += "  " + cli.Root.CommandPath() + " edit-rule RULE actions[].action_type: reboot, conditions[]{data_type: logs, query{aggregation: count, operator: ge, target: type:request and action:stop_machine, threshold: 10}, window{period: hours, start: 0, stop: 2}}, description: @file, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 6, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
+
 		cmd := &cobra.Command{
 			Use:     "edit-rule RULE",
 			Short:   "Update rule",
@@ -7974,7 +7978,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " add-schedule action: reboot, description: This is a reboot machine schedule that runs once, enabled: true, name: TestMachineRebootSchedule, params: None, run_immediately: false, schedule_entry: 2022-06-05 00:00:00, schedule_type: one_off, selectors{ids: d5775984772949de820fa8279c306b30, type: machines}, start_after: 2022-06-08 00:00:00\n"
+		examples += "  " + cli.Root.CommandPath() + " add-schedule actions[].action_type: reboot, description: Backup schedule, enabled: true, expires: 2022-06-01T00:00:00Z, name: NewRebootMachineOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-22T18:19:28Z, schedule_type: one_off}\n"
 
 		cmd := &cobra.Command{
 			Use:     "add-schedule",
@@ -8089,9 +8093,9 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE description: This is a deactivated schedule, enabled: false, name: DeactivatedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: false, expires: 2022-06-28 00:00:00, name: DeactivatedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE description: This is a renamed schedule, name: RenamedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit-schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: true, expires: 2022-06-28 00:00:00, name: RenamedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
 		cmd := &cobra.Command{
 			Use:     "edit-schedule SCHEDULE",
@@ -12309,6 +12313,8 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
+		examples += "  " + cli.Root.CommandPath() + " add rule actions[].action_type: stop, conditions[]{data_type: logs, query{aggregation: count, operator: ge, target: type:request and action:reboot_machine, threshold: 10}, window{period: hours, start: 2, stop: 1}}, description: @file, name: NewStopMachineIntervalRule, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 8, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
+
 		cmd := &cobra.Command{
 			Use: "rule",
 			Aliases: []string{
@@ -12479,6 +12485,8 @@ func mistApiV2Register(subcommand bool) {
 		params := viper.New()
 
 		var examples string
+
+		examples += "  " + cli.Root.CommandPath() + " edit rule RULE actions[].action_type: reboot, conditions[]{data_type: logs, query{aggregation: count, operator: ge, target: type:request and action:stop_machine, threshold: 10}, window{period: hours, start: 0, stop: 2}}, description: @file, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, trigger_after{offset: 6, period: hours}, when{every: 2, period: hours, schedule_type: interval}\n"
 
 		cmd := &cobra.Command{
 			Use: "rule RULE",
@@ -12686,7 +12694,7 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " add schedule action: reboot, description: This is a reboot machine schedule that runs once, enabled: true, name: TestMachineRebootSchedule, params: None, run_immediately: false, schedule_entry: 2022-06-05 00:00:00, schedule_type: one_off, selectors{ids: d5775984772949de820fa8279c306b30, type: machines}, start_after: 2022-06-08 00:00:00\n"
+		examples += "  " + cli.Root.CommandPath() + " add schedule actions[].action_type: reboot, description: Backup schedule, enabled: true, expires: 2022-06-01T00:00:00Z, name: NewRebootMachineOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-22T18:19:28Z, schedule_type: one_off}\n"
 
 		cmd := &cobra.Command{
 			Use: "schedule",
@@ -12803,9 +12811,9 @@ func mistApiV2Register(subcommand bool) {
 
 		var examples string
 
-		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE description: This is a deactivated schedule, enabled: false, name: DeactivatedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: false, expires: 2022-06-28 00:00:00, name: DeactivatedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
-		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE description: This is a renamed schedule, name: RenamedSchedule\n"
+		examples += "  " + cli.Root.CommandPath() + " edit schedule SCHEDULE actions[].action_type: reboot, description: Renamed schedule, enabled: true, expires: 2022-06-28 00:00:00, name: RenamedOneOffSchedule, reminder{message: message, when{unit: seconds, value: 10}}, run_immediately: false, selectors[]{ids: 738f633d987148a8b2c1628e0cd416b4, type: machines}, when{datetime: 2022-06-25 18:19:23, schedule_type: one_off}\n"
 
 		cmd := &cobra.Command{
 			Use: "schedule SCHEDULE",
