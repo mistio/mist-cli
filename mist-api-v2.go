@@ -5705,7 +5705,7 @@ func mistApiV2Register(subcommand bool) {
 		cmd := &cobra.Command{
 			Use:     "list-sessions",
 			Short:   "List sessions",
-			Long:    cli.Markdown(""),
+			Long:    cli.Markdown("Return a list of active sessions"),
 			Hidden:  true,
 			Example: examples,
 			Args:    cobra.MinimumNArgs(0),
@@ -9404,7 +9404,7 @@ func mistApiV2Register(subcommand bool) {
 				"sessions",
 			},
 			Short:   "List sessions",
-			Long:    cli.Markdown(""),
+			Long:    cli.Markdown("Return a list of active sessions"),
 			Example: examples,
 			ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 				return nil, cobra.ShellCompDirectiveNoFileComp
